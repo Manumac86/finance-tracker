@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { GoalFormData, FormErrors, FormUpdateHandler } from "@/types/forms";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +20,16 @@ import { UIGoal } from "@/lib/db/schemas/goal";
 interface EditGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (goalId: string, goalData: Record<string, unknown>) => void;
+  onSave: (goalId: string, goalData: GoalFormData) => void;
   goal: UIGoal | null;
 }
 
-export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalProps) {
+export function EditGoalModal({
+  isOpen,
+  onClose,
+  onSave,
+  goal,
+}: EditGoalModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -34,7 +40,7 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
     categoryId: "",
     period: "monthly",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   // Load goal data when modal opens
   useEffect(() => {
@@ -56,14 +62,14 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
-    const newErrors: Record<string, string> = {};
-    
+    const newErrors: FormErrors = {};
+
     if (!formData.name.trim()) {
       newErrors.name = "Goal name is required";
     }
-    
+
     if (!formData.targetAmount || parseFloat(formData.targetAmount) <= 0) {
       newErrors.targetAmount = "Target amount must be greater than 0";
     }
@@ -79,7 +85,9 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
       description: formData.description || undefined,
       type: formData.type,
       target_amount: parseFloat(formData.targetAmount),
-      current_amount: formData.currentAmount ? parseFloat(formData.currentAmount) : undefined,
+      current_amount: formData.currentAmount
+        ? parseFloat(formData.currentAmount)
+        : undefined,
       target_date: formData.targetDate || undefined,
       category_id: formData.categoryId || undefined,
       period: formData.type === "spending_limit" ? formData.period : undefined,
@@ -94,10 +102,10 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
     onClose();
   };
 
-  const updateFormData = (field: string, value: unknown) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateFormData: FormUpdateHandler = (field: string, value: string | number | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -178,7 +186,9 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
                   type="number"
                   step="0.01"
                   value={formData.targetAmount}
-                  onChange={(e) => updateFormData("targetAmount", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("targetAmount", e.target.value)
+                  }
                   placeholder="0.00"
                   className={`bg-gray-800 border-gray-700 ${
                     errors.targetAmount ? "border-red-500" : ""
@@ -196,7 +206,9 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
                   type="number"
                   step="0.01"
                   value={formData.currentAmount}
-                  onChange={(e) => updateFormData("currentAmount", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("currentAmount", e.target.value)
+                  }
                   placeholder="0.00"
                   className="bg-gray-800 border-gray-700"
                 />
@@ -238,7 +250,10 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">
+            <Button
+              type="submit"
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
               Update Goal
             </Button>
           </div>

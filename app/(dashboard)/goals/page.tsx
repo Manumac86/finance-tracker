@@ -9,6 +9,7 @@ import { GoalCard } from "@/components/goals/goal-card";
 import { CreateGoalModal } from "@/components/goals/create-goal-modal";
 import { EditGoalModal } from "@/components/goals/edit-goal-modal";
 import { UIGoal } from "@/lib/db/schemas/goal";
+import { GoalFormData } from "@/types/forms";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -25,7 +26,7 @@ export default function GoalsPage() {
 
   const goals = data?.goals || [];
 
-  const handleCreateGoal = async (goalData: Record<string, unknown>) => {
+  const handleCreateGoal = async (goalData: GoalFormData) => {
     try {
       // Transform camelCase to snake_case for API
       const apiData = {
@@ -38,7 +39,7 @@ export default function GoalsPage() {
         category_id: goalData.categoryId,
         period: goalData.period,
       };
-      
+
       console.log("Sending goal data:", apiData); // Debug log
       const response = await fetch("/api/goals", {
         method: "POST",
@@ -64,7 +65,10 @@ export default function GoalsPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateGoal = async (goalId: string, updateData: Record<string, unknown>) => {
+  const handleUpdateGoal = async (
+    goalId: string,
+    updateData: GoalFormData
+  ) => {
     try {
       const response = await fetch(`/api/goals/${goalId}`, {
         method: "PUT",
@@ -216,13 +220,21 @@ export default function GoalsPage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-500">
-                  {goals.filter((goal) => !goal.isAchieved && (goal.progress ?? 0) >= 50).length}
+                  {
+                    goals.filter(
+                      (goal) => !goal.isAchieved && (goal.progress ?? 0) >= 50
+                    ).length
+                  }
                 </div>
                 <div className="text-sm text-gray-400">In Progress</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-500">
-                  {goals.filter((goal) => goal.deadlineStatus?.status === "approaching").length}
+                  {
+                    goals.filter(
+                      (goal) => goal.deadlineStatus?.status === "approaching"
+                    ).length
+                  }
                 </div>
                 <div className="text-sm text-gray-400">Due Soon</div>
               </div>

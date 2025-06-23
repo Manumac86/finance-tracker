@@ -20,7 +20,9 @@ export default function BudgetsPage() {
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
   const { data, error, isLoading, mutate } = useSWR<{ budgets: UIBudget[] }>(
-    `/api/budgets${selectedFilter !== "all" ? `?period=${selectedFilter}` : ""}`,
+    `/api/budgets${
+      selectedFilter !== "all" ? `?period=${selectedFilter}` : ""
+    }`,
     fetcher
   );
 
@@ -44,7 +46,7 @@ export default function BudgetsPage() {
         rollover_enabled: budgetData.rolloverEnabled,
         rollover_type: budgetData.rolloverType,
       };
-      
+
       console.log("Sending budget data:", apiData);
       const response = await fetch("/api/budgets", {
         method: "POST",
@@ -70,7 +72,10 @@ export default function BudgetsPage() {
     setIsEditModalOpen(true);
   };
 
-  const handleUpdateBudget = async (budgetId: string, updateData: Record<string, unknown>) => {
+  const handleUpdateBudget = async (
+    budgetId: string,
+    updateData: Record<string, unknown>
+  ) => {
     try {
       const response = await fetch(`/api/budgets/${budgetId}`, {
         method: "PUT",
@@ -107,10 +112,10 @@ export default function BudgetsPage() {
 
   const getBudgetStats = () => {
     const totalBudgets = budgets.length;
-    const activeBudgets = budgets.filter(b => b.isActive).length;
-    const overBudget = budgets.filter(b => b.status === "overspent").length;
-    const warningBudgets = budgets.filter(b => b.status === "warning").length;
-    
+    const activeBudgets = budgets.filter((b) => b.isActive).length;
+    const overBudget = budgets.filter((b) => b.status === "overspent").length;
+    const warningBudgets = budgets.filter((b) => b.status === "warning").length;
+
     return { totalBudgets, activeBudgets, overBudget, warningBudgets };
   };
 
@@ -144,9 +149,11 @@ export default function BudgetsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Budget Management</h1>
-          <p className="text-gray-400">Track your spending limits and stay on budget</p>
+          <p className="text-gray-400">
+            Track your spending limits and stay on budget
+          </p>
         </div>
-        <Button 
+        <Button
           onClick={() => setIsCreateModalOpen(true)}
           className="bg-emerald-600 hover:bg-emerald-700"
         >
@@ -159,7 +166,9 @@ export default function BudgetsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Total Budgets</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Total Budgets
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalBudgets}</div>
@@ -168,28 +177,40 @@ export default function BudgetsPage() {
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Active Budgets</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Active Budgets
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-500">{stats.activeBudgets}</div>
+            <div className="text-2xl font-bold text-emerald-500">
+              {stats.activeBudgets}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Warnings</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Warnings
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-500">{stats.warningBudgets}</div>
+            <div className="text-2xl font-bold text-yellow-500">
+              {stats.warningBudgets}
+            </div>
           </CardContent>
         </Card>
 
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Over Budget</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Over Budget
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-500">{stats.overBudget}</div>
+            <div className="text-2xl font-bold text-red-500">
+              {stats.overBudget}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -231,9 +252,7 @@ export default function BudgetsPage() {
       </div>
 
       {/* Budget Analytics */}
-      {budgets.length > 0 && (
-        <BudgetAnalytics budgets={budgets} />
-      )}
+      {budgets.length > 0 && <BudgetAnalytics budgets={budgets} />}
 
       {/* Budgets Grid */}
       {budgets.length === 0 ? (
@@ -247,7 +266,7 @@ export default function BudgetsPage() {
               <p className="text-gray-400 mb-4">
                 Create your first budget to start tracking your spending limits
               </p>
-              <Button 
+              <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >

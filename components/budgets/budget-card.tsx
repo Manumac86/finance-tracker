@@ -82,6 +82,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getProgressColor = (status?: string) => {
     switch (status) {
       case "overspent":

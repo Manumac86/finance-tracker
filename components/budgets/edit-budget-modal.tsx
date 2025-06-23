@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BudgetFormData, FormErrors, FormUpdateHandler } from "@/types/forms";
 import { X, DollarSign, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +22,16 @@ import { UIBudget } from "@/lib/db/schemas/budget";
 interface EditBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (budgetId: string, budgetData: Record<string, unknown>) => void;
+  onSave: (budgetId: string, budgetData: BudgetFormData) => void;
   budget: UIBudget | null;
 }
 
-export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetModalProps) {
+export function EditBudgetModal({
+  isOpen,
+  onClose,
+  onSave,
+  budget,
+}: EditBudgetModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -41,7 +47,7 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
     rolloverEnabled: false,
     rolloverType: "none",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   const [activeTab, setActiveTab] = useState("basic");
 
   // Load budget data when modal opens
@@ -69,14 +75,14 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
-    const newErrors: Record<string, string> = {};
-    
+    const newErrors: FormErrors = {};
+
     if (!formData.name.trim()) {
       newErrors.name = "Budget name is required";
     }
-    
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       newErrors.amount = "Budget amount must be greater than 0";
     }
@@ -117,10 +123,10 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
     onClose();
   };
 
-  const updateFormData = (field: string, value: unknown) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateFormData: FormUpdateHandler = (field: string, value: string | number | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -177,7 +183,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => updateFormData("description", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("description", e.target.value)
+                    }
                     placeholder="Optional description for this budget"
                     className="bg-gray-800 border-gray-700"
                     rows={3}
@@ -188,7 +196,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                   <Label htmlFor="budgetType">Budget Type</Label>
                   <Select
                     value={formData.budgetType}
-                    onValueChange={(value) => updateFormData("budgetType", value)}
+                    onValueChange={(value) =>
+                      updateFormData("budgetType", value)
+                    }
                   >
                     <SelectTrigger className="bg-gray-800 border-gray-700">
                       <SelectValue />
@@ -213,7 +223,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                         type="number"
                         step="0.01"
                         value={formData.amount}
-                        onChange={(e) => updateFormData("amount", e.target.value)}
+                        onChange={(e) =>
+                          updateFormData("amount", e.target.value)
+                        }
                         placeholder="0.00"
                         className={`pl-10 bg-gray-800 border-gray-700 ${
                           errors.amount ? "border-red-500" : ""
@@ -251,7 +263,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                       id="startDate"
                       type="date"
                       value={formData.startDate}
-                      onChange={(e) => updateFormData("startDate", e.target.value)}
+                      onChange={(e) =>
+                        updateFormData("startDate", e.target.value)
+                      }
                       className={`bg-gray-800 border-gray-700 ${
                         errors.startDate ? "border-red-500" : ""
                       }`}
@@ -267,7 +281,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                       id="endDate"
                       type="date"
                       value={formData.endDate}
-                      onChange={(e) => updateFormData("endDate", e.target.value)}
+                      onChange={(e) =>
+                        updateFormData("endDate", e.target.value)
+                      }
                       className="bg-gray-800 border-gray-700"
                     />
                     <p className="text-xs text-gray-500">
@@ -289,7 +305,7 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                       <Checkbox
                         id="alertEnabled"
                         checked={formData.alertEnabled}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           updateFormData("alertEnabled", checked)
                         }
                       />
@@ -298,20 +314,26 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
 
                     {formData.alertEnabled && (
                       <div className="space-y-2 ml-6">
-                        <Label htmlFor="alertThreshold">Alert Threshold (%)</Label>
+                        <Label htmlFor="alertThreshold">
+                          Alert Threshold (%)
+                        </Label>
                         <Input
                           id="alertThreshold"
                           type="number"
                           min="1"
                           max="100"
                           value={formData.alertThresholdPercentage}
-                          onChange={(e) => 
-                            updateFormData("alertThresholdPercentage", parseInt(e.target.value))
+                          onChange={(e) =>
+                            updateFormData(
+                              "alertThresholdPercentage",
+                              parseInt(e.target.value)
+                            )
                           }
                           className="bg-gray-800 border-gray-700 w-24"
                         />
                         <p className="text-xs text-gray-500">
-                          Get notified when you reach this percentage of your budget
+                          Get notified when you reach this percentage of your
+                          budget
                         </p>
                       </div>
                     )}
@@ -320,27 +342,31 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                       <Checkbox
                         id="overspendAlert"
                         checked={formData.overspendAlertEnabled}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           updateFormData("overspendAlertEnabled", checked)
                         }
                       />
-                      <Label htmlFor="overspendAlert">Alert when over budget</Label>
+                      <Label htmlFor="overspendAlert">
+                        Alert when over budget
+                      </Label>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <h4 className="font-medium">Rollover Settings</h4>
-                  
+
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="rolloverEnabled"
                       checked={formData.rolloverEnabled}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         updateFormData("rolloverEnabled", checked)
                       }
                     />
-                    <Label htmlFor="rolloverEnabled">Enable budget rollover</Label>
+                    <Label htmlFor="rolloverEnabled">
+                      Enable budget rollover
+                    </Label>
                   </div>
 
                   {formData.rolloverEnabled && (
@@ -348,7 +374,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                       <Label htmlFor="rolloverType">Rollover Type</Label>
                       <Select
                         value={formData.rolloverType}
-                        onValueChange={(value) => updateFormData("rolloverType", value)}
+                        onValueChange={(value) =>
+                          updateFormData("rolloverType", value)
+                        }
                       >
                         <SelectTrigger className="bg-gray-800 border-gray-700">
                           <SelectValue />
@@ -356,7 +384,9 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                         <SelectContent>
                           <SelectItem value="surplus">Surplus only</SelectItem>
                           <SelectItem value="deficit">Deficit only</SelectItem>
-                          <SelectItem value="both">Both surplus and deficit</SelectItem>
+                          <SelectItem value="both">
+                            Both surplus and deficit
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -401,7 +431,10 @@ export function EditBudgetModal({ isOpen, onClose, onSave, budget }: EditBudgetM
                   Next
                 </Button>
               ) : (
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">
+                <Button
+                  type="submit"
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
                   Update Budget
                 </Button>
               )}

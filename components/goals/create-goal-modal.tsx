@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GoalFormData, FormErrors } from "@/types/forms";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +20,14 @@ import { Badge } from "@/components/ui/badge";
 interface CreateGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (goalData: Record<string, unknown>) => void;
+  onSave: (goalData: GoalFormData) => void;
 }
 
-export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProps) {
+export function CreateGoalModal({
+  isOpen,
+  onClose,
+  onSave,
+}: CreateGoalModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -33,28 +38,28 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
     categoryId: "",
     period: "monthly",
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
-    const newErrors: Record<string, string> = {};
-    
+    const newErrors: FormErrors = {};
+
     if (!formData.name.trim()) {
       newErrors.name = "Goal name is required";
     }
-    
+
     if (!formData.targetAmount || parseFloat(formData.targetAmount) <= 0) {
       newErrors.targetAmount = "Target amount is required and must be positive";
     }
-    
+
     if (formData.type === "spending_limit" && !formData.categoryId) {
       newErrors.categoryId = "Category is required for spending limits";
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -66,7 +71,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
       description: formData.description || undefined,
       type: formData.type,
       targetAmount: parseFloat(formData.targetAmount),
-      currentAmount: formData.currentAmount ? parseFloat(formData.currentAmount) : 0,
+      currentAmount: formData.currentAmount
+        ? parseFloat(formData.currentAmount)
+        : 0,
       targetDate: formData.targetDate || undefined,
       categoryId: formData.categoryId || undefined,
       period: formData.type === "spending_limit" ? formData.period : undefined,
@@ -122,7 +129,7 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
             </Button>
           </div>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Goal Name */}
@@ -133,7 +140,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 type="text"
                 placeholder="e.g., Emergency Fund"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className="bg-gray-800 border-gray-700"
               />
               {errors.name && (
@@ -146,7 +155,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
               <Label htmlFor="goal-type">Goal Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value) => setFormData({ ...formData, type: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, type: value })
+                }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700">
                   <SelectValue />
@@ -167,13 +178,17 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 type="number"
                 placeholder="e.g., 5000"
                 value={formData.targetAmount}
-                onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, targetAmount: e.target.value })
+                }
                 className="bg-gray-800 border-gray-700"
               />
               {errors.targetAmount && (
-                <p className="text-rose-500 text-sm mt-1">{errors.targetAmount}</p>
+                <p className="text-rose-500 text-sm mt-1">
+                  {errors.targetAmount}
+                </p>
               )}
-              
+
               {/* Recommendations */}
               {getRecommendations().length > 0 && (
                 <div className="mt-2 space-y-1">
@@ -184,7 +199,12 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                         key={index}
                         variant="secondary"
                         className="cursor-pointer hover:bg-gray-700"
-                        onClick={() => setFormData({ ...formData, targetAmount: rec.value.toString() })}
+                        onClick={() =>
+                          setFormData({
+                            ...formData,
+                            targetAmount: rec.value.toString(),
+                          })
+                        }
                       >
                         {rec.label}
                       </Badge>
@@ -203,7 +223,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                   type="number"
                   placeholder="e.g., 3000"
                   value={formData.currentAmount}
-                  onChange={(e) => setFormData({ ...formData, currentAmount: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currentAmount: e.target.value })
+                  }
                   className="bg-gray-800 border-gray-700"
                 />
                 <p className="text-sm text-gray-400 mt-1">
@@ -218,7 +240,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 <Label htmlFor="category">Category</Label>
                 <Select
                   value={formData.categoryId}
-                  onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, categoryId: value })
+                  }
                 >
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue placeholder="Select a category" />
@@ -226,11 +250,15 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                   <SelectContent className="bg-gray-800 border-gray-700">
                     <SelectItem value="cat_dining_123">Dining</SelectItem>
                     <SelectItem value="cat_shopping_123">Shopping</SelectItem>
-                    <SelectItem value="cat_entertainment_123">Entertainment</SelectItem>
+                    <SelectItem value="cat_entertainment_123">
+                      Entertainment
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.categoryId && (
-                  <p className="text-rose-500 text-sm mt-1">{errors.categoryId}</p>
+                  <p className="text-rose-500 text-sm mt-1">
+                    {errors.categoryId}
+                  </p>
                 )}
               </div>
             )}
@@ -241,7 +269,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 <Label htmlFor="period">Period</Label>
                 <Select
                   value={formData.period}
-                  onValueChange={(value) => setFormData({ ...formData, period: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, period: value })
+                  }
                 >
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue />
@@ -262,7 +292,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 id="target-date"
                 type="date"
                 value={formData.targetDate}
-                onChange={(e) => setFormData({ ...formData, targetDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, targetDate: e.target.value })
+                }
                 className="bg-gray-800 border-gray-700"
               />
             </div>
@@ -274,7 +306,9 @@ export function CreateGoalModal({ isOpen, onClose, onSave }: CreateGoalModalProp
                 id="description"
                 placeholder="Add any notes about this goal..."
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="bg-gray-800 border-gray-700"
                 rows={3}
               />

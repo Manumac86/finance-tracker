@@ -18,6 +18,7 @@ export function BudgetAlertsPanel() {
   const { alerts, isEnabled, setIsEnabled, dismissAlert, clearAllAlerts } = useBudgetAlerts();
   const [isOpen, setIsOpen] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
