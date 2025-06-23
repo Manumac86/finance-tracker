@@ -77,7 +77,7 @@ export function AddTransactionButton() {
           toast.error('Voice recognition failed. Please try again.');
         };
         
-        recognition.onresult = (event) => {
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = event.results[0][0].transcript;
           setDescription(prev => prev ? `${prev} ${transcript}` : transcript);
           setIsListening(false);

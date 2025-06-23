@@ -2,6 +2,16 @@ import { selectBudgets, selectTransactions } from "@/lib/db/postgres";
 import { UIBudget } from "@/lib/db/schemas/budget";
 import { UITransaction } from "@/lib/db/schemas/transaction";
 
+export interface BudgetAnalysis {
+  spentAmount: number;
+  remainingAmount: number;
+  percentageUsed: number;
+  isExceeded: boolean;
+  daysRemaining: number;
+  dailySpendingRate: number;
+  projectedSpending: number;
+}
+
 export interface BudgetAlert {
   id: string;
   type: 'threshold_reached' | 'budget_exceeded' | 'approaching_limit';
@@ -68,7 +78,7 @@ export class BudgetAlertService {
         // Check if this transaction affects this budget
         if (!this.transactionAffectsBudget(newTransaction, budget)) continue;
 
-        const previousSpent = analysis.actualSpent - Math.abs(newTransaction.amount);
+        const previousSpent = analysis.spentAmount - Math.abs(newTransaction.amount);
         const previousPercentage = budget.amount > 0 ? (previousSpent / budget.amount) * 100 : 0;
         const currentPercentage = analysis.percentageUsed;
 
@@ -124,17 +134,27 @@ export class BudgetAlertService {
       return isInPeriod && isExpense;
     });
 
-    const actualSpent = relevantTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    const percentageUsed = budget.amount > 0 ? (actualSpent / budget.amount) * 100 : 0;
-    const remainingAmount = budget.amount - actualSpent;
+    const spentAmount = relevantTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    const percentageUsed = budget.amount > 0 ? (spentAmount / budget.amount) * 100 : 0;
+    const remainingAmount = budget.amount - spentAmount;
+    const isExceeded = spentAmount > budget.amount;
+    
+    // Calculate days remaining and spending rates
+    const now = new Date();
+    const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+    const daysPassed = Math.max(1, Math.ceil((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+    const dailySpendingRate = daysPassed > 0 ? spentAmount / daysPassed : 0;
+    const totalDays = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+    const projectedSpending = dailySpendingRate * totalDays;
 
     return {
-      actualSpent,
+      spentAmount,
       percentageUsed,
       remainingAmount,
-      transactionCount: relevantTransactions.length,
-      startDate,
-      endDate,
+      isExceeded,
+      daysRemaining,
+      dailySpendingRate,
+      projectedSpending,
     };
   }
 
@@ -173,7 +193,7 @@ export class BudgetAlertService {
 
     switch (threshold.type) {
       case 'threshold_reached':
-        message = `You've used ${threshold.percentage}% of your "${budget.name}" budget (${formatCurrency(analysis.actualSpent)} of ${formatCurrency(budget.amount)})`;
+        message = `You've used ${threshold.percentage}% of your "${budget.name}" budget (${formatCurrency(analysis.spentAmount)} of ${formatCurrency(budget.amount)})`;
         if (threshold.percentage >= 75) {
           recommendation = `Consider reducing spending in this category. You have ${formatCurrency(analysis.remainingAmount)} remaining.`;
         }
@@ -193,7 +213,7 @@ export class BudgetAlertService {
       type: threshold.type,
       severity: threshold.severity,
       budget,
-      currentSpent: analysis.actualSpent,
+      currentSpent: analysis.spentAmount,
       percentageUsed: analysis.percentageUsed,
       message,
       recommendation,
@@ -217,10 +237,10 @@ export class BudgetAlertService {
       type: 'budget_exceeded',
       severity: 'critical',
       budget,
-      currentSpent: analysis.actualSpent,
+      currentSpent: analysis.spentAmount,
       percentageUsed: analysis.percentageUsed,
       message: `Budget exceeded! You've overspent "${budget.name}" by ${formatCurrency(overspentAmount)}`,
-      recommendation: `Your total spending (${formatCurrency(analysis.actualSpent)}) has exceeded your budget of ${formatCurrency(budget.amount)}. Consider reviewing your recent transactions.`,
+      recommendation: `Your total spending (${formatCurrency(analysis.spentAmount)}) has exceeded your budget of ${formatCurrency(budget.amount)}. Consider reviewing your recent transactions.`,
       timestamp,
     };
   }

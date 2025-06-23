@@ -91,7 +91,7 @@ export function suggestMerchant(input: string, recentTransactions: { name?: stri
   
   recentTransactions.forEach(transaction => {
     const name = transaction.name?.toLowerCase();
-    if (name && name.includes(inputLower)) {
+    if (name && name.includes(inputLower) && transaction.name) {
       merchantCounts[transaction.name] = (merchantCounts[transaction.name] || 0) + 1;
     }
   });

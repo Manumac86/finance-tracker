@@ -216,7 +216,7 @@ export default function GoalsPage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-500">
-                  {goals.filter((goal) => !goal.isAchieved && goal.progress >= 50).length}
+                  {goals.filter((goal) => !goal.isAchieved && (goal.progress ?? 0) >= 50).length}
                 </div>
                 <div className="text-sm text-gray-400">In Progress</div>
               </div>

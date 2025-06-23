@@ -1,0 +1,14 @@
+{
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "warn",
+    "react/no-unescaped-entities": "warn",
+    "@typescript-eslint/no-require-imports": "warn",
+    "react-hooks/rules-of-hooks": "error"
+  },
+  "ignorePatterns": [
+    "lib/db/mongo.ts",
+    "lib/db/createCategories.mongodb.js", 
+    "lib/db/insertCategories.mongodb.js"
+  ]
+}
