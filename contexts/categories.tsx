@@ -1,13 +1,22 @@
 "use client";
-import { Category } from "@/lib/db/schemas";
-import { fetcher } from "@/lib/utils";
-import { methodType } from "@/types/common.type";
-import { createContext, useContext, useEffect, useState } from "react";
+import { UICategory } from "@/lib/db/schemas/category";
+import { createContext, useContext } from "react";
 import useSWR from "swr";
 
-export const SWRContext = createContext({
-  categories: [] as Category[],
-  setCategories: (newCategories: Category[]) => {},
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+interface CategoriesContextType {
+  categories: UICategory[];
+  isLoading: boolean;
+  error: any;
+  mutate: () => void;
+}
+
+export const CategoriesContext = createContext<CategoriesContextType>({
+  categories: [],
+  isLoading: false,
+  error: null,
+  mutate: () => {},
 });
 
 export const CategoriesProvider = ({
@@ -15,33 +24,29 @@ export const CategoriesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  const { data } = useSWR<Category[]>(
-    ["/api/categories", "GET"],
-    ([url, method]: [string, methodType]) => fetcher(url, method)
+  const { data, error, isLoading, mutate } = useSWR<UICategory[]>(
+    "/api/categories",
+    fetcher
   );
 
-  useEffect(() => {
-    if (data) {
-      setCategories(data);
-    }
-  }, [data]);
-
   return (
-    <SWRContext.Provider
+    <CategoriesContext.Provider
       value={{
-        categories,
-        setCategories: (newCategories: Category[]) =>
-          setCategories(newCategories),
+        categories: data || [],
+        isLoading,
+        error,
+        mutate,
       }}
     >
       {children}
-    </SWRContext.Provider>
+    </CategoriesContext.Provider>
   );
 };
 
 export const useCategories = () => {
-  const { categories, setCategories } = useContext(SWRContext);
-  return { categories, setCategories };
+  const context = useContext(CategoriesContext);
+  if (!context) {
+    throw new Error("useCategories must be used within a CategoriesProvider");
+  }
+  return context;
 };

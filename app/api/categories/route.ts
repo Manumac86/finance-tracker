@@ -1,13 +1,18 @@
-import { NextResponse } from "next/server";
-import { getCategories } from "@/services/categories";
+import { NextRequest, NextResponse } from "next/server";
+import { selectCategories } from "@/lib/db/postgres";
+import { transformCategoryToUI } from "@/lib/db/schemas/category";
 
-export const GET = async (req: Request) => {
-  const { data, success } = await getCategories();
-  if (!success) {
-    return new Response(
-      JSON.stringify({ error: "Failed to fetch categories" }),
+export async function GET(request: NextRequest) {
+  try {
+    const categories = await selectCategories();
+    const uiCategories = categories.map(transformCategoryToUI);
+    
+    return NextResponse.json(uiCategories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch categories" },
       { status: 500 }
     );
   }
-  return NextResponse.json(data);
-};
+}

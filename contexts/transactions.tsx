@@ -1,13 +1,22 @@
 "use client";
-import { Transaction } from "@/lib/db/schemas";
-import { fetcher } from "@/lib/utils";
-import { methodType } from "@/types/common.type";
-import { createContext, useContext, useEffect, useState } from "react";
+import { UITransaction } from "@/lib/db/schemas/transaction";
+import { createContext, useContext } from "react";
 import useSWR from "swr";
 
-export const SWRContext = createContext({
-  transactions: [] as Transaction[],
-  setTransactions: (newTransactions: Transaction[]) => {},
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+interface TransactionsContextType {
+  transactions: UITransaction[];
+  isLoading: boolean;
+  error: any;
+  mutate: () => void;
+}
+
+export const TransactionsContext = createContext<TransactionsContextType>({
+  transactions: [],
+  isLoading: false,
+  error: null,
+  mutate: () => {},
 });
 
 export const TransactionsProvider = ({
@@ -15,33 +24,29 @@ export const TransactionsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  const { data } = useSWR<Transaction[]>(
-    ["/api/transactions", "GET"],
-    ([url, method]: [string, methodType]) => fetcher(url, method)
+  const { data, error, isLoading, mutate } = useSWR<{ transactions: UITransaction[] }>(
+    "/api/transactions",
+    fetcher
   );
 
-  useEffect(() => {
-    if (data) {
-      setTransactions(data);
-    }
-  }, [data]);
-
   return (
-    <SWRContext.Provider
+    <TransactionsContext.Provider
       value={{
-        transactions,
-        setTransactions: (newTransactions: Transaction[]) =>
-          setTransactions(newTransactions),
+        transactions: data?.transactions || [],
+        isLoading,
+        error,
+        mutate,
       }}
     >
       {children}
-    </SWRContext.Provider>
+    </TransactionsContext.Provider>
   );
 };
 
 export const useTransactions = () => {
-  const { transactions, setTransactions } = useContext(SWRContext);
-  return { transactions, setTransactions };
+  const context = useContext(TransactionsContext);
+  if (!context) {
+    throw new Error("useTransactions must be used within a TransactionsProvider");
+  }
+  return context;
 };

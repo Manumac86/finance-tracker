@@ -2,8 +2,8 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { CalendarIcon, Plus } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { CalendarIcon, Plus, Mic, MicOff, Upload } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -34,44 +34,200 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/contexts/categories";
+import { useTransactions } from "@/contexts/transactions";
+import { useBudgetAlerts } from "@/contexts/budget-alerts";
+import { suggestCategory, suggestMerchant, getQuickMerchantSuggestions } from "@/lib/utils/smart-suggestions";
+import { BulkTransactionModal } from "@/components/bulk-transaction-modal";
+import { toast } from "sonner";
 
 export function AddTransactionButton() {
   const { categories } = useCategories();
+  const { transactions, mutate } = useTransactions();
+  const { checkBudgetAlerts } = useBudgetAlerts();
   const [open, setOpen] = useState(false);
   const [transactionType, setTransactionType] = useState("expense");
   const [amount, setAmount] = useState("");
+  const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState<Date>();
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [merchantSuggestions, setMerchantSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Initialize speech recognition
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        setSpeechSupported(true);
+        const recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = () => {
+          setIsListening(false);
+          toast.error('Voice recognition failed. Please try again.');
+        };
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setDescription(prev => prev ? `${prev} ${transcript}` : transcript);
+          setIsListening(false);
+        };
+        
+        recognitionRef.current = recognition;
+      }
+    }
+  }, []);
+
+  // Voice recognition handlers
+  const startListening = () => {
+    if (recognitionRef.current && !isListening) {
+      recognitionRef.current.start();
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!name.trim()) {
+      toast.error("Transaction name is required");
+      return;
+    }
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      toast.error("Amount must be greater than 0");
+      return;
+    }
+    
+    if (!category) {
+      toast.error("Please select a category");
+      return;
+    }
 
-    // Here you would typically save the transaction data
-    console.log({
-      type: transactionType,
-      amount: Number.parseFloat(amount),
-      category,
-      date: date || new Date(),
-      description,
-    });
+    setIsSubmitting(true);
 
-    // Reset form and close modal
-    resetForm();
-    setOpen(false);
+    try {
+      const transactionData = {
+        amount: parseFloat(amount),
+        transactionType: transactionType as 'income' | 'expense',
+        name: name.trim(),
+        description: description.trim() || undefined,
+        categoryId: category,
+        transactionDate: (date || new Date()).toISOString(),
+      };
+
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(transactionData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create transaction');
+      }
+
+      const result = await response.json();
+      
+      // Check for budget alerts (only for expenses)
+      if (transactionType === 'expense' && result.transaction) {
+        await checkBudgetAlerts(result.transaction);
+      }
+      
+      // Refresh the transactions list
+      mutate();
+      
+      // Show success message
+      toast.success(`${transactionType === 'income' ? 'Income' : 'Expense'} added successfully!`);
+      
+      // Reset form and close modal
+      resetForm();
+      setOpen(false);
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create transaction');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {
     setTransactionType("expense");
     setAmount("");
+    setName("");
     setCategory("");
     setDate(undefined);
     setDescription("");
+    setMerchantSuggestions([]);
+    setShowSuggestions(false);
+    if (isListening) {
+      stopListening();
+    }
+  };
+
+  // Handle merchant name changes and provide suggestions
+  const handleNameChange = (value: string) => {
+    setName(value);
+    
+    if (value.length >= 2) {
+      const suggestions = suggestMerchant(value, transactions);
+      setMerchantSuggestions(suggestions);
+      setShowSuggestions(suggestions.length > 0);
+      
+      // Auto-suggest category based on merchant name
+      if (!category && value.length >= 3) {
+        const suggestedCategory = suggestCategory(value, categories);
+        if (suggestedCategory?.id) {
+          setCategory(suggestedCategory.id);
+        }
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  // Handle category changes and provide merchant suggestions
+  const handleCategoryChange = (categoryId: string) => {
+    setCategory(categoryId);
+    
+    // Provide merchant suggestions based on category
+    const selectedCategory = categories.find(cat => cat.id === categoryId);
+    if (selectedCategory && !name) {
+      const quickSuggestions = getQuickMerchantSuggestions(selectedCategory.name);
+      setMerchantSuggestions(quickSuggestions);
+      setShowSuggestions(true);
+    }
   };
 
   return (
     <>
-      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center">
+      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center gap-4">
+        <Button
+          onClick={() => setBulkModalOpen(true)}
+          size="lg"
+          className="h-12 px-4 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-700 hover:shadow-xl"
+        >
+          <Upload className="h-5 w-5 mr-2" />
+          Bulk
+          <span className="sr-only">Bulk Add Transactions</span>
+        </Button>
         <Button
           onClick={() => setOpen(true)}
           size="lg"
@@ -130,6 +286,54 @@ export function AddTransactionButton() {
                 </RadioGroup>
               </div>
 
+              <div className="space-y-2 relative">
+                <Label htmlFor="name">Transaction Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="e.g., Grocery Store, Salary"
+                  className="bg-gray-800 border-gray-700 text-gray-50"
+                  value={name}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  onFocus={() => {
+                    if (merchantSuggestions.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
+                  onBlur={() => {
+                    // Delay hiding suggestions to allow clicks
+                    setTimeout(() => setShowSuggestions(false), 200);
+                  }}
+                  required
+                />
+                
+                {/* Merchant Suggestions Dropdown */}
+                {showSuggestions && merchantSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg">
+                    {merchantSuggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="px-3 py-2 cursor-pointer hover:bg-gray-700 text-sm"
+                        onClick={() => {
+                          setName(suggestion);
+                          setShowSuggestions(false);
+                          
+                          // Auto-suggest category for this merchant
+                          if (!category) {
+                            const suggestedCategory = suggestCategory(suggestion, categories);
+                            if (suggestedCategory?.id) {
+                              setCategory(suggestedCategory.id);
+                            }
+                          }
+                        }}
+                      >
+                        {suggestion}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="amount">Amount</Label>
                 <div className="relative flex items-center justify-center">
@@ -149,7 +353,7 @@ export function AddTransactionButton() {
 
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory} required>
+                <Select value={category} onValueChange={handleCategoryChange} required>
                   <SelectTrigger
                     id="category"
                     className="bg-gray-800 border-gray-700 text-gray-50"
@@ -158,7 +362,7 @@ export function AddTransactionButton() {
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700 text-gray-50">
                     {categories.map((cat) => (
-                      <SelectItem key={cat._id} value={cat._id || cat.name}>
+                      <SelectItem key={cat.id} value={cat.id || cat.name}>
                         {cat.name}
                       </SelectItem>
                     ))}
@@ -195,13 +399,43 @@ export function AddTransactionButton() {
 
               <div className="space-y-2">
                 <Label htmlFor="description">Description (Optional)</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Add notes about this transaction"
-                  className="bg-gray-800 border-gray-700 text-gray-50"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
+                <div className="relative">
+                  <Textarea
+                    id="description"
+                    placeholder="Add notes about this transaction"
+                    className="bg-gray-800 border-gray-700 text-gray-50 pr-12"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                  {speechSupported && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className={`absolute top-2 right-2 h-8 w-8 p-0 ${
+                        isListening 
+                          ? 'text-red-500 hover:text-red-600' 
+                          : 'text-gray-400 hover:text-gray-300'
+                      }`}
+                      onClick={isListening ? stopListening : startListening}
+                      disabled={isSubmitting}
+                    >
+                      {isListening ? (
+                        <MicOff className="h-4 w-4" />
+                      ) : (
+                        <Mic className="h-4 w-4" />
+                      )}
+                      <span className="sr-only">
+                        {isListening ? 'Stop voice input' : 'Start voice input'}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+                {isListening && (
+                  <p className="text-sm text-blue-400">
+                    🎤 Listening... Speak now to add description
+                  </p>
+                )}
               </div>
             </div>
             <DialogFooter>
@@ -215,6 +449,7 @@ export function AddTransactionButton() {
               </Button>
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className={cn(
                   "text-white",
                   transactionType === "expense"
@@ -222,12 +457,18 @@ export function AddTransactionButton() {
                     : "bg-emerald-600 hover:bg-emerald-700"
                 )}
               >
-                Save Transaction
+                {isSubmitting ? "Saving..." : "Save Transaction"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Transaction Modal */}
+      <BulkTransactionModal 
+        open={bulkModalOpen} 
+        onOpenChange={setBulkModalOpen} 
+      />
     </>
   );
 }
