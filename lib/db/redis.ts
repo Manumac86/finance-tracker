@@ -20,7 +20,7 @@ export const CACHE_KEYS = {
 };
 
 // Cache helper functions
-export async function cacheUserGoals(userId: string, goals: any[], ttl = 300) {
+export async function cacheUserGoals(userId: string, goals: unknown[], ttl = 300) {
   await redis.setex(CACHE_KEYS.USER_GOALS(userId), ttl, JSON.stringify(goals));
 }
 
@@ -50,7 +50,7 @@ export async function invalidateUserGoalsCache(userId: string) {
   await redis.del(CACHE_KEYS.USER_GOALS(userId));
 }
 
-export async function cacheGoalDetail(goalId: string, goal: any, ttl = 600) {
+export async function cacheGoalDetail(goalId: string, goal: unknown, ttl = 600) {
   await redis.setex(CACHE_KEYS.GOAL_DETAIL(goalId), ttl, JSON.stringify(goal));
 }
 
@@ -72,7 +72,7 @@ export async function invalidateGoalCache(goalId: string, userId: string) {
   ]);
 }
 
-export async function cacheDashboardData(userId: string, date: string, data: any, ttl = 300) {
+export async function cacheDashboardData(userId: string, date: string, data: unknown, ttl = 300) {
   await redis.setex(CACHE_KEYS.DASHBOARD(userId, date), ttl, JSON.stringify(data));
 }
 
@@ -88,7 +88,7 @@ export async function getCachedDashboardData(userId: string, date: string) {
 }
 
 // Budget cache functions
-export async function cacheUserBudgets(userId: string, budgets: any[], ttl = 300) {
+export async function cacheUserBudgets(userId: string, budgets: unknown[], ttl = 300) {
   try {
     await redis.setex(CACHE_KEYS.USER_BUDGETS(userId), ttl, JSON.stringify(budgets));
   } catch (error) {
@@ -116,7 +116,7 @@ export async function invalidateUserBudgetsCache(userId: string) {
   }
 }
 
-export async function cacheBudgetDetail(budgetId: string, budget: any, ttl = 600) {
+export async function cacheBudgetDetail(budgetId: string, budget: unknown, ttl = 600) {
   try {
     await redis.setex(CACHE_KEYS.BUDGET_DETAIL(budgetId), ttl, JSON.stringify(budget));
   } catch (error) {

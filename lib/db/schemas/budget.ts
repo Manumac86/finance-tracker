@@ -117,7 +117,7 @@ export interface UIBudget {
   
   // Status and metadata
   isActive: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
   

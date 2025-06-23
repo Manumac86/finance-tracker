@@ -6,7 +6,7 @@
  */
 
 // Use any type for Clerk Appearance to avoid import issues
-export const clerkDarkTheme: any = {
+export const clerkDarkTheme: Record<string, unknown> = {
   elements: {
     formButtonPrimary: 
       'bg-emerald-600 hover:bg-emerald-700 text-white min-h-[44px] text-sm normal-case',

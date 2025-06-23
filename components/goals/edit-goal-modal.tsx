@@ -94,7 +94,7 @@ export function EditGoalModal({ isOpen, onClose, onSave, goal }: EditGoalModalPr
     onClose();
   };
 
-  const updateFormData = (field: string, value: any) => {
+  const updateFormData = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));

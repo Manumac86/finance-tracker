@@ -63,7 +63,7 @@ export class BudgetAlertService {
       for (const budget of budgets) {
         if (!budget.alertEnabled) continue;
 
-        const analysis = this.analyzeBudget(budget, transactions, now);
+        const analysis = this.analyzeBudget(budget, transactions);
         
         // Check if this transaction affects this budget
         if (!this.transactionAffectsBudget(newTransaction, budget)) continue;
@@ -103,7 +103,7 @@ export class BudgetAlertService {
   }
 
   // Analyze a single budget
-  private analyzeBudget(budget: UIBudget, transactions: UITransaction[], now: Date) {
+  private analyzeBudget(budget: UIBudget, transactions: UITransaction[]) {
     const startDate = new Date(budget.startDate);
     const endDate = budget.endDate ? new Date(budget.endDate) : this.getPeriodEndDate(startDate, budget.period);
     
@@ -160,7 +160,7 @@ export class BudgetAlertService {
   }
 
   // Create a threshold alert
-  private createAlert(budget: UIBudget, analysis: any, threshold: AlertThreshold, timestamp: Date): BudgetAlert {
+  private createAlert(budget: UIBudget, analysis: BudgetAnalysis, threshold: AlertThreshold, timestamp: Date): BudgetAlert {
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -202,7 +202,7 @@ export class BudgetAlertService {
   }
 
   // Create a budget exceeded alert
-  private createExceededAlert(budget: UIBudget, analysis: any, timestamp: Date): BudgetAlert {
+  private createExceededAlert(budget: UIBudget, analysis: BudgetAnalysis, timestamp: Date): BudgetAlert {
     const formatCurrency = (amount: number) => {
       return new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -250,14 +250,13 @@ export class BudgetAlertService {
   }
 
   // Get current budget status for all budgets
-  async getBudgetStatuses(userId: string): Promise<{ budget: UIBudget; analysis: any; alerts: string[] }[]> {
+  async getBudgetStatuses(userId: string): Promise<{ budget: UIBudget; analysis: BudgetAnalysis; alerts: string[] }[]> {
     try {
       const budgets = await selectBudgets(userId);
       const transactions = await selectTransactions(userId, 1000);
-      const now = new Date();
 
       return budgets.map(budget => {
-        const analysis = this.analyzeBudget(budget, transactions, now);
+        const analysis = this.analyzeBudget(budget, transactions);
         const alerts: string[] = [];
 
         if (analysis.percentageUsed >= 100) {

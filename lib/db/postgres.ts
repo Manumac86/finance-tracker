@@ -12,9 +12,9 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export { supabase };
 
-export async function query<T = any>(
+export async function query<T = unknown>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<T[]> {
   const { data, error } = await supabase.rpc("execute_sql", {
     query: text,
@@ -28,9 +28,9 @@ export async function query<T = any>(
   return data || [];
 }
 
-export async function queryOne<T = any>(
+export async function queryOne<T = unknown>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<T | null> {
   const rows = await query<T>(text, params);
   return rows[0] || null;
@@ -58,7 +58,7 @@ export async function selectGoals(userId: string, type?: string) {
   return data || [];
 }
 
-export async function insertGoal(goalData: any) {
+export async function insertGoal(goalData: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("goals")
     .insert(goalData)
@@ -75,7 +75,7 @@ export async function insertGoal(goalData: any) {
 export async function updateGoal(
   goalId: string,
   userId: string,
-  updateData: any
+  updateData: Record<string, unknown>
 ) {
   const { data, error } = await supabase
     .from("goals")
@@ -138,7 +138,7 @@ export async function selectCategoryById(id: string) {
   return data;
 }
 
-export async function insertCategory(category: any) {
+export async function insertCategory(category: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("categories")
     .insert([category])
@@ -152,7 +152,7 @@ export async function insertCategory(category: any) {
   return data;
 }
 
-export async function updateCategory(id: string, updates: any) {
+export async function updateCategory(id: string, updates: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("categories")
     .update(updates)
@@ -199,7 +199,7 @@ export async function selectTransactions(userId: string, limit: number = 50) {
   return data || [];
 }
 
-export async function insertTransaction(transaction: any) {
+export async function insertTransaction(transaction: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("transactions")
     .insert([transaction])
@@ -213,7 +213,7 @@ export async function insertTransaction(transaction: any) {
   return data;
 }
 
-export async function updateTransaction(id: string, updates: any) {
+export async function updateTransaction(id: string, updates: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("transactions")
     .update(updates)
@@ -290,7 +290,7 @@ export async function selectBudgets(userId: string, period?: string) {
   return data || [];
 }
 
-export async function insertBudget(budgetData: any) {
+export async function insertBudget(budgetData: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("budgets")
     .insert(budgetData)
@@ -307,7 +307,7 @@ export async function insertBudget(budgetData: any) {
 export async function updateBudget(
   budgetId: string,
   userId: string,
-  updateData: any
+  updateData: Record<string, unknown>
 ) {
   const { data, error } = await supabase
     .from("budgets")
@@ -341,7 +341,7 @@ export async function deleteBudget(budgetId: string, userId: string) {
 }
 
 // Budget alerts operations
-export async function insertBudgetAlert(alertData: any) {
+export async function insertBudgetAlert(alertData: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("budget_alerts")
     .insert(alertData)

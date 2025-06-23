@@ -82,7 +82,7 @@ export function suggestCategory(transactionName: string, categories: UICategory[
 }
 
 // Suggest merchant/payee name based on partial input
-export function suggestMerchant(input: string, recentTransactions: any[]): string[] {
+export function suggestMerchant(input: string, recentTransactions: { name?: string }[]): string[] {
   const inputLower = input.toLowerCase().trim();
   if (inputLower.length < 2) return [];
 

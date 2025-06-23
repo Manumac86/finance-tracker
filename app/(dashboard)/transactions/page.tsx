@@ -49,7 +49,7 @@ export default function TransactionsPage() {
 
   // Filtered and sorted transactions
   const filteredTransactions = useMemo(() => {
-    let filtered = transactions.filter((transaction) => {
+    const filtered = transactions.filter((transaction) => {
       // Search filter
       if (searchTerm && !transaction.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
           !transaction.description?.toLowerCase().includes(searchTerm.toLowerCase()) &&
