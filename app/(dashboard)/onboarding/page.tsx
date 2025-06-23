@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
-import { ChevronRight, Target, TrendingUp, DollarSign, Check } from "lucide-react";
+import { ChevronRight, DollarSign, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -165,7 +165,7 @@ export default function OnboardingPage() {
                   Welcome, {user?.firstName || "there"}!
                 </h2>
                 <p className="text-xl text-gray-400">
-                  Let's get you started on your financial journey
+                  Let&apos;s get you started on your financial journey
                 </p>
                 
                 <div className="mt-8 space-y-4">
@@ -174,7 +174,7 @@ export default function OnboardingPage() {
                   </h3>
                   <p className="text-gray-400 max-w-2xl mx-auto">
                     Track expenses, set goals, and build wealth - all in one place.
-                    We'll help you understand key financial concepts and get you 
+                    We&apos;ll help you understand key financial concepts and get you 
                     started with smart money management.
                   </p>
                 </div>
@@ -196,7 +196,7 @@ export default function OnboardingPage() {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-6">What is a Budget?</h2>
               <p className="text-gray-400 mb-8">
-                A budget helps you plan your spending and saving. It's like a 
+                A budget helps you plan your spending and saving. It&apos;s like a 
                 roadmap for your money, showing you where it comes from and 
                 where it goes.
               </p>
@@ -261,7 +261,7 @@ export default function OnboardingPage() {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold mb-6">Set Your First Goal</h2>
               <p className="text-gray-400 mb-8">
-                Goals help you stay motivated and track your progress. Let's 
+                Goals help you stay motivated and track your progress. Let&apos;s 
                 create your first financial goal!
               </p>
               

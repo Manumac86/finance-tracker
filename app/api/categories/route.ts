@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { selectCategories } from "@/lib/db/postgres";
 import { transformCategoryToUI } from "@/lib/db/schemas/category";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const categories = await selectCategories();
     const uiCategories = categories.map(transformCategoryToUI);

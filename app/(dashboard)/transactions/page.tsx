@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { Filter, Search, Calendar, TrendingUp, TrendingDown, Download, Plus, Loader2 } from "lucide-react";
+import { Filter, Search, TrendingUp, TrendingDown, Download, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -13,18 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useTransactions } from "@/contexts/transactions";
 import { useCategories } from "@/contexts/categories";
 import { TransactionCard } from "@/components/transactions/transaction-card";
 import { AddTransactionButton } from "@/components/add-transaction-button";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 
 export default function TransactionsPage() {
   const { transactions, isLoading, error } = useTransactions();
@@ -456,7 +447,7 @@ export default function TransactionsPage() {
             {/* End of List Indicator */}
             {displayedTransactions.length >= filteredTransactions.length && filteredTransactions.length > 0 && (
               <div className="text-center py-8 text-gray-400">
-                <p className="text-sm">You've reached the end of the list</p>
+                <p className="text-sm">You&apos;ve reached the end of the list</p>
                 <p className="text-xs mt-1">
                   Showing {displayedTransactions.length} of {filteredTransactions.length} transactions
                 </p>

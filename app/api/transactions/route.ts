@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { selectTransactions, insertTransaction, selectCategoryById } from "@/lib/db/postgres";
-import { createTransactionSchema, transformTransactionToUI, transformTransactionToDB } from "@/lib/db/schemas/transaction";
+import { createTransactionSchema, transformTransactionToUI } from "@/lib/db/schemas/transaction";
 
 export async function GET(request: NextRequest) {
   try {
