@@ -2,7 +2,10 @@
 // Mock jsPDF and jspdf-autotable
 const mockJsPDF = {
   setFontSize: jest.fn(),
+  setFont: jest.fn(),
   text: jest.fn(),
+  line: jest.fn(),
+  addPage: jest.fn(),
   output: jest.fn().mockReturnValue(new Blob(['mock pdf content'], { type: 'application/pdf' })),
   autoTable: jest.fn(),
 };
@@ -113,20 +116,20 @@ describe('PDF Generator', () => {
       
       await generateClientSidePdf(mockTransactions, mockCategories, mockOptions);
       
-      expect(mockJsPDF.autoTable).toHaveBeenCalledWith({
-        startY: 100,
-        head: [['Date', 'Description', 'Amount', 'Category', 'Notes']],
-        body: [
-          ['2024-01-15', 'Grocery Store', '-$45.67', 'Groceries', 'Weekly groceries'],
-          ['2024-01-01', 'Salary', '+$5000.00', 'Salary', 'Monthly salary']
-        ],
-        theme: 'grid',
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [41, 128, 185] },
-        columnStyles: {
-          2: { halign: 'right' }
-        }
-      });
+      // Verify table headers are created
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Date', 20, 100);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Description', 60, 100);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Amount', 120, 100);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Category', 160, 100);
+      
+      // Verify separator line is drawn
+      expect(mockJsPDF.line).toHaveBeenCalledWith(20, 105, 190, 105);
+      
+      // Verify transaction data is displayed
+      expect(mockJsPDF.text).toHaveBeenCalledWith('2024-01-15', 20, 110);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Grocery Store', 60, 110);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('-$45.67', 120, 110);
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Groceries', 160, 110);
     });
 
     it('should handle transactions without categories', async () => {
@@ -141,13 +144,8 @@ describe('PDF Generator', () => {
       
       await generateClientSidePdf(transactionsWithoutCategory, mockCategories, mockOptions);
       
-      expect(mockJsPDF.autoTable).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: [
-            ['2024-01-15', 'Grocery Store', '-$45.67', 'Uncategorized', 'Weekly groceries']
-          ]
-        })
-      );
+      // Verify "Uncategorized" is displayed for transactions without categories
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Uncategorized', 160, 110);
     });
 
     it('should use default title when none provided', async () => {
@@ -176,13 +174,10 @@ describe('PDF Generator', () => {
       
       await generateClientSidePdf(mockTransactions, mockCategories, mockOptions);
       
-      const autoTableCall = mockJsPDF.autoTable.mock.calls[0][0];
-      const tableBody = autoTableCall.body;
-      
       // Expense should have negative sign
-      expect(tableBody[0][2]).toBe('-$45.67');
-      // Income should have positive sign
-      expect(tableBody[1][2]).toBe('+$5000.00');
+      expect(mockJsPDF.text).toHaveBeenCalledWith('-$45.67', 120, 110);
+      // Income should have positive sign  
+      expect(mockJsPDF.text).toHaveBeenCalledWith('+$5000.00', 120, 120);
     });
 
     it('should limit transactions to 50 items for table display', async () => {
@@ -197,11 +192,11 @@ describe('PDF Generator', () => {
       
       await generateClientSidePdf(manyTransactions, mockCategories, mockOptions);
       
-      const autoTableCall = mockJsPDF.autoTable.mock.calls[0][0];
-      const tableBody = autoTableCall.body;
+      // Should be limited to 50 transactions - verify the 50th transaction is displayed
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Transaction 49', 60, expect.any(Number));
       
-      // Should be limited to 50 transactions
-      expect(tableBody).toHaveLength(50);
+      // Should NOT display the 51st transaction (index 50)
+      expect(mockJsPDF.text).not.toHaveBeenCalledWith('Transaction 50', 60, expect.any(Number));
     });
   });
 
@@ -229,15 +224,13 @@ describe('PDF Generator', () => {
       
       await generateClientSidePdf(transactionsWithoutDescription, mockCategories, mockOptions);
       
-      const autoTableCall = mockJsPDF.autoTable.mock.calls[0][0];
-      const tableBody = autoTableCall.body;
-      
-      expect(tableBody[0][4]).toBe('');
+      // The test is that it doesn't crash - description handling is done internally
+      expect(mockJsPDF.text).toHaveBeenCalledWith('Grocery Store', 60, 110);
     });
   });
 
   describe('Dynamic Import Handling', () => {
-    it('should properly import jsPDF and jspdf-autotable', async () => {
+    it('should properly import jsPDF', async () => {
       // This test ensures the dynamic imports work correctly
       const { generateClientSidePdf } = await import('@/lib/services/pdf-generator');
       
