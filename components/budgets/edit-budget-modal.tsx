@@ -32,7 +32,7 @@ export function EditBudgetModal({
   onSave,
   budget,
 }: EditBudgetModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BudgetFormData>({
     name: "",
     description: "",
     budgetType: "category",
@@ -100,17 +100,21 @@ export function EditBudgetModal({
     const budgetData: BudgetFormData = {
       name: formData.name,
       description: formData.description || "",
-      budgetType: formData.budgetType as 'category' | 'total' | 'custom',
+      budgetType: formData.budgetType as "category" | "total" | "custom",
       categoryId: formData.categoryId || "",
       amount: formData.amount,
-      period: formData.period as 'weekly' | 'monthly' | 'yearly',
+      period: formData.period as "weekly" | "monthly" | "quarterly" | "yearly",
       startDate: formData.startDate,
       endDate: formData.endDate || "",
       alertThresholdPercentage: formData.alertThresholdPercentage,
       alertEnabled: formData.alertEnabled,
       overspendAlertEnabled: formData.overspendAlertEnabled,
       rolloverEnabled: formData.rolloverEnabled,
-      rolloverType: formData.rolloverType as 'none' | 'surplus' | 'deficit' | 'both',
+      rolloverType: formData.rolloverType as
+        | "none"
+        | "surplus"
+        | "deficit"
+        | "both",
     };
 
     onSave(budget.id!, budgetData);
@@ -123,7 +127,10 @@ export function EditBudgetModal({
     onClose();
   };
 
-  const updateFormData: FormUpdateHandler = (field: string, value: string | number | boolean) => {
+  const updateFormData: FormUpdateHandler = (
+    field: string,
+    value: string | number | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
