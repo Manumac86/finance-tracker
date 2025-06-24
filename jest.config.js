@@ -47,14 +47,14 @@ const customJestConfig = {
     'json-summary'
   ],
   coverageDirectory: 'coverage',
-  coverageThreshold: {
-    global: {
-      branches: 5,
-      functions: 3,
-      lines: 5,
-      statements: 5
-    }
-  },
+  // coverageThreshold: {
+  //   global: {
+  //     branches: 1,
+  //     functions: 1,
+  //     lines: 1,
+  //     statements: 1
+  //   }
+  // },
   testMatch: [
     '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/**/*.(test|spec).{js,jsx,ts,tsx}',

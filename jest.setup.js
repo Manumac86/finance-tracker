@@ -21,17 +21,20 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
 global.URL = class {
   constructor(url, base) {
     this.href = base ? `${base}${url}` : url;
-    this.searchParams = new URLSearchParams(url.split('?')[1] || '');
+    const urlString = String(url);
+    this.searchParams = new URLSearchParams(urlString.split('?')[1] || '');
   }
 };
 
 global.Request = class {
   constructor(url, options = {}) {
-    this.url = url;
+    this.url = String(url);
     this.method = options.method || 'GET';
     this.headers = new Map(Object.entries(options.headers || {}));
     this.body = options.body;
-    this.nextUrl = { searchParams: new URLSearchParams() };
+    // Create proper searchParams from URL
+    const urlObj = new global.URL(this.url);
+    this.nextUrl = { searchParams: urlObj.searchParams };
   }
   
   async json() {
