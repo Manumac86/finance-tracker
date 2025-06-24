@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock the database functions
 const mockSelectTransactions = jest.fn();
@@ -26,8 +26,7 @@ jest.mock('@/lib/db/schemas/transaction', () => ({
   },
 }));
 
-import * as mockDb from '@/lib/db/postgres';
-import * as mockSchema from '@/lib/db/schemas/transaction';
+// Remove unused imports
 
 describe('Transaction Functionality', () => {
   const mockDbTransaction = {
@@ -282,7 +281,7 @@ describe('Transaction Functionality', () => {
         // Missing required fields
       };
 
-      mockTransformToUI.mockImplementation((tx) => {
+      mockTransformToUI.mockImplementation((tx: { amount?: number; transaction_type?: string }) => {
         if (!tx.amount || !tx.transaction_type) {
           throw new Error('Missing required fields for transformation');
         }
@@ -357,7 +356,7 @@ describe('Transaction Functionality', () => {
         transactionType: 'expense' as const,
       };
 
-      mockParse.mockImplementation((data) => {
+      mockParse.mockImplementation((data: { amount: number }) => {
         if (data.amount <= 0) {
           throw new Error('Amount must be positive');
         }
@@ -375,7 +374,7 @@ describe('Transaction Functionality', () => {
         transactionDate: 'invalid-date',
       };
 
-      mockParse.mockImplementation((data) => {
+      mockParse.mockImplementation((data: { transactionDate: string }) => {
         if (isNaN(Date.parse(data.transactionDate))) {
           throw new Error('Invalid date format');
         }
@@ -390,10 +389,10 @@ describe('Transaction Functionality', () => {
     it('should validate transaction type enum', () => {
       const invalidTypeTransaction = {
         ...mockCreateTransactionData,
-        transactionType: 'invalid' as any,
+        transactionType: 'invalid' as string,
       };
 
-      mockParse.mockImplementation((data) => {
+      mockParse.mockImplementation((data: { transactionType: string }) => {
         if (!['income', 'expense'].includes(data.transactionType)) {
           throw new Error('Invalid transaction type');
         }
@@ -411,7 +410,7 @@ describe('Transaction Functionality', () => {
         name: 'a'.repeat(256),
       };
 
-      mockParse.mockImplementation((data) => {
+      mockParse.mockImplementation((data: { name: string }) => {
         if (data.name.length > 255) {
           throw new Error('Name too long');
         }
@@ -431,7 +430,7 @@ describe('Transaction Functionality', () => {
         { ...mockDbTransaction, id: 'bulk-2', name: 'Bulk Transaction 2' },
       ];
 
-      mockInsertTransaction.mockImplementation((transaction) => 
+      mockInsertTransaction.mockImplementation((transaction: typeof mockDbTransaction) => 
         Promise.resolve(transaction)
       );
 
@@ -449,7 +448,7 @@ describe('Transaction Functionality', () => {
         { id: 'trans-2', updates: { amount: 200 } },
       ];
 
-      mockUpdateTransaction.mockImplementation((id, updates) => 
+      mockUpdateTransaction.mockImplementation((id: string, updates: Partial<typeof mockDbTransaction>) => 
         Promise.resolve({ ...mockDbTransaction, id, ...updates })
       );
 
@@ -469,7 +468,7 @@ describe('Transaction Functionality', () => {
         { ...mockDbTransaction, id: 'valid-3' },
       ];
 
-      mockInsertTransaction.mockImplementation((transaction) => {
+      mockInsertTransaction.mockImplementation((transaction: typeof mockDbTransaction) => {
         if (!transaction.name) {
           return Promise.reject(new Error('Name is required'));
         }
