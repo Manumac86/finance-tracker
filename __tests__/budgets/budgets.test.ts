@@ -37,7 +37,9 @@ describe("Budget Functionality", () => {
     rollover_enabled: false,
     rollover_type: "none" as const,
     current_spent: 0,
+    last_calculated_at: "2024-01-01T10:00:00Z",
     is_active: true,
+    metadata: {},
     created_at: "2024-01-01T10:00:00Z",
     updated_at: "2024-01-01T10:00:00Z",
   };
@@ -59,7 +61,11 @@ describe("Budget Functionality", () => {
     rolloverEnabled: false,
     rolloverType: "none" as const,
     currentSpent: 0,
+    lastCalculatedAt: "2024-01-01T10:00:00Z",
     isActive: true,
+    metadata: {},
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z",
   };
 
   const mockCreateBudgetData = {
@@ -78,17 +84,31 @@ describe("Budget Functionality", () => {
   const mockTransactions = [
     {
       id: "trans-1",
+      user_id: "user-1",
       category_id: "cat-1",
+      category_name: "Groceries",
+      category_icon: "🛒",
+      name: "Grocery Store",
       amount: 150.0,
-      transaction_type: "expense",
+      transaction_type: "expense" as const,
       transaction_date: "2024-01-15",
+      is_active: true,
+      created_at: "2024-01-15T10:00:00Z",
+      updated_at: "2024-01-15T10:00:00Z",
     },
     {
       id: "trans-2",
+      user_id: "user-1",
       category_id: "cat-1",
+      category_name: "Groceries",
+      category_icon: "🛒",
+      name: "Supermarket",
       amount: 200.0,
-      transaction_type: "expense",
+      transaction_type: "expense" as const,
       transaction_date: "2024-01-20",
+      is_active: true,
+      created_at: "2024-01-20T10:00:00Z",
+      updated_at: "2024-01-20T10:00:00Z",
     },
   ];
 
@@ -278,9 +298,9 @@ describe("Budget Functionality", () => {
       (mockDb.updateBudget as jest.Mock).mockResolvedValue(updatedBudget);
 
       const { updateBudget } = mockDb;
-      const result = await updateBudget("budget-1", updates);
+      const result = await updateBudget("budget-1", "user-1", updates);
 
-      expect(updateBudget).toHaveBeenCalledWith("budget-1", updates);
+      expect(updateBudget).toHaveBeenCalledWith("budget-1", "user-1", updates);
       expect(result).toEqual(updatedBudget);
     });
 
@@ -290,9 +310,9 @@ describe("Budget Functionality", () => {
       (mockDb.updateBudget as jest.Mock).mockResolvedValue(updatedBudget);
 
       const { updateBudget } = mockDb;
-      const result = await updateBudget("budget-1", partialUpdates);
+      const result = await updateBudget("budget-1", "user-1", partialUpdates);
 
-      expect(updateBudget).toHaveBeenCalledWith("budget-1", partialUpdates);
+      expect(updateBudget).toHaveBeenCalledWith("budget-1", "user-1", partialUpdates);
       expect(result.amount).toBe(750.0);
     });
 
@@ -301,7 +321,7 @@ describe("Budget Functionality", () => {
 
       const { updateBudget } = mockDb;
 
-      await expect(updateBudget("non-existent", {})).rejects.toThrow(
+      await expect(updateBudget("non-existent", "user-1", {})).rejects.toThrow(
         "Budget not found"
       );
     });
@@ -327,9 +347,9 @@ describe("Budget Functionality", () => {
       (mockDb.deleteBudget as jest.Mock).mockResolvedValue(true);
 
       const { deleteBudget } = mockDb;
-      const result = await deleteBudget("budget-1");
+      const result = await deleteBudget("budget-1", "user-1");
 
-      expect(deleteBudget).toHaveBeenCalledWith("budget-1");
+      expect(deleteBudget).toHaveBeenCalledWith("budget-1", "user-1");
       expect(result).toBe(true);
     });
 
@@ -337,7 +357,7 @@ describe("Budget Functionality", () => {
       (mockDb.deleteBudget as jest.Mock).mockResolvedValue(false);
 
       const { deleteBudget } = mockDb;
-      const result = await deleteBudget("non-existent");
+      const result = await deleteBudget("non-existent", "user-1");
 
       expect(result).toBe(false);
     });
@@ -347,7 +367,7 @@ describe("Budget Functionality", () => {
 
       const { deleteBudget } = mockDb;
 
-      await expect(deleteBudget("budget-1")).rejects.toThrow("Database error");
+      await expect(deleteBudget("budget-1", "user-1")).rejects.toThrow("Database error");
     });
   });
 
@@ -465,26 +485,26 @@ describe("Budget Functionality", () => {
       expect(categoryBudget.category_id).toBe("cat-1");
     });
 
-    it("should handle overall spending budgets", () => {
-      const overallBudget = {
+    it("should handle total spending budgets", () => {
+      const totalBudget = {
         ...mockDbBudget,
-        budget_type: "overall",
+        budget_type: "total" as const,
         category_id: null,
       };
 
-      expect(overallBudget.budget_type).toBe("overall");
-      expect(overallBudget.category_id).toBeNull();
+      expect(totalBudget.budget_type).toBe("total");
+      expect(totalBudget.category_id).toBeNull();
     });
 
-    it("should handle income budgets", () => {
-      const incomeBudget = {
+    it("should handle custom budgets", () => {
+      const customBudget = {
         ...mockDbBudget,
-        budget_type: "income",
+        budget_type: "custom" as const,
         amount: 3000.0,
       };
 
-      expect(incomeBudget.budget_type).toBe("income");
-      expect(incomeBudget.amount).toBe(3000.0);
+      expect(customBudget.budget_type).toBe("custom");
+      expect(customBudget.amount).toBe(3000.0);
     });
 
     it("should validate budget type enum", () => {
@@ -494,7 +514,7 @@ describe("Budget Functionality", () => {
       };
 
       (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
-        const validTypes = ["category", "overall", "income"];
+        const validTypes = ["category", "total", "custom"];
         if (!validTypes.includes(data.budgetType)) {
           throw new Error("Invalid budget type");
         }
@@ -564,24 +584,24 @@ describe("Budget Functionality", () => {
       expect(noRolloverBudget.rollover_type).toBe("none");
     });
 
-    it("should handle unused rollover", () => {
-      const rolloverBudget = { ...mockDbBudget, rollover_type: "unused" };
-      expect(rolloverBudget.rollover_type).toBe("unused");
+    it("should handle surplus rollover", () => {
+      const rolloverBudget = { ...mockDbBudget, rollover_type: "surplus" as const };
+      expect(rolloverBudget.rollover_type).toBe("surplus");
     });
 
     it("should calculate rollover amount for unused funds", () => {
       const budgetAmount = 500.0;
       const spent = 350.0;
       const unused = budgetAmount - spent;
-      const rolloverType = "unused";
+      const rolloverType = "surplus";
 
-      if (rolloverType === "unused" && unused > 0) {
+      if (rolloverType === "surplus" && unused > 0) {
         expect(unused).toBe(150.0);
       }
     });
 
-    it("should handle percentage rollover", () => {
-      const rolloverBudget = { ...mockDbBudget, rollover_type: "percentage" };
+    it("should handle both rollover", () => {
+      const rolloverBudget = { ...mockDbBudget, rollover_type: "both" as const };
       const rolloverPercentage = 0.1; // 10%
       const budgetAmount = 500.0;
       const rolloverAmount = budgetAmount * rolloverPercentage;
@@ -624,7 +644,7 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.transformBudgetToUI(incompleteBudget);
+        mockSchema.transformBudgetToUI(incompleteBudget as any);
       }).toThrow("Missing required fields for transformation");
     });
   });

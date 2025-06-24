@@ -1,4 +1,3 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
 // Mock the dependencies
@@ -38,42 +37,63 @@ describe('Export API Endpoints', () => {
   const mockTransactions = [
     {
       id: '1',
+      user_id: 'user1',
       name: 'Test Transaction',
       amount: 100,
-      transaction_type: 'expense',
+      transaction_type: 'expense' as const,
       transaction_date: '2024-01-15',
       category_id: 'cat1',
+      category_name: 'Test Category',
+      category_icon: '🏷️',
+      is_active: true,
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z',
     }
   ];
 
   const mockCategories = [
     {
       id: 'cat1',
+      user_id: 'user1',
       name: 'Test Category',
-      type: 'expense',
-      is_business_expense: false,
+      icon: '🏷️',
+      color: '#6B7280',
+      category_type: 'personal' as const,
+      parent_category_id: null,
+      is_tax_deductible: false,
+      tags: [],
+      is_system_category: false,
+      sort_order: 0,
+      is_active: true,
+      created_at: '2024-01-15T10:00:00Z',
+      updated_at: '2024-01-15T10:00:00Z',
     }
   ];
 
   const mockUITransactions = [
     {
       id: '1',
+      userId: 'user1',
       name: 'Test Transaction',
       amount: 100,
-      transactionType: 'expense',
+      transactionType: 'expense' as const,
       transactionDate: '2024-01-15',
       categoryId: 'cat1',
-      userId: 'user1',
+      categoryName: 'Test Category',
+      categoryIcon: '🏷️',
+      isActive: true,
+      createdAt: '2024-01-15T10:00:00Z',
+      updatedAt: '2024-01-15T10:00:00Z',
     }
   ];
 
   beforeEach(() => {
     jest.clearAllMocks();
     
-    mockAuth.mockResolvedValue({ userId: 'user1' });
+    mockAuth.mockResolvedValue({ userId: 'user1' } as any);
     mockSelectTransactions.mockResolvedValue(mockTransactions);
     mockSelectCategories.mockResolvedValue(mockCategories);
-    mockTransformTransactionToUI.mockReturnValue(mockUITransactions[0]);
+    mockTransformTransactionToUI.mockReturnValue(mockUITransactions[0] as any);
     mockDataExport.validateExportRequest.mockReturnValue({ isValid: true, errors: [] });
   });
 
@@ -102,7 +122,7 @@ describe('Export API Endpoints', () => {
     });
 
     it('should require authentication', async () => {
-      mockAuth.mockResolvedValue({ userId: null });
+      mockAuth.mockResolvedValue({ userId: null } as any);
 
       const { POST } = await import('@/app/api/export/csv/route');
       
@@ -313,9 +333,9 @@ describe('Export API Endpoints', () => {
 
     it('should include summary statistics in tax report', async () => {
       const mockIncomeTransactions = [
-        { ...mockUITransactions[0], transactionType: 'income', amount: 2000 }
+        { ...mockUITransactions[0], transactionType: 'income' as const, amount: 2000 }
       ];
-      mockTransformTransactionToUI.mockReturnValue(mockIncomeTransactions[0]);
+      mockTransformTransactionToUI.mockReturnValue(mockIncomeTransactions[0] as any);
       mockDataExport.applyDateRangeFilter.mockReturnValue(mockIncomeTransactions);
       mockDataExport.generateTaxReport.mockReturnValue({
         businessExpenses: [],

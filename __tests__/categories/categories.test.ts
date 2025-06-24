@@ -23,12 +23,16 @@ describe('Category Functionality', () => {
     id: 'cat-1',
     user_id: 'user-1',
     name: 'Groceries',
+    description: 'Food and grocery expenses',
     icon: '🛒',
     color: '#10B981',
     category_type: 'personal' as const,
     parent_category_id: null,
     is_tax_deductible: false,
+    tax_category_code: null,
+    business_expense_type: null,
     tags: [],
+    project_id: null,
     is_system_category: false,
     sort_order: 0,
     is_active: true,
@@ -40,25 +44,35 @@ describe('Category Functionality', () => {
     id: 'cat-1',
     userId: 'user-1',
     name: 'Groceries',
+    description: 'Food and grocery expenses',
     icon: '🛒',
     color: '#10B981',
     categoryType: 'personal' as const,
     parentCategoryId: null,
     isTaxDeductible: false,
+    taxCategoryCode: null,
+    businessExpenseType: null,
     tags: [],
+    projectId: null,
     isSystemCategory: false,
     sortOrder: 0,
     isActive: true,
+    createdAt: '2024-01-01T10:00:00Z',
+    updatedAt: '2024-01-01T10:00:00Z',
   };
 
   const mockCreateCategoryData = {
     name: 'Transportation',
+    description: 'Transportation and vehicle expenses',
     icon: '🚗',
     color: '#3B82F6',
     categoryType: 'business' as const,
     parentCategoryId: null,
     isTaxDeductible: false,
+    taxCategoryCode: null,
+    businessExpenseType: 'travel' as const,
     tags: [],
+    projectId: null,
   };
 
   beforeEach(() => {
@@ -96,7 +110,7 @@ describe('Category Functionality', () => {
     });
 
     it('should validate required fields', () => {
-      const requiredFields = ['name', 'type'];
+      const requiredFields = ['name', 'icon'];
       
       requiredFields.forEach(field => {
         const incompleteData = { ...mockCreateCategoryData };
@@ -115,12 +129,12 @@ describe('Category Functionality', () => {
     it('should validate category type enum', () => {
       const invalidTypeCategory = {
         ...mockCreateCategoryData,
-        type: 'invalid-type',
+        categoryType: 'invalid-type',
       };
 
       (mockSchema.createCategorySchema.parse as jest.Mock).mockImplementation((data: any) => {
-        const validTypes = ['income', 'expense'];
-        if (!validTypes.includes(data.type)) {
+        const validTypes = ['personal', 'business'];
+        if (!validTypes.includes(data.categoryType)) {
           throw new Error('Invalid category type');
         }
         return data;
@@ -293,10 +307,10 @@ describe('Category Functionality', () => {
     });
 
     it('should prevent updating system default categories', async () => {
-      const defaultCategory = { ...mockDbCategory, is_default: true };
+      const defaultCategory = { ...mockDbCategory, is_system_category: true };
       (mockDb.updateCategory as jest.Mock).mockImplementation((id: string, updates: any) => {
-        if (defaultCategory.is_default && updates.name) {
-          return Promise.reject(new Error('Cannot modify default category name'));
+        if (defaultCategory.is_system_category && updates.name) {
+          return Promise.reject(new Error('Cannot modify system category name'));
         }
         return Promise.resolve({ ...defaultCategory, ...updates });
       });
@@ -304,7 +318,7 @@ describe('Category Functionality', () => {
       const { updateCategory } = mockDb;
 
       await expect(updateCategory('cat-1', { name: 'New Name' }))
-        .rejects.toThrow('Cannot modify default category name');
+        .rejects.toThrow('Cannot modify system category name');
     });
   });
 
@@ -451,47 +465,47 @@ describe('Category Functionality', () => {
   });
 
   describe('Category Types and Business Logic', () => {
-    it('should handle income categories', () => {
-      const incomeCategory = {
+    it('should handle personal categories', () => {
+      const personalCategory = {
         ...mockDbCategory,
-        type: 'income',
+        category_type: 'personal',
         name: 'Salary',
         icon: '💰',
       };
 
-      expect(incomeCategory.type).toBe('income');
+      expect(personalCategory.category_type).toBe('personal');
     });
 
-    it('should handle expense categories', () => {
-      const expenseCategory = {
+    it('should handle business categories', () => {
+      const businessCategory = {
         ...mockDbCategory,
-        type: 'expense',
+        category_type: 'business',
         name: 'Utilities',
         icon: '⚡',
       };
 
-      expect(expenseCategory.type).toBe('expense');
+      expect(businessCategory.category_type).toBe('business');
     });
 
-    it('should mark business expense categories', () => {
-      const businessCategory = {
+    it('should mark tax deductible categories', () => {
+      const taxDeductibleCategory = {
         ...mockDbCategory,
-        is_business_expense: true,
+        is_tax_deductible: true,
         name: 'Office Supplies',
       };
 
-      expect(businessCategory.is_business_expense).toBe(true);
+      expect(taxDeductibleCategory.is_tax_deductible).toBe(true);
     });
 
     it('should distinguish personal vs business categories', () => {
       const categories = [
-        { ...mockDbCategory, id: 'cat-1', name: 'Groceries', is_business_expense: false },
-        { ...mockDbCategory, id: 'cat-2', name: 'Office Rent', is_business_expense: true },
-        { ...mockDbCategory, id: 'cat-3', name: 'Gas', is_business_expense: false },
+        { ...mockDbCategory, id: 'cat-1', name: 'Groceries', category_type: 'personal' as const },
+        { ...mockDbCategory, id: 'cat-2', name: 'Office Rent', category_type: 'business' as const },
+        { ...mockDbCategory, id: 'cat-3', name: 'Gas', category_type: 'personal' as const },
       ];
 
-      const businessCategories = categories.filter(c => c.is_business_expense);
-      const personalCategories = categories.filter(c => !c.is_business_expense);
+      const businessCategories = categories.filter(c => c.category_type === 'business');
+      const personalCategories = categories.filter(c => c.category_type === 'personal');
 
       expect(businessCategories).toHaveLength(1);
       expect(personalCategories).toHaveLength(2);
@@ -499,13 +513,13 @@ describe('Category Functionality', () => {
 
     it('should handle default system categories', () => {
       const defaultCategories = [
-        { ...mockDbCategory, id: 'def-1', name: 'Food & Dining', is_default: true },
-        { ...mockDbCategory, id: 'def-2', name: 'Transportation', is_default: true },
-        { ...mockDbCategory, id: 'custom-1', name: 'My Custom Category', is_default: false },
+        { ...mockDbCategory, id: 'def-1', name: 'Food & Dining', is_system_category: true },
+        { ...mockDbCategory, id: 'def-2', name: 'Transportation', is_system_category: true },
+        { ...mockDbCategory, id: 'custom-1', name: 'My Custom Category', is_system_category: false },
       ];
 
-      const systemDefaults = defaultCategories.filter(c => c.is_default);
-      const userCustom = defaultCategories.filter(c => !c.is_default);
+      const systemDefaults = defaultCategories.filter(c => c.is_system_category);
+      const userCustom = defaultCategories.filter(c => !c.is_system_category);
 
       expect(systemDefaults).toHaveLength(2);
       expect(userCustom).toHaveLength(1);
@@ -598,7 +612,7 @@ describe('Category Functionality', () => {
     it('should transform database category to UI format', () => {
       const { transformCategoryToUI } = mockSchema;
 
-      const result = transformCategoryToUI(mockDbCategory);
+      const result = transformCategoryToUI(mockDbCategory as any);
 
       expect(transformCategoryToUI).toHaveBeenCalledWith(mockDbCategory);
       expect(result).toEqual(mockUICategory);
@@ -607,7 +621,7 @@ describe('Category Functionality', () => {
     it('should transform UI category to database format', () => {
       const { transformCategoryToDB } = mockSchema;
 
-      const result = transformCategoryToDB(mockUICategory);
+      const result = transformCategoryToDB(mockUICategory as any);
 
       expect(transformCategoryToDB).toHaveBeenCalledWith(mockUICategory);
       expect(result).toEqual(mockDbCategory);
@@ -621,14 +635,14 @@ describe('Category Functionality', () => {
       };
 
       (mockSchema.transformCategoryToUI as jest.Mock).mockImplementation((category: any) => {
-        if (!category.type) {
+        if (!category.category_type) {
           throw new Error('Missing required fields for transformation');
         }
         return mockUICategory;
       });
 
       expect(() => {
-        mockSchema.transformCategoryToUI(incompleteCategory);
+        mockSchema.transformCategoryToUI(incompleteCategory as any);
       }).toThrow('Missing required fields for transformation');
     });
 
@@ -636,16 +650,16 @@ describe('Category Functionality', () => {
       const dbFormat = {
         id: 'cat-1',
         parent_category_id: 'parent-1',
-        is_default: true,
-        is_business_expense: false,
+        is_system_category: true,
+        is_tax_deductible: false,
         is_active: true,
       };
 
       const expectedUIFormat = {
         id: 'cat-1',
         parentCategoryId: 'parent-1',
-        isDefault: true,
-        isBusinessExpense: false,
+        isSystemCategory: true,
+        isTaxDeductible: false,
         isActive: true,
       };
 
@@ -653,8 +667,8 @@ describe('Category Functionality', () => {
       const transformToUI = (dbCategory: any) => ({
         id: dbCategory.id,
         parentCategoryId: dbCategory.parent_category_id,
-        isDefault: dbCategory.is_default,
-        isBusinessExpense: dbCategory.is_business_expense,
+        isSystemCategory: dbCategory.is_system_category,
+        isTaxDeductible: dbCategory.is_tax_deductible,
         isActive: dbCategory.is_active,
       });
 

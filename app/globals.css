@@ -126,7 +126,7 @@
   .responsive-auth-layout {
     /* Mobile-first approach */
     @apply flex flex-col min-h-screen;
-    
+
     /* Tablet and desktop */
     @screen md {
       @apply min-h-fit;

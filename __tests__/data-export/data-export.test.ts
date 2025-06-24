@@ -1,4 +1,3 @@
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 // Mock the export service before importing
 jest.mock('@/lib/services/data-export', () => ({

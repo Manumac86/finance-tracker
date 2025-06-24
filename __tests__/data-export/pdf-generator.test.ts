@@ -1,4 +1,3 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Mock jsPDF and jspdf-autotable
 const mockJsPDF = {
@@ -18,29 +17,45 @@ describe('PDF Generator', () => {
   const mockTransactions = [
     {
       id: '1',
+      userId: 'user1',
       name: 'Grocery Store',
       amount: 45.67,
       transactionType: 'expense' as const,
       transactionDate: '2024-01-15',
       categoryId: 'cat1',
+      categoryName: 'Groceries',
+      categoryIcon: '🛒',
       description: 'Weekly groceries',
-      userId: 'user1',
+      isActive: true,
     },
     {
       id: '2',
+      userId: 'user1',
       name: 'Salary',
       amount: 5000.00,
       transactionType: 'income' as const,
       transactionDate: '2024-01-01',
       categoryId: 'cat2',
+      categoryName: 'Salary',
+      categoryIcon: '💰',
       description: 'Monthly salary',
-      userId: 'user1',
+      isActive: true,
     },
   ];
 
   const mockCategories = [
-    { id: 'cat1', name: 'Groceries', type: 'expense' as const, isBusinessExpense: false },
-    { id: 'cat2', name: 'Salary', type: 'income' as const, isBusinessExpense: false },
+    { 
+      id: 'cat1', 
+      name: 'Groceries', 
+      type: 'expense' as const,
+      isBusinessExpense: false
+    },
+    { 
+      id: 'cat2', 
+      name: 'Salary', 
+      type: 'income' as const,
+      isBusinessExpense: false
+    },
   ];
 
   const mockOptions = {
