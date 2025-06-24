@@ -39,11 +39,14 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+  const formatCurrency = (amount: number, transactionType: 'income' | 'expense') => {
+    const absAmount = Math.abs(amount);
+    const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(Math.abs(amount));
+    }).format(absAmount);
+    
+    return transactionType === 'income' ? `+${formatted}` : `-${formatted}`;
   };
 
   const formatTime = (dateString: string) => {
@@ -68,7 +71,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             {/* Category Icon */}
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
-                transaction.amount > 0
+                transaction.transactionType === 'income'
                   ? "bg-emerald-500/20 text-emerald-500"
                   : "bg-rose-500/20 text-rose-500"
               }`}
@@ -115,11 +118,10 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             <div className="text-right">
               <div
                 className={`text-xl font-bold ${
-                  transaction.amount > 0 ? "text-emerald-500" : "text-rose-500"
+                  transaction.transactionType === 'income' ? "text-emerald-500" : "text-rose-500"
                 }`}
               >
-                {transaction.amount > 0 ? "+" : ""}
-                {formatCurrency(transaction.amount)}
+                {formatCurrency(transaction.amount, transaction.transactionType)}
               </div>
             </div>
 

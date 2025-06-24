@@ -20,10 +20,20 @@ export default function BudgetsPage() {
   const [selectedBudget, setSelectedBudget] = useState<UIBudget | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
+  // Build API URL with proper query string construction
+  const buildApiUrl = () => {
+    const params = new URLSearchParams();
+    
+    if (selectedFilter !== "all") {
+      params.append("period", selectedFilter);
+    }
+    
+    const queryString = params.toString();
+    return `/api/budgets${queryString ? `?${queryString}` : ""}`;
+  };
+
   const { data, error, isLoading, mutate } = useSWR<{ budgets: UIBudget[] }>(
-    `/api/budgets${
-      selectedFilter !== "all" ? `?period=${selectedFilter}` : ""
-    }`,
+    buildApiUrl(),
     fetcher
   );
 

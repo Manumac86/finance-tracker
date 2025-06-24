@@ -18,8 +18,20 @@ export default function GoalsPage() {
   const [selectedGoal, setSelectedGoal] = useState<UIGoal | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
 
+  // Build API URL with proper query string construction
+  const buildApiUrl = () => {
+    const params = new URLSearchParams();
+    
+    if (selectedFilter !== "all") {
+      params.append("type", selectedFilter);
+    }
+    
+    const queryString = params.toString();
+    return `/api/goals${queryString ? `?${queryString}` : ""}`;
+  };
+
   const { data, error, isLoading, mutate } = useSWR<{ goals: UIGoal[] }>(
-    `/api/goals${selectedFilter !== "all" ? `?type=${selectedFilter}` : ""}`,
+    buildApiUrl(),
     fetcher
   );
 

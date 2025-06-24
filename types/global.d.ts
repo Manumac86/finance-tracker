@@ -53,4 +53,47 @@ declare global {
   }
 }
 
+// jsPDF autoTable plugin type declarations
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: {
+      startY?: number;
+      head?: any[][];
+      body?: any[][];
+      theme?: 'striped' | 'grid' | 'plain';
+      styles?: {
+        fontSize?: number;
+        cellPadding?: number;
+        overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden';
+        halign?: 'left' | 'center' | 'right';
+        valign?: 'top' | 'middle' | 'bottom';
+      };
+      headStyles?: {
+        fillColor?: number[] | string;
+        textColor?: number[] | string;
+        fontSize?: number;
+        halign?: 'left' | 'center' | 'right';
+      };
+      columnStyles?: {
+        [key: number]: {
+          cellWidth?: number | 'auto' | 'wrap';
+          halign?: 'left' | 'center' | 'right';
+          valign?: 'top' | 'middle' | 'bottom';
+        };
+      };
+      margin?: {
+        top?: number;
+        right?: number;
+        bottom?: number;
+        left?: number;
+      };
+      showHead?: 'everyPage' | 'firstPage' | 'never';
+      showFoot?: 'everyPage' | 'lastPage' | 'never';
+      pageBreak?: 'auto' | 'avoid' | 'always';
+      rowPageBreak?: 'auto' | 'avoid';
+      tableWidth?: number | 'auto' | 'wrap';
+    }) => jsPDF;
+  }
+}
+
 export {};

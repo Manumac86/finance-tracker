@@ -48,17 +48,27 @@ export async function generateClientSidePdf(
   // Transactions table
   const tableData = transactions.slice(0, 50).map(transaction => {
     const category = categories.find(c => c.id === transaction.categoryId);
+    
+    // Format amount properly - handle cases where amount might already be negative
+    let formattedAmount: string;
+    const absAmount = Math.abs(transaction.amount);
+    
+    if (transaction.transactionType === 'income') {
+      formattedAmount = `+$${absAmount.toFixed(2)}`;
+    } else {
+      formattedAmount = `-$${absAmount.toFixed(2)}`;
+    }
+    
     return [
       transaction.transactionDate,
       transaction.name,
-      transaction.transactionType === 'income' ? `+$${transaction.amount.toFixed(2)}` : `-$${transaction.amount.toFixed(2)}`,
+      formattedAmount,
       category?.name || 'Uncategorized',
       transaction.description || ''
     ];
   });
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (doc as any).autoTable({
+  doc.autoTable({
     startY: 100,
     head: [['Date', 'Description', 'Amount', 'Category', 'Notes']],
     body: tableData,
