@@ -1,5 +1,3 @@
-import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-
 // Mock the database functions
 jest.mock("@/lib/db/postgres", () => ({
   selectBudgets: jest.fn(),
@@ -12,8 +10,8 @@ jest.mock("@/lib/db/postgres", () => ({
 // Mock the schema transformations
 jest.mock("@/lib/db/schemas/budget", () => ({
   transformBudgetToUI: jest.fn(),
-  transformBudgetToDB: jest.fn(),
-  createBudgetSchema: {
+  transformUIToBudget: jest.fn(),
+  CreateBudgetSchema: {
     parse: jest.fn(),
   },
 }));
@@ -28,13 +26,17 @@ describe("Budget Functionality", () => {
     category_id: "cat-1",
     name: "Groceries Budget",
     description: "Monthly grocery spending limit",
-    budget_type: "category",
+    budget_type: "category" as const,
     amount: 500.0,
-    period: "monthly",
+    period: "monthly" as const,
     start_date: "2024-01-01",
     end_date: "2024-12-31",
-    alert_threshold: 0.8,
-    rollover_type: "none",
+    alert_threshold_percentage: 80,
+    alert_enabled: true,
+    overspend_alert_enabled: true,
+    rollover_enabled: false,
+    rollover_type: "none" as const,
+    current_spent: 0,
     is_active: true,
     created_at: "2024-01-01T10:00:00Z",
     updated_at: "2024-01-01T10:00:00Z",
@@ -46,13 +48,18 @@ describe("Budget Functionality", () => {
     categoryId: "cat-1",
     name: "Groceries Budget",
     description: "Monthly grocery spending limit",
-    budgetType: "category",
+    budgetType: "category" as const,
     amount: 500.0,
-    period: "monthly",
+    period: "monthly" as const,
     startDate: "2024-01-01",
     endDate: "2024-12-31",
-    alertThreshold: 0.8,
-    rolloverType: "none",
+    alertThresholdPercentage: 80,
+    alertEnabled: true,
+    overspendAlertEnabled: true,
+    rolloverEnabled: false,
+    rolloverType: "none" as const,
+    currentSpent: 0,
+    isActive: true,
   };
 
   const mockCreateBudgetData = {
@@ -87,15 +94,15 @@ describe("Budget Functionality", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSchema.transformBudgetToUI.mockReturnValue(mockUIBudget);
-    mockSchema.transformBudgetToDB.mockReturnValue(mockDbBudget);
-    mockSchema.createBudgetSchema.parse.mockReturnValue(mockCreateBudgetData);
-    mockDb.selectTransactions.mockResolvedValue(mockTransactions);
+    (mockSchema.transformBudgetToUI as jest.Mock).mockReturnValue(mockUIBudget);
+    (mockSchema.transformUIToBudget as jest.Mock).mockReturnValue(mockDbBudget);
+    (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockReturnValue(mockCreateBudgetData);
+    (mockDb.selectTransactions as jest.Mock).mockResolvedValue(mockTransactions);
   });
 
   describe("Budget Creation", () => {
     it("should create a new budget", async () => {
-      mockDb.insertBudget.mockResolvedValue(mockDbBudget);
+      (mockDb.insertBudget as jest.Mock).mockResolvedValue(mockDbBudget);
 
       const { insertBudget } = mockDb;
       const result = await insertBudget(mockDbBudget);
@@ -111,12 +118,12 @@ describe("Budget Functionality", () => {
         period: "invalid",
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation(() => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation(() => {
         throw new Error("Validation failed: Invalid budget data");
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidBudgetData);
+        mockSchema.CreateBudgetSchema.parse(invalidBudgetData);
       }).toThrow("Validation failed: Invalid budget data");
     });
 
@@ -127,12 +134,12 @@ describe("Budget Functionality", () => {
         const incompleteData = { ...mockCreateBudgetData };
         delete incompleteData[field as keyof typeof mockCreateBudgetData];
 
-        mockSchema.createBudgetSchema.parse.mockImplementation(() => {
+        (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation(() => {
           throw new Error(`${field} is required`);
         });
 
         expect(() => {
-          mockSchema.createBudgetSchema.parse(incompleteData);
+          mockSchema.CreateBudgetSchema.parse(incompleteData);
         }).toThrow(`${field} is required`);
       });
     });
@@ -143,7 +150,7 @@ describe("Budget Functionality", () => {
         amount: -100,
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation((data) => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
         if (data.amount <= 0) {
           throw new Error("Amount must be positive");
         }
@@ -151,7 +158,7 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(negativeBudget);
+        mockSchema.CreateBudgetSchema.parse(negativeBudget);
       }).toThrow("Amount must be positive");
     });
 
@@ -161,7 +168,7 @@ describe("Budget Functionality", () => {
         period: "invalid-period",
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation((data) => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
         const validPeriods = ["weekly", "monthly", "quarterly", "yearly"];
         if (!validPeriods.includes(data.period)) {
           throw new Error("Invalid period");
@@ -170,7 +177,7 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidPeriodBudget);
+        mockSchema.CreateBudgetSchema.parse(invalidPeriodBudget);
       }).toThrow("Invalid period");
     });
 
@@ -180,7 +187,7 @@ describe("Budget Functionality", () => {
         alertThreshold: 1.5, // Should be between 0 and 1
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation((data) => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
         if (data.alertThreshold < 0 || data.alertThreshold > 1) {
           throw new Error("Alert threshold must be between 0 and 1");
         }
@@ -188,7 +195,7 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidThresholdBudget);
+        mockSchema.CreateBudgetSchema.parse(invalidThresholdBudget);
       }).toThrow("Alert threshold must be between 0 and 1");
     });
 
@@ -199,7 +206,7 @@ describe("Budget Functionality", () => {
         endDate: "2024-01-01", // End before start
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation((data) => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
         if (new Date(data.endDate) <= new Date(data.startDate)) {
           throw new Error("End date must be after start date");
         }
@@ -207,14 +214,14 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidDateBudget);
+        mockSchema.CreateBudgetSchema.parse(invalidDateBudget);
       }).toThrow("End date must be after start date");
     });
   });
 
   describe("Budget Retrieval", () => {
     it("should fetch budgets for a user", async () => {
-      mockDb.selectBudgets.mockResolvedValue([mockDbBudget]);
+      (mockDb.selectBudgets as jest.Mock).mockResolvedValue([mockDbBudget]);
 
       const { selectBudgets } = mockDb;
       const budgets = await selectBudgets("user-1");
@@ -224,7 +231,7 @@ describe("Budget Functionality", () => {
     });
 
     it("should handle empty budget list", async () => {
-      mockDb.selectBudgets.mockResolvedValue([]);
+      (mockDb.selectBudgets as jest.Mock).mockResolvedValue([]);
 
       const { selectBudgets } = mockDb;
       const budgets = await selectBudgets("user-1");
@@ -233,7 +240,7 @@ describe("Budget Functionality", () => {
     });
 
     it("should handle database errors during retrieval", async () => {
-      mockDb.selectBudgets.mockRejectedValue(
+      (mockDb.selectBudgets as jest.Mock).mockRejectedValue(
         new Error("Database connection error")
       );
 
@@ -249,7 +256,7 @@ describe("Budget Functionality", () => {
         { ...mockDbBudget, id: "budget-1", is_active: true },
         { ...mockDbBudget, id: "budget-2", is_active: false },
       ];
-      mockDb.selectBudgets.mockResolvedValue(activeBudgets);
+      (mockDb.selectBudgets as jest.Mock).mockResolvedValue(activeBudgets);
 
       const { selectBudgets } = mockDb;
       const budgets = await selectBudgets("user-1");
@@ -268,7 +275,7 @@ describe("Budget Functionality", () => {
         alert_threshold: 0.9,
       };
       const updatedBudget = { ...mockDbBudget, ...updates };
-      mockDb.updateBudget.mockResolvedValue(updatedBudget);
+      (mockDb.updateBudget as jest.Mock).mockResolvedValue(updatedBudget);
 
       const { updateBudget } = mockDb;
       const result = await updateBudget("budget-1", updates);
@@ -280,7 +287,7 @@ describe("Budget Functionality", () => {
     it("should handle partial updates", async () => {
       const partialUpdates = { amount: 750.0 };
       const updatedBudget = { ...mockDbBudget, amount: 750.0 };
-      mockDb.updateBudget.mockResolvedValue(updatedBudget);
+      (mockDb.updateBudget as jest.Mock).mockResolvedValue(updatedBudget);
 
       const { updateBudget } = mockDb;
       const result = await updateBudget("budget-1", partialUpdates);
@@ -290,7 +297,7 @@ describe("Budget Functionality", () => {
     });
 
     it("should handle non-existent budget updates", async () => {
-      mockDb.updateBudget.mockRejectedValue(new Error("Budget not found"));
+      (mockDb.updateBudget as jest.Mock).mockRejectedValue(new Error("Budget not found"));
 
       const { updateBudget } = mockDb;
 
@@ -305,19 +312,19 @@ describe("Budget Functionality", () => {
         alert_threshold: 2.0,
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation(() => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation(() => {
         throw new Error("Invalid update data");
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidUpdates);
+        mockSchema.CreateBudgetSchema.parse(invalidUpdates);
       }).toThrow("Invalid update data");
     });
   });
 
   describe("Budget Deletion", () => {
     it("should delete a budget (soft delete)", async () => {
-      mockDb.deleteBudget.mockResolvedValue(true);
+      (mockDb.deleteBudget as jest.Mock).mockResolvedValue(true);
 
       const { deleteBudget } = mockDb;
       const result = await deleteBudget("budget-1");
@@ -327,7 +334,7 @@ describe("Budget Functionality", () => {
     });
 
     it("should handle deletion of non-existent budget", async () => {
-      mockDb.deleteBudget.mockResolvedValue(false);
+      (mockDb.deleteBudget as jest.Mock).mockResolvedValue(false);
 
       const { deleteBudget } = mockDb;
       const result = await deleteBudget("non-existent");
@@ -336,7 +343,7 @@ describe("Budget Functionality", () => {
     });
 
     it("should handle deletion errors", async () => {
-      mockDb.deleteBudget.mockRejectedValue(new Error("Database error"));
+      (mockDb.deleteBudget as jest.Mock).mockRejectedValue(new Error("Database error"));
 
       const { deleteBudget } = mockDb;
 
@@ -486,7 +493,7 @@ describe("Budget Functionality", () => {
         budgetType: "invalid-type",
       };
 
-      mockSchema.createBudgetSchema.parse.mockImplementation((data) => {
+      (mockSchema.CreateBudgetSchema.parse as jest.Mock).mockImplementation((data: any) => {
         const validTypes = ["category", "overall", "income"];
         if (!validTypes.includes(data.budgetType)) {
           throw new Error("Invalid budget type");
@@ -495,7 +502,7 @@ describe("Budget Functionality", () => {
       });
 
       expect(() => {
-        mockSchema.createBudgetSchema.parse(invalidTypeBudget);
+        mockSchema.CreateBudgetSchema.parse(invalidTypeBudget);
       }).toThrow("Invalid budget type");
     });
   });
@@ -594,11 +601,11 @@ describe("Budget Functionality", () => {
     });
 
     it("should transform UI budget to database format", () => {
-      const { transformBudgetToDB } = mockSchema;
+      const { transformUIToBudget } = mockSchema;
 
-      const result = transformBudgetToDB(mockUIBudget);
+      const result = transformUIToBudget(mockUIBudget);
 
-      expect(transformBudgetToDB).toHaveBeenCalledWith(mockUIBudget);
+      expect(transformUIToBudget).toHaveBeenCalledWith(mockUIBudget);
       expect(result).toEqual(mockDbBudget);
     });
 
@@ -609,7 +616,7 @@ describe("Budget Functionality", () => {
         // Missing required fields
       };
 
-      mockSchema.transformBudgetToUI.mockImplementation((budget) => {
+      (mockSchema.transformBudgetToUI as jest.Mock).mockImplementation((budget: any) => {
         if (!budget.amount || !budget.period) {
           throw new Error("Missing required fields for transformation");
         }

@@ -20,11 +20,6 @@ This document outlines the user-centered development plan for the Finance Tracke
 - **Redis**: Caching, sessions, and real-time features
 - **Pinecone**: Vector embeddings (deferred to Phase 4 - AI features only)
 
-### Removed Technologies (Complexity Reduction)
-
-- **MongoDB**: Eliminated to reduce multi-database complexity
-- **Neo4j**: Deferred indefinitely (not needed for MVP/growth phases)
-
 ## Extreme Programming (XP) Methodology
 
 ### Core XP Practices
