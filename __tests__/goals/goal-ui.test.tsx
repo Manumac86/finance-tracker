@@ -47,6 +47,8 @@ describe('TDD RED: Goal UI Components', () => {
           currentAmount: 1500,
           progress: 30,
           targetDate: '2024-12-31',
+          userId: 'user_123',
+          isActive: true,
         },
         {
           id: 'goal_2',
@@ -56,6 +58,8 @@ describe('TDD RED: Goal UI Components', () => {
           currentAmount: 800,
           progress: 40,
           targetDate: '2024-08-15',
+          userId: 'user_123',
+          isActive: true,
         },
       ]
 
@@ -63,7 +67,9 @@ describe('TDD RED: Goal UI Components', () => {
         data: { goals: mockGoals },
         error: null,
         isLoading: false,
-      })
+        isValidating: false,
+        mutate: jest.fn(),
+      } as any)
 
       render(<GoalsPage />)
 
@@ -78,7 +84,9 @@ describe('TDD RED: Goal UI Components', () => {
         data: { goals: [] },
         error: null,
         isLoading: false,
-      })
+        isValidating: false,
+        mutate: jest.fn(),
+      } as any)
 
       render(<GoalsPage />)
 
@@ -88,16 +96,18 @@ describe('TDD RED: Goal UI Components', () => {
 
     it('should filter goals by type', async () => {
       const mockGoals = [
-        { id: 'goal_1', name: 'Emergency Fund', type: 'savings' },
-        { id: 'goal_2', name: 'Pay off Credit Card', type: 'debt_payoff' },
-        { id: 'goal_3', name: 'Dining Budget', type: 'spending_limit' },
+        { id: 'goal_1', name: 'Emergency Fund', type: 'savings', userId: 'user_123', isActive: true, targetAmount: 5000, currentAmount: 1500, progress: 30, targetDate: '2024-12-31' },
+        { id: 'goal_2', name: 'Pay off Credit Card', type: 'debt_payoff', userId: 'user_123', isActive: true, targetAmount: 3000, currentAmount: 1000, progress: 33, targetDate: '2024-10-31' },
+        { id: 'goal_3', name: 'Dining Budget', type: 'spending_limit', userId: 'user_123', isActive: true, targetAmount: 500, currentAmount: 200, progress: 40, targetDate: '2024-06-30' },
       ]
 
       mockSWR.mockReturnValue({
         data: { goals: mockGoals },
         error: null,
         isLoading: false,
-      })
+        isValidating: false,
+        mutate: jest.fn(),
+      } as any)
 
       render(<GoalsPage />)
 
@@ -113,7 +123,9 @@ describe('TDD RED: Goal UI Components', () => {
         data: { goals: [] },
         error: null,
         isLoading: false,
-      })
+        isValidating: false,
+        mutate: jest.fn(),
+      } as any)
 
       render(<GoalsPage />)
 
@@ -132,6 +144,8 @@ describe('TDD RED: Goal UI Components', () => {
       progress: 30,
       targetDate: '2024-12-31',
       description: 'Build 3-month emergency fund',
+      userId: 'user_123',
+      isActive: true,
     }
 
     it('should display goal information', () => {
