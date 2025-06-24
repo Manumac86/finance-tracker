@@ -10,7 +10,16 @@ export async function generateClientSidePdf(
 ): Promise<Blob> {
   // Dynamic import to avoid SSR issues
   const { jsPDF } = await import('jspdf');
-  await import('jspdf-autotable');
+  
+  // Import and register the autoTable plugin
+  const autoTable = await import('jspdf-autotable');
+  
+  // Ensure autoTable is available on jsPDF prototype
+  if (autoTable.default && typeof autoTable.default === 'function') {
+    // Apply the plugin to jsPDF if needed
+    const applyPlugin = autoTable.default;
+    applyPlugin(jsPDF);
+  }
 
   const doc = new jsPDF();
   
@@ -68,17 +77,53 @@ export async function generateClientSidePdf(
     ];
   });
   
-  doc.autoTable({
-    startY: 100,
-    head: [['Date', 'Description', 'Amount', 'Category', 'Notes']],
-    body: tableData,
-    theme: 'grid',
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [41, 128, 185] },
-    columnStyles: {
-      2: { halign: 'right' } // Amount column
-    }
-  });
+  // Check if autoTable is available, otherwise create a simple table
+  if (typeof doc.autoTable === 'function') {
+    doc.autoTable({
+      startY: 100,
+      head: [['Date', 'Description', 'Amount', 'Category', 'Notes']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185] },
+      columnStyles: {
+        2: { halign: 'right' } // Amount column
+      }
+    });
+  } else {
+    // Fallback: Create simple text-based table if autoTable is not available
+    let yPosition = 100;
+    const lineHeight = 10;
+    
+    // Header
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date', 20, yPosition);
+    doc.text('Description', 60, yPosition);
+    doc.text('Amount', 120, yPosition);
+    doc.text('Category', 160, yPosition);
+    yPosition += lineHeight;
+    
+    // Separator line
+    doc.line(20, yPosition - 5, 190, yPosition - 5);
+    
+    // Data rows
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    
+    tableData.forEach((row) => {
+      if (yPosition > 270) { // Check if we need a new page
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      doc.text(row[0], 20, yPosition);
+      doc.text(row[1].substring(0, 20), 60, yPosition); // Truncate long descriptions
+      doc.text(row[2], 120, yPosition);
+      doc.text(row[3], 160, yPosition);
+      yPosition += lineHeight;
+    });
+  }
   
   // Generate blob
   const pdfBlob = doc.output('blob');
