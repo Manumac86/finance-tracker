@@ -97,23 +97,23 @@ export function EditBudgetModal({
     }
 
     // Prepare data for submission (transform camelCase to snake_case)
-    const budgetData = {
+    const budgetData: BudgetFormData = {
       name: formData.name,
-      description: formData.description || undefined,
-      budget_type: formData.budgetType,
-      category_id: formData.categoryId || undefined,
-      amount: parseFloat(formData.amount),
+      description: formData.description || "",
+      budgetType: formData.budgetType,
+      categoryId: formData.categoryId || "",
+      amount: formData.amount,
       period: formData.period,
-      start_date: formData.startDate,
-      end_date: formData.endDate || undefined,
-      alert_threshold_percentage: formData.alertThresholdPercentage,
-      alert_enabled: formData.alertEnabled,
-      overspend_alert_enabled: formData.overspendAlertEnabled,
-      rollover_enabled: formData.rolloverEnabled,
-      rollover_type: formData.rolloverType,
+      startDate: formData.startDate,
+      endDate: formData.endDate || "",
+      alertThresholdPercentage: formData.alertThresholdPercentage,
+      alertEnabled: formData.alertEnabled,
+      overspendAlertEnabled: formData.overspendAlertEnabled,
+      rolloverEnabled: formData.rolloverEnabled,
+      rolloverType: formData.rolloverType,
     };
 
-    onSave(budget.id!, budgetData as any);
+    onSave(budget.id!, budgetData);
     handleClose();
   };
 
