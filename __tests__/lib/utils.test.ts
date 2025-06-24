@@ -10,14 +10,14 @@ jest.mock('tailwind-merge');
 global.fetch = jest.fn();
 
 const mockClsx = clsx as jest.MockedFunction<typeof clsx>;
-const mockTwMerge = twMerge as jest.MockedFunction<typeof twMerge>;
+const mockTwMerge = twMerge as jest.MockedFunction<(input: string) => string>;
 const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
 
 describe('Utils Functions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockClsx.mockImplementation((...args) => args.filter(Boolean).join(' '));
-    mockTwMerge.mockImplementation((str: any) => String(str || ''));
+    mockTwMerge.mockImplementation((str: string) => str);
   });
 
   describe('cn function', () => {
