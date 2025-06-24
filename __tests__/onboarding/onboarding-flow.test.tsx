@@ -270,10 +270,6 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       const nextButton1 = await screen.findByRole("button", { name: /Next/i });
       fireEvent.click(nextButton1);
       
-      // Step 2 -> 3
-      const nextButton2 = await screen.findByRole("button", { name: /Next/i });
-      fireEvent.click(nextButton2);
-      
       // Step 3: Fill and save goal
       const goalName = screen.getByLabelText(/Goal Name/i);
       const targetAmount = screen.getByLabelText(/Target Amount/i);
@@ -304,11 +300,8 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       fireEvent.click(startButton);
 
       // Navigate through steps
-      const nextButton1 = await screen.findByRole("button", { name: /Next/i });
-      fireEvent.click(nextButton1);
-      
-      const nextButton2 = await screen.findByRole("button", { name: /Next/i });
-      fireEvent.click(nextButton2);
+      const nextButton = await screen.findByRole("button", { name: /Next/i });
+      fireEvent.click(nextButton);
       
       // Fill and save goal
       const goalName = screen.getByLabelText(/Goal Name/i);

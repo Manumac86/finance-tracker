@@ -9,11 +9,15 @@ jest.mock('@/lib/db/postgres', () => ({
 }));
 
 // Mock the schema transformations
+const mockTransformToUI = jest.fn();
+const mockTransformToDB = jest.fn();
+const mockParse = jest.fn();
+
 jest.mock('@/lib/db/schemas/transaction', () => ({
-  transformTransactionToUI: jest.fn(),
-  transformTransactionToDB: jest.fn(),
+  transformTransactionToUI: mockTransformToUI,
+  transformTransactionToDB: mockTransformToDB,
   createTransactionSchema: {
-    parse: jest.fn(),
+    parse: mockParse,
   },
 }));
 
@@ -57,13 +61,13 @@ describe('Transaction Functionality', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSchema.transformTransactionToUI.mockReturnValue(mockUITransaction);
-    mockSchema.transformTransactionToDB.mockReturnValue({
+    mockTransformToUI.mockReturnValue(mockUITransaction);
+    mockTransformToDB.mockReturnValue({
       ...mockDbTransaction,
       name: mockCreateTransactionData.name,
       amount: mockCreateTransactionData.amount,
     });
-    mockSchema.createTransactionSchema.parse.mockReturnValue(mockCreateTransactionData);
+    mockParse.mockReturnValue(mockCreateTransactionData);
   });
 
   describe('Transaction Retrieval', () => {

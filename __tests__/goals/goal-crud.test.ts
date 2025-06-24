@@ -162,7 +162,7 @@ describe('TDD RED: Goal CRUD Operations', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
-      expect(data.error).toContain('validation')
+      expect(data.error).toContain('Validation')
     })
   })
 
