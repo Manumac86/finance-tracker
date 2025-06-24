@@ -114,8 +114,8 @@ export default function DataExportPage() {
         const exportCategories = categories.map(cat => ({
           id: cat.id!,
           name: cat.name,
-          type: cat.type as 'income' | 'expense',
-          isBusinessExpense: cat.is_business_expense || false
+          type: 'expense' as 'income' | 'expense', // Categories in this app are primarily expense categories
+          isBusinessExpense: cat.categoryType === 'business' || cat.isTaxDeductible || false
         }));
 
         const pdfBlob = await generateClientSidePdf(
