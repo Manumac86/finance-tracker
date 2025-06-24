@@ -193,11 +193,18 @@ export default function TransactionManagePage() {
     setSplitData(newSplitData);
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+  const formatCurrency = (amount: number, transactionType?: 'income' | 'expense') => {
+    const absAmount = Math.abs(amount);
+    const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amount);
+    }).format(absAmount);
+    
+    if (transactionType) {
+      return transactionType === 'income' ? `+${formatted}` : `-${formatted}`;
+    }
+    
+    return formatted;
   };
 
   const selectedCount = selectedTransactions.size;
@@ -451,7 +458,7 @@ export default function TransactionManagePage() {
                         <div className={`font-medium ${
                           transaction.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'
                         }`}>
-                          {transaction.transactionType === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          {formatCurrency(transaction.amount, transaction.transactionType)}
                         </div>
                         <Badge variant="outline" className="text-xs">
                           {transaction.transactionType}

@@ -10,7 +10,6 @@ export async function generateClientSidePdf(
 ): Promise<Blob> {
   // Dynamic import to avoid SSR issues
   const { jsPDF } = await import('jspdf');
-  await import('jspdf-autotable');
 
   const doc = new jsPDF();
   
@@ -48,26 +47,69 @@ export async function generateClientSidePdf(
   // Transactions table
   const tableData = transactions.slice(0, 50).map(transaction => {
     const category = categories.find(c => c.id === transaction.categoryId);
+    
+    // Format amount properly - handle cases where amount might already be negative
+    let formattedAmount: string;
+    const absAmount = Math.abs(transaction.amount);
+    
+    if (transaction.transactionType === 'income') {
+      formattedAmount = `+$${absAmount.toFixed(2)}`;
+    } else {
+      formattedAmount = `-$${absAmount.toFixed(2)}`;
+    }
+    
     return [
       transaction.transactionDate,
       transaction.name,
-      transaction.transactionType === 'income' ? `+$${transaction.amount.toFixed(2)}` : `-$${transaction.amount.toFixed(2)}`,
+      formattedAmount,
       category?.name || 'Uncategorized',
       transaction.description || ''
     ];
   });
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (doc as any).autoTable({
-    startY: 100,
-    head: [['Date', 'Description', 'Amount', 'Category', 'Notes']],
-    body: tableData,
-    theme: 'grid',
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [41, 128, 185] },
-    columnStyles: {
-      2: { halign: 'right' } // Amount column
+  // Create simple text-based table (autoTable plugin has compatibility issues)
+  let yPosition = 100;
+  const lineHeight = 10;
+  
+  // Header
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Date', 20, yPosition);
+  doc.text('Description', 60, yPosition);
+  doc.text('Amount', 120, yPosition);
+  doc.text('Category', 160, yPosition);
+  yPosition += lineHeight;
+  
+  // Separator line
+  doc.line(20, yPosition - 5, 190, yPosition - 5);
+  
+  // Data rows
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  
+  tableData.forEach((row) => {
+    if (yPosition > 270) { // Check if we need a new page
+      doc.addPage();
+      yPosition = 20;
+      
+      // Re-add header on new page
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Date', 20, yPosition);
+      doc.text('Description', 60, yPosition);
+      doc.text('Amount', 120, yPosition);
+      doc.text('Category', 160, yPosition);
+      yPosition += lineHeight;
+      doc.line(20, yPosition - 5, 190, yPosition - 5);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
     }
+    
+    doc.text(row[0], 20, yPosition);
+    doc.text(row[1].substring(0, 25), 60, yPosition); // Truncate long descriptions
+    doc.text(row[2], 120, yPosition);
+    doc.text(row[3].substring(0, 20), 160, yPosition); // Truncate long categories
+    yPosition += lineHeight;
   });
   
   // Generate blob
