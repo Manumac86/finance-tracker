@@ -113,7 +113,7 @@ export function EditBudgetModal({
       rollover_type: formData.rolloverType,
     };
 
-    onSave(budget.id!, budgetData);
+    onSave(budget.id!, budgetData as any);
     handleClose();
   };
 
