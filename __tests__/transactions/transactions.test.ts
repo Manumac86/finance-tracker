@@ -1,11 +1,16 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Mock the database functions
+const mockSelectTransactions = jest.fn();
+const mockInsertTransaction = jest.fn();
+const mockUpdateTransaction = jest.fn();
+const mockDeleteTransaction = jest.fn();
+
 jest.mock('@/lib/db/postgres', () => ({
-  selectTransactions: jest.fn(),
-  insertTransaction: jest.fn(),
-  updateTransaction: jest.fn(),
-  deleteTransaction: jest.fn(),
+  selectTransactions: mockSelectTransactions,
+  insertTransaction: mockInsertTransaction,
+  updateTransaction: mockUpdateTransaction,
+  deleteTransaction: mockDeleteTransaction,
 }));
 
 // Mock the schema transformations
@@ -72,30 +77,27 @@ describe('Transaction Functionality', () => {
 
   describe('Transaction Retrieval', () => {
     it('should fetch transactions for a user', async () => {
-      mockDb.selectTransactions.mockResolvedValue([mockDbTransaction]);
+      mockSelectTransactions.mockResolvedValue([mockDbTransaction]);
 
-      const { selectTransactions } = mockDb;
-      const transactions = await selectTransactions('user-1');
+      const transactions = await mockSelectTransactions('user-1');
 
-      expect(selectTransactions).toHaveBeenCalledWith('user-1');
+      expect(mockSelectTransactions).toHaveBeenCalledWith('user-1');
       expect(transactions).toEqual([mockDbTransaction]);
     });
 
     it('should handle empty transaction list', async () => {
-      mockDb.selectTransactions.mockResolvedValue([]);
+      mockSelectTransactions.mockResolvedValue([]);
 
-      const { selectTransactions } = mockDb;
-      const transactions = await selectTransactions('user-1');
+      const transactions = await mockSelectTransactions('user-1');
 
       expect(transactions).toEqual([]);
     });
 
     it('should handle database errors during retrieval', async () => {
-      mockDb.selectTransactions.mockRejectedValue(new Error('Database connection error'));
+      mockSelectTransactions.mockRejectedValue(new Error('Database connection error'));
 
-      const { selectTransactions } = mockDb;
 
-      await expect(selectTransactions('user-1')).rejects.toThrow('Database connection error');
+      await expect(mockSelectTransactions('user-1')).rejects.toThrow('Database connection error');
     });
 
     it('should support pagination', async () => {
@@ -104,12 +106,11 @@ describe('Transaction Functionality', () => {
         id: `trans-${i}`,
         name: `Transaction ${i}`,
       }));
-      mockDb.selectTransactions.mockResolvedValue(mockTransactions);
+      mockSelectTransactions.mockResolvedValue(mockTransactions);
 
-      const { selectTransactions } = mockDb;
-      const transactions = await selectTransactions('user-1', 50);
+      const transactions = await mockSelectTransactions('user-1', 50);
 
-      expect(selectTransactions).toHaveBeenCalledWith('user-1', 50);
+      expect(mockSelectTransactions).toHaveBeenCalledWith('user-1', 50);
       expect(transactions).toHaveLength(50);
     });
   });
@@ -122,10 +123,9 @@ describe('Transaction Functionality', () => {
         name: mockCreateTransactionData.name,
         amount: mockCreateTransactionData.amount,
       };
-      mockDb.insertTransaction.mockResolvedValue(newDbTransaction);
+      mockInsertTransaction.mockResolvedValue(newDbTransaction);
 
-      const { insertTransaction } = mockDb;
-      const result = await insertTransaction({
+      const result = await mockInsertTransaction({
         ...mockCreateTransactionData,
         user_id: 'user-1',
         transaction_type: mockCreateTransactionData.transactionType,
@@ -133,7 +133,7 @@ describe('Transaction Functionality', () => {
         category_id: mockCreateTransactionData.categoryId,
       });
 
-      expect(insertTransaction).toHaveBeenCalled();
+      expect(mockInsertTransaction).toHaveBeenCalled();
       expect(result).toEqual(newDbTransaction);
     });
 
@@ -144,12 +144,12 @@ describe('Transaction Functionality', () => {
         transactionType: 'invalid',
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation(() => {
+      mockParse.mockImplementation(() => {
         throw new Error('Validation failed: name is required');
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(invalidData);
+        mockParse(invalidData);
       }).toThrow('Validation failed: name is required');
     });
 
@@ -160,30 +160,27 @@ describe('Transaction Functionality', () => {
         const incompleteData = { ...mockCreateTransactionData };
         delete incompleteData[field as keyof typeof mockCreateTransactionData];
 
-        mockSchema.createTransactionSchema.parse.mockImplementation(() => {
+        mockParse.mockImplementation(() => {
           throw new Error(`${field} is required`);
         });
 
         expect(() => {
-          mockSchema.createTransactionSchema.parse(incompleteData);
+          mockParse(incompleteData);
         }).toThrow(`${field} is required`);
       });
     });
 
     it('should transform UI data to database format', () => {
-      const { transformTransactionToDB } = mockSchema;
-      
-      transformTransactionToDB(mockCreateTransactionData);
+      mockTransformToDB(mockCreateTransactionData);
 
-      expect(transformTransactionToDB).toHaveBeenCalledWith(mockCreateTransactionData);
+      expect(mockTransformToDB).toHaveBeenCalledWith(mockCreateTransactionData);
     });
 
     it('should handle creation errors', async () => {
-      mockDb.insertTransaction.mockRejectedValue(new Error('Unique constraint violation'));
+      mockInsertTransaction.mockRejectedValue(new Error('Unique constraint violation'));
 
-      const { insertTransaction } = mockDb;
 
-      await expect(insertTransaction(mockDbTransaction)).rejects.toThrow('Unique constraint violation');
+      await expect(mockInsertTransaction(mockDbTransaction)).rejects.toThrow('Unique constraint violation');
     });
   });
 
@@ -195,12 +192,11 @@ describe('Transaction Functionality', () => {
         description: 'Updated description',
       };
       const updatedTransaction = { ...mockDbTransaction, ...updates };
-      mockDb.updateTransaction.mockResolvedValue(updatedTransaction);
+      mockUpdateTransaction.mockResolvedValue(updatedTransaction);
 
-      const { updateTransaction } = mockDb;
-      const result = await updateTransaction('trans-1', updates);
+      const result = await mockUpdateTransaction('trans-1', updates);
 
-      expect(updateTransaction).toHaveBeenCalledWith('trans-1', updates);
+      expect(mockUpdateTransaction).toHaveBeenCalledWith('trans-1', updates);
       expect(result).toEqual(updatedTransaction);
     });
 
@@ -210,81 +206,72 @@ describe('Transaction Functionality', () => {
         transactionType: 'invalid-type',
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation(() => {
+      mockParse.mockImplementation(() => {
         throw new Error('Invalid amount format');
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(invalidUpdates);
+        mockParse(invalidUpdates);
       }).toThrow('Invalid amount format');
     });
 
     it('should handle partial updates', async () => {
       const partialUpdates = { amount: 100.00 };
       const updatedTransaction = { ...mockDbTransaction, amount: 100.00 };
-      mockDb.updateTransaction.mockResolvedValue(updatedTransaction);
+      mockUpdateTransaction.mockResolvedValue(updatedTransaction);
 
-      const { updateTransaction } = mockDb;
-      const result = await updateTransaction('trans-1', partialUpdates);
+      const result = await mockUpdateTransaction('trans-1', partialUpdates);
 
-      expect(updateTransaction).toHaveBeenCalledWith('trans-1', partialUpdates);
+      expect(mockUpdateTransaction).toHaveBeenCalledWith('trans-1', partialUpdates);
       expect(result.amount).toBe(100.00);
     });
 
     it('should handle non-existent transaction updates', async () => {
-      mockDb.updateTransaction.mockRejectedValue(new Error('Transaction not found'));
+      mockUpdateTransaction.mockRejectedValue(new Error('Transaction not found'));
 
-      const { updateTransaction } = mockDb;
 
-      await expect(updateTransaction('non-existent', {})).rejects.toThrow('Transaction not found');
+      await expect(mockUpdateTransaction('non-existent', {})).rejects.toThrow('Transaction not found');
     });
   });
 
   describe('Transaction Deletion', () => {
     it('should delete a transaction (soft delete)', async () => {
-      mockDb.deleteTransaction.mockResolvedValue(true);
+      mockDeleteTransaction.mockResolvedValue(true);
 
-      const { deleteTransaction } = mockDb;
-      const result = await deleteTransaction('trans-1');
+      const result = await mockDeleteTransaction('trans-1');
 
-      expect(deleteTransaction).toHaveBeenCalledWith('trans-1');
+      expect(mockDeleteTransaction).toHaveBeenCalledWith('trans-1');
       expect(result).toBe(true);
     });
 
     it('should handle deletion of non-existent transaction', async () => {
-      mockDb.deleteTransaction.mockResolvedValue(false);
+      mockDeleteTransaction.mockResolvedValue(false);
 
-      const { deleteTransaction } = mockDb;
-      const result = await deleteTransaction('non-existent');
+      const result = await mockDeleteTransaction('non-existent');
 
       expect(result).toBe(false);
     });
 
     it('should handle deletion errors', async () => {
-      mockDb.deleteTransaction.mockRejectedValue(new Error('Database error'));
+      mockDeleteTransaction.mockRejectedValue(new Error('Database error'));
 
-      const { deleteTransaction } = mockDb;
 
-      await expect(deleteTransaction('trans-1')).rejects.toThrow('Database error');
+      await expect(mockDeleteTransaction('trans-1')).rejects.toThrow('Database error');
     });
   });
 
   describe('Transaction Transformations', () => {
     it('should transform database transaction to UI format', () => {
-      const { transformTransactionToUI } = mockSchema;
+      const result = mockTransformToUI(mockDbTransaction);
 
-      const result = transformTransactionToUI(mockDbTransaction);
-
-      expect(transformTransactionToUI).toHaveBeenCalledWith(mockDbTransaction);
+      expect(mockTransformToUI).toHaveBeenCalledWith(mockDbTransaction);
       expect(result).toEqual(mockUITransaction);
     });
 
     it('should transform UI transaction to database format', () => {
-      const { transformTransactionToDB } = mockSchema;
+      const result = mockTransformToDB(mockUITransaction);
 
-      const result = transformTransactionToDB(mockUITransaction);
-
-      expect(transformTransactionToDB).toHaveBeenCalledWith(mockUITransaction);
+      expect(mockTransformToDB).toHaveBeenCalledWith(mockUITransaction);
       expect(result).toBeDefined();
     });
 
@@ -295,7 +282,7 @@ describe('Transaction Functionality', () => {
         // Missing required fields
       };
 
-      mockSchema.transformTransactionToUI.mockImplementation((tx) => {
+      mockTransformToUI.mockImplementation((tx) => {
         if (!tx.amount || !tx.transaction_type) {
           throw new Error('Missing required fields for transformation');
         }
@@ -303,7 +290,7 @@ describe('Transaction Functionality', () => {
       });
 
       expect(() => {
-        mockSchema.transformTransactionToUI(incompleteTransaction);
+        mockTransformToUI(incompleteTransaction);
       }).toThrow('Missing required fields for transformation');
     });
   });
@@ -370,7 +357,7 @@ describe('Transaction Functionality', () => {
         transactionType: 'expense' as const,
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation((data) => {
+      mockParse.mockImplementation((data) => {
         if (data.amount <= 0) {
           throw new Error('Amount must be positive');
         }
@@ -378,7 +365,7 @@ describe('Transaction Functionality', () => {
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(negativeExpense);
+        mockParse(negativeExpense);
       }).toThrow('Amount must be positive');
     });
 
@@ -388,7 +375,7 @@ describe('Transaction Functionality', () => {
         transactionDate: 'invalid-date',
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation((data) => {
+      mockParse.mockImplementation((data) => {
         if (isNaN(Date.parse(data.transactionDate))) {
           throw new Error('Invalid date format');
         }
@@ -396,7 +383,7 @@ describe('Transaction Functionality', () => {
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(invalidDateTransaction);
+        mockParse(invalidDateTransaction);
       }).toThrow('Invalid date format');
     });
 
@@ -406,7 +393,7 @@ describe('Transaction Functionality', () => {
         transactionType: 'invalid' as any,
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation((data) => {
+      mockParse.mockImplementation((data) => {
         if (!['income', 'expense'].includes(data.transactionType)) {
           throw new Error('Invalid transaction type');
         }
@@ -414,7 +401,7 @@ describe('Transaction Functionality', () => {
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(invalidTypeTransaction);
+        mockParse(invalidTypeTransaction);
       }).toThrow('Invalid transaction type');
     });
 
@@ -424,7 +411,7 @@ describe('Transaction Functionality', () => {
         name: 'a'.repeat(256),
       };
 
-      mockSchema.createTransactionSchema.parse.mockImplementation((data) => {
+      mockParse.mockImplementation((data) => {
         if (data.name.length > 255) {
           throw new Error('Name too long');
         }
@@ -432,7 +419,7 @@ describe('Transaction Functionality', () => {
       });
 
       expect(() => {
-        mockSchema.createTransactionSchema.parse(longNameTransaction);
+        mockParse(longNameTransaction);
       }).toThrow('Name too long');
     });
   });
@@ -444,16 +431,15 @@ describe('Transaction Functionality', () => {
         { ...mockDbTransaction, id: 'bulk-2', name: 'Bulk Transaction 2' },
       ];
 
-      mockDb.insertTransaction.mockImplementation((transaction) => 
+      mockInsertTransaction.mockImplementation((transaction) => 
         Promise.resolve(transaction)
       );
 
-      const { insertTransaction } = mockDb;
       const results = await Promise.all(
-        bulkTransactions.map(transaction => insertTransaction(transaction))
+        bulkTransactions.map(transaction => mockInsertTransaction(transaction))
       );
 
-      expect(insertTransaction).toHaveBeenCalledTimes(2);
+      expect(mockInsertTransaction).toHaveBeenCalledTimes(2);
       expect(results).toHaveLength(2);
     });
 
@@ -463,16 +449,15 @@ describe('Transaction Functionality', () => {
         { id: 'trans-2', updates: { amount: 200 } },
       ];
 
-      mockDb.updateTransaction.mockImplementation((id, updates) => 
+      mockUpdateTransaction.mockImplementation((id, updates) => 
         Promise.resolve({ ...mockDbTransaction, id, ...updates })
       );
 
-      const { updateTransaction } = mockDb;
       const results = await Promise.all(
-        bulkUpdates.map(({ id, updates }) => updateTransaction(id, updates))
+        bulkUpdates.map(({ id, updates }) => mockUpdateTransaction(id, updates))
       );
 
-      expect(updateTransaction).toHaveBeenCalledTimes(2);
+      expect(mockUpdateTransaction).toHaveBeenCalledTimes(2);
       expect(results[0].amount).toBe(100);
       expect(results[1].amount).toBe(200);
     });
@@ -484,16 +469,15 @@ describe('Transaction Functionality', () => {
         { ...mockDbTransaction, id: 'valid-3' },
       ];
 
-      mockDb.insertTransaction.mockImplementation((transaction) => {
+      mockInsertTransaction.mockImplementation((transaction) => {
         if (!transaction.name) {
           return Promise.reject(new Error('Name is required'));
         }
         return Promise.resolve(transaction);
       });
 
-      const { insertTransaction } = mockDb;
       const results = await Promise.allSettled(
-        bulkTransactions.map(transaction => insertTransaction(transaction))
+        bulkTransactions.map(transaction => mockInsertTransaction(transaction))
       );
 
       expect(results).toHaveLength(3);
