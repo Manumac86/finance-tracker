@@ -1,6 +1,6 @@
 /**
  * Transaction Search & Management Service
- * 
+ *
  * Implements US-012: Transaction Search & Management
  * - Advanced search and filtering
  * - Bulk transaction editing
@@ -8,14 +8,14 @@
  * - Duplicate detection
  */
 
-import { UITransaction } from '@/lib/db/schemas/transaction';
+import { UITransaction } from "@/lib/db/schemas/transaction";
 
 export interface SearchFilters {
   startDate?: string;
   endDate?: string;
   minAmount?: number;
   maxAmount?: number;
-  transactionType?: 'income' | 'expense';
+  transactionType?: "income" | "expense";
   categoryId?: string;
   searchText?: string;
 }
@@ -46,10 +46,10 @@ export interface SplitTransaction {
  * Search and filter transactions based on various criteria
  */
 export function searchTransactions(
-  transactions: UITransaction[], 
+  transactions: UITransaction[],
   filters: SearchFilters
 ): UITransaction[] {
-  return transactions.filter(transaction => {
+  return transactions.filter((transaction) => {
     // Date range filter
     if (filters.startDate && transaction.transactionDate < filters.startDate) {
       return false;
@@ -59,15 +59,24 @@ export function searchTransactions(
     }
 
     // Amount range filter
-    if (filters.minAmount !== undefined && transaction.amount < filters.minAmount) {
+    if (
+      filters.minAmount !== undefined &&
+      transaction.amount < filters.minAmount
+    ) {
       return false;
     }
-    if (filters.maxAmount !== undefined && transaction.amount > filters.maxAmount) {
+    if (
+      filters.maxAmount !== undefined &&
+      transaction.amount > filters.maxAmount
+    ) {
       return false;
     }
 
     // Transaction type filter
-    if (filters.transactionType && transaction.transactionType !== filters.transactionType) {
+    if (
+      filters.transactionType &&
+      transaction.transactionType !== filters.transactionType
+    ) {
       return false;
     }
 
@@ -80,8 +89,9 @@ export function searchTransactions(
     if (filters.searchText) {
       const searchTerm = filters.searchText.toLowerCase();
       const nameMatch = transaction.name.toLowerCase().includes(searchTerm);
-      const descriptionMatch = transaction.description?.toLowerCase().includes(searchTerm) || false;
-      
+      const descriptionMatch =
+        transaction.description?.toLowerCase().includes(searchTerm) || false;
+
       if (!nameMatch && !descriptionMatch) {
         return false;
       }
@@ -96,30 +106,35 @@ export function searchTransactions(
  */
 export function detectDuplicates(
   transactions: UITransaction[],
-  criteria: string[] = ['name', 'amount', 'categoryId']
+  criteria: string[] = ["name", "amount", "categoryId"]
 ): DuplicateGroup[] {
   const duplicateGroups: DuplicateGroup[] = [];
   const processed = new Set<string>();
 
   for (let i = 0; i < transactions.length; i++) {
     const transaction1 = transactions[i];
-    
+
     if (processed.has(transaction1.id!)) {
       continue;
     }
 
     const group: UITransaction[] = [transaction1];
-    
+
     for (let j = i + 1; j < transactions.length; j++) {
       const transaction2 = transactions[j];
-      
+
       if (processed.has(transaction2.id!)) {
         continue;
       }
 
-      const similarity = calculateSimilarity(transaction1, transaction2, criteria);
-      
-      if (similarity > 0.8) { // 80% similarity threshold
+      const similarity = calculateSimilarity(
+        transaction1,
+        transaction2,
+        criteria
+      );
+
+      if (similarity > 0.8) {
+        // 80% similarity threshold
         group.push(transaction2);
         processed.add(transaction2.id!);
       }
@@ -132,9 +147,9 @@ export function detectDuplicates(
         similarity,
         criteria,
       });
-      
+
       // Mark all transactions in the group as processed
-      group.forEach(t => processed.add(t.id!));
+      group.forEach((t) => processed.add(t.id!));
     }
   }
 
@@ -154,19 +169,21 @@ function calculateSimilarity(
 
   for (const criterion of criteria) {
     switch (criterion) {
-      case 'name':
+      case "name":
         if (transaction1.name === transaction2.name) matches++;
         break;
-      case 'amount':
-        if (Math.abs(transaction1.amount - transaction2.amount) < 0.01) matches++;
+      case "amount":
+        if (Math.abs(transaction1.amount - transaction2.amount) < 0.01)
+          matches++;
         break;
-      case 'categoryId':
+      case "categoryId":
         if (transaction1.categoryId === transaction2.categoryId) matches++;
         break;
-      case 'transactionDate':
-        if (transaction1.transactionDate === transaction2.transactionDate) matches++;
+      case "transactionDate":
+        if (transaction1.transactionDate === transaction2.transactionDate)
+          matches++;
         break;
-      case 'description':
+      case "description":
         if (transaction1.description === transaction2.description) matches++;
         break;
     }
@@ -178,7 +195,10 @@ function calculateSimilarity(
 /**
  * Calculate overall similarity for a group of transactions
  */
-function calculateGroupSimilarity(group: UITransaction[], criteria: string[]): number {
+function calculateGroupSimilarity(
+  group: UITransaction[],
+  criteria: string[]
+): number {
   if (group.length < 2) return 1.0;
 
   let totalSimilarity = 0;
@@ -204,20 +224,27 @@ export function validateBulkEdit(
   const errors: string[] = [];
 
   if (!transactionIds || transactionIds.length === 0) {
-    errors.push('No transactions selected');
+    errors.push("No transactions selected");
   }
 
   if (!updates || Object.keys(updates).length === 0) {
-    errors.push('No updates provided');
+    errors.push("No updates provided");
   }
 
   // Validate update fields
-  if (updates.amount !== undefined && (typeof updates.amount !== 'number' || updates.amount <= 0)) {
-    errors.push('Amount must be a positive number');
+  if (
+    updates.amount !== undefined &&
+    (typeof updates.amount !== "number" || updates.amount <= 0)
+  ) {
+    errors.push("Amount must be a positive number");
   }
 
-  if (updates.transactionDate && !/^\d{4}-\d{2}-\d{2}$/.test(updates.transactionDate)) {
-    errors.push('Invalid date format (expected YYYY-MM-DD)');
+  if (
+    updates.transactionDate &&
+    typeof updates.transactionDate === "string" &&
+    !/^\d{4}-\d{2}-\d{2}$/.test(updates.transactionDate)
+  ) {
+    errors.push("Invalid date format (expected YYYY-MM-DD)");
   }
 
   return {
@@ -235,16 +262,16 @@ export function prepareBulkEditPayload(
 ): Record<string, unknown> {
   // Transform camelCase to snake_case for database
   const dbUpdates: Record<string, unknown> = {};
-  
+
   for (const [key, value] of Object.entries(updates)) {
     switch (key) {
-      case 'categoryId':
+      case "categoryId":
         dbUpdates.category_id = value;
         break;
-      case 'transactionType':
+      case "transactionType":
         dbUpdates.transaction_type = value;
         break;
-      case 'transactionDate':
+      case "transactionDate":
         dbUpdates.transaction_date = value;
         break;
       default:
@@ -270,20 +297,20 @@ export function validateSplitTransaction(
   const errors: string[] = [];
 
   if (!splits || splits.length === 0) {
-    errors.push('No split transactions provided');
+    errors.push("No split transactions provided");
   }
 
   if (splits.length < 2) {
-    errors.push('At least 2 split transactions required');
+    errors.push("At least 2 split transactions required");
   }
 
   // Check if split amounts add up to original amount
   const totalSplitAmount = splits.reduce((sum, split) => sum + split.amount, 0);
   if (Math.abs(totalSplitAmount - originalTransaction.amount) > 0.01) {
     if (totalSplitAmount > originalTransaction.amount) {
-      errors.push('Split amounts exceed original transaction amount');
+      errors.push("Split amounts exceed original transaction amount");
     } else {
-      errors.push('Split amounts are less than original transaction amount');
+      errors.push("Split amounts are less than original transaction amount");
     }
   }
 
@@ -295,7 +322,7 @@ export function validateSplitTransaction(
     if (!split.categoryId) {
       errors.push(`Split ${index + 1}: Category is required`);
     }
-    if (!split.description || split.description.trim() === '') {
+    if (!split.description || split.description.trim() === "") {
       errors.push(`Split ${index + 1}: Description is required`);
     }
   });
@@ -312,7 +339,10 @@ export function validateSplitTransaction(
 export function prepareSplitTransactionPayload(
   originalTransaction: UITransaction,
   splits: SplitTransaction[]
-): { originalTransactionId: string; splitTransactions: Record<string, unknown>[] } {
+): {
+  originalTransactionId: string;
+  splitTransactions: Record<string, unknown>[];
+} {
   const splitTransactions = splits.map((split, index) => ({
     user_id: originalTransaction.userId,
     name: `${originalTransaction.name} (Split ${index + 1}/${splits.length})`,
@@ -326,7 +356,7 @@ export function prepareSplitTransactionPayload(
   }));
 
   return {
-    originalTransactionId: originalTransaction.id,
+    originalTransactionId: originalTransaction.id!,
     splitTransactions,
   };
 }

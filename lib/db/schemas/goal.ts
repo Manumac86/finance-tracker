@@ -1,7 +1,16 @@
 import { z } from "zod";
 
-export const GoalTypeEnum = z.enum(["savings", "debt_payoff", "spending_limit"]);
-export const GoalPeriodEnum = z.enum(["weekly", "monthly", "yearly"]);
+export const GoalTypeEnum = z.enum([
+  "savings",
+  "debt_payoff",
+  "spending_limit",
+]);
+export const GoalPeriodEnum = z.enum([
+  "weekly",
+  "monthly",
+  "yearly",
+  "quarterly",
+]);
 
 export const GoalSchema = z.object({
   id: z.string().uuid().optional(),
@@ -52,7 +61,7 @@ export interface UIGoal {
   currentAmount: number;
   targetDate?: string;
   categoryId?: string;
-  period?: "weekly" | "monthly" | "yearly";
+  period?: "weekly" | "monthly" | "yearly" | "quarterly";
   progress?: number;
   achievedAt?: string;
   isActive: boolean;
@@ -117,9 +126,11 @@ export function transformUIToGoal(uiGoal: Partial<UIGoal>): Partial<Goal> {
 export function calculateGoalProgress(goal: Goal): number {
   if (goal.type === "debt_payoff") {
     // For debt payoff, progress is amount paid off
-    return Math.round(((goal.target_amount - goal.current_amount) / goal.target_amount) * 100);
+    return Math.round(
+      ((goal.target_amount - goal.current_amount) / goal.target_amount) * 100
+    );
   }
-  
+
   // For savings and spending limits, progress is current/target
   return Math.round((goal.current_amount / goal.target_amount) * 100);
 }
@@ -128,11 +139,11 @@ export function isGoalAchieved(goal: Goal): boolean {
   if (goal.type === "debt_payoff") {
     return goal.current_amount <= 0;
   }
-  
+
   if (goal.type === "spending_limit") {
     return goal.current_amount <= goal.target_amount;
   }
-  
+
   // For savings goals
   return goal.current_amount >= goal.target_amount;
 }

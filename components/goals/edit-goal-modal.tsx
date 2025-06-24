@@ -20,7 +20,7 @@ import { UIGoal } from "@/lib/db/schemas/goal";
 interface EditGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (goalId: string, goalData: GoalFormData) => void;
+  onSave: (goalId: string, goalData: Partial<UIGoal>) => void;
   goal: UIGoal | null;
 }
 
@@ -30,7 +30,7 @@ export function EditGoalModal({
   onSave,
   goal,
 }: EditGoalModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<GoalFormData>({
     name: "",
     description: "",
     type: "savings",
@@ -102,7 +102,10 @@ export function EditGoalModal({
     onClose();
   };
 
-  const updateFormData: FormUpdateHandler = (field: string, value: string | number | boolean) => {
+  const updateFormData: FormUpdateHandler = (
+    field: string,
+    value: string | number | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
