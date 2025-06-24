@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat, FileDown, Menu, X, BarChart3 } from "lucide-react";
+import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat, FileDown, Menu, X, BarChart3, Users } from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
@@ -90,6 +90,16 @@ export function Header() {
           >
             <FileDown className="h-4 w-4" />
             Reports
+          </Button>
+        </Link>
+        <Link href="/family">
+          <Button 
+            variant={pathname === "/family" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <Users className="h-4 w-4" />
+            Family
           </Button>
         </Link>
       </nav>
@@ -204,6 +214,16 @@ export function Header() {
               >
                 <FileDown className="h-4 w-4" />
                 Reports
+              </Button>
+            </Link>
+            <Link href="/family" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/family" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Users className="h-4 w-4" />
+                Family
               </Button>
             </Link>
           </nav>
