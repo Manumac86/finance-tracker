@@ -149,7 +149,7 @@ describe('TDD RED: Goal UI Components', () => {
     }
 
     it('should display goal information', () => {
-      render(<GoalCard goal={mockGoal} />)
+      render(<GoalCard goal={mockGoal as any} />)
 
       expect(screen.getByText('Emergency Fund')).toBeInTheDocument()
       expect(screen.getByText('$1,500 / $5,000')).toBeInTheDocument()
@@ -157,7 +157,7 @@ describe('TDD RED: Goal UI Components', () => {
     })
 
     it('should show progress bar', () => {
-      render(<GoalCard goal={mockGoal} />)
+      render(<GoalCard goal={mockGoal as any} />)
 
       const progressBar = screen.getByRole('progressbar')
       expect(progressBar).toBeInTheDocument()
@@ -165,13 +165,13 @@ describe('TDD RED: Goal UI Components', () => {
     })
 
     it('should display target date', () => {
-      render(<GoalCard goal={mockGoal} />)
+      render(<GoalCard goal={mockGoal as any} />)
 
       expect(screen.getByText(/dec 31, 2024/i)).toBeInTheDocument()
     })
 
     it('should show edit and delete buttons', () => {
-      render(<GoalCard goal={mockGoal} />)
+      render(<GoalCard goal={mockGoal as any} />)
 
       expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()
@@ -200,7 +200,7 @@ describe('TDD RED: Goal UI Components', () => {
         progress: 33.33,
       }
 
-      render(<GoalCard goal={debtGoal} />)
+      render(<GoalCard goal={debtGoal as any} />)
 
       expect(screen.getByText('Credit Card Payoff')).toBeInTheDocument()
       expect(screen.getByText('$2,000 remaining')).toBeInTheDocument()
@@ -330,7 +330,7 @@ describe('TDD RED: Goal UI Components', () => {
         achievedAt: new Date().toISOString(),
       }
 
-      render(<GoalCard goal={achievedGoal} />)
+      render(<GoalCard goal={achievedGoal as any} />)
 
       expect(screen.getByTestId('celebration-modal')).toBeInTheDocument()
       expect(screen.getByText(/congratulations!/i)).toBeInTheDocument()
@@ -348,7 +348,7 @@ describe('TDD RED: Goal UI Components', () => {
         achievedAt: new Date().toISOString(),
       }
 
-      render(<GoalCard goal={achievedGoal} />)
+      render(<GoalCard goal={achievedGoal as any} />)
 
       expect(screen.getByText(/what's next?/i)).toBeInTheDocument()
       expect(screen.getByText(/create a new savings goal/i)).toBeInTheDocument()
@@ -368,7 +368,7 @@ describe('TDD RED: Goal UI Components', () => {
         targetDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
       }
 
-      render(<GoalCard goal={nearDeadlineGoal} />)
+      render(<GoalCard goal={nearDeadlineGoal as any} />)
 
       expect(screen.getByText(/deadline approaching/i)).toBeInTheDocument()
       expect(screen.getByText(/7 days remaining/i)).toBeInTheDocument()
@@ -385,7 +385,7 @@ describe('TDD RED: Goal UI Components', () => {
         targetDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
       }
 
-      render(<GoalCard goal={overdueGoal} />)
+      render(<GoalCard goal={overdueGoal as any} />)
 
       expect(screen.getByText(/overdue/i)).toBeInTheDocument()
       expect(screen.getByText(/7 days overdue/i)).toBeInTheDocument()
