@@ -41,7 +41,7 @@ import { BulkTransactionModal } from "@/components/bulk-transaction-modal";
 import { toast } from "sonner";
 
 export function AddTransactionButton() {
-  const { categories } = useCategories();
+  const { data: categories } = useCategories();
   const { transactions, mutate } = useTransactions();
   const { checkBudgetAlerts } = useBudgetAlerts();
   const [open, setOpen] = useState(false);
@@ -193,7 +193,7 @@ export function AddTransactionButton() {
       
       // Auto-suggest category based on merchant name
       if (!category && value.length >= 3) {
-        const suggestedCategory = suggestCategory(value, categories);
+        const suggestedCategory = suggestCategory(value, categories || []);
         if (suggestedCategory?.id) {
           setCategory(suggestedCategory.id);
         }
@@ -208,7 +208,7 @@ export function AddTransactionButton() {
     setCategory(categoryId);
     
     // Provide merchant suggestions based on category
-    const selectedCategory = categories.find(cat => cat.id === categoryId);
+    const selectedCategory = categories?.find(cat => cat.id === categoryId);
     if (selectedCategory && !name) {
       const quickSuggestions = getQuickMerchantSuggestions(selectedCategory.name);
       setMerchantSuggestions(quickSuggestions);
@@ -320,7 +320,7 @@ export function AddTransactionButton() {
                           
                           // Auto-suggest category for this merchant
                           if (!category) {
-                            const suggestedCategory = suggestCategory(suggestion, categories);
+                            const suggestedCategory = suggestCategory(suggestion, categories || []);
                             if (suggestedCategory?.id) {
                               setCategory(suggestedCategory.id);
                             }
@@ -361,7 +361,7 @@ export function AddTransactionButton() {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700 text-gray-50">
-                    {categories.map((cat) => (
+                    {categories?.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id || cat.name}>
                         {cat.name}
                       </SelectItem>

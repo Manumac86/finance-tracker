@@ -1,9 +1,18 @@
 import { z } from "zod";
 
 export const BudgetTypeEnum = z.enum(["category", "total", "custom"]);
-export const BudgetPeriodEnum = z.enum(["weekly", "monthly", "quarterly", "yearly"]);
+export const BudgetPeriodEnum = z.enum([
+  "weekly",
+  "monthly",
+  "quarterly",
+  "yearly",
+]);
 export const RolloverTypeEnum = z.enum(["none", "surplus", "deficit", "both"]);
-export const AlertTypeEnum = z.enum(["threshold_warning", "overspend_warning", "budget_exceeded"]);
+export const AlertTypeEnum = z.enum([
+  "threshold_warning",
+  "overspend_warning",
+  "budget_exceeded",
+]);
 
 export const BudgetSchema = z.object({
   id: z.string().uuid().optional(),
@@ -16,20 +25,20 @@ export const BudgetSchema = z.object({
   period: BudgetPeriodEnum,
   start_date: z.string(), // ISO date string
   end_date: z.string().optional(),
-  
+
   // Alert settings
   alert_threshold_percentage: z.number().min(1).max(100).default(80),
   alert_enabled: z.boolean().default(true),
   overspend_alert_enabled: z.boolean().default(true),
-  
+
   // Rollover settings
   rollover_enabled: z.boolean().default(false),
   rollover_type: RolloverTypeEnum.default("none"),
-  
+
   // Current period tracking
   current_spent: z.number().default(0),
   last_calculated_at: z.string().optional(),
-  
+
   // Status and metadata
   is_active: z.boolean().default(true),
   metadata: z.record(z.any()).optional(),
@@ -101,26 +110,26 @@ export interface UIBudget {
   period: "weekly" | "monthly" | "quarterly" | "yearly";
   startDate: string;
   endDate?: string;
-  
+
   // Alert settings
   alertThresholdPercentage: number;
   alertEnabled: boolean;
   overspendAlertEnabled: boolean;
-  
+
   // Rollover settings
   rolloverEnabled: boolean;
   rolloverType: "none" | "surplus" | "deficit" | "both";
-  
+
   // Current period tracking
   currentSpent: number;
   lastCalculatedAt?: string;
-  
+
   // Status and metadata
   isActive: boolean;
   metadata?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
-  
+
   // Computed fields for UI
   percentageUsed?: number;
   remaining?: number;
@@ -161,21 +170,27 @@ export interface UIBudgetHistory {
 
 // Transform database Budget to UI-compatible format
 export function transformBudgetToUI(budget: Budget): UIBudget {
-  const percentageUsed = budget.amount > 0 ? (budget.current_spent / budget.amount) * 100 : 0;
+  const percentageUsed =
+    budget.amount > 0 ? (budget.current_spent / budget.amount) * 100 : 0;
   const remaining = budget.amount - budget.current_spent;
-  
+
   let status: "on_track" | "warning" | "overspent" = "on_track";
   if (percentageUsed >= 100) {
     status = "overspent";
   } else if (percentageUsed >= budget.alert_threshold_percentage) {
     status = "warning";
   }
-  
+
   // Calculate days remaining in current period
   const startDate = new Date(budget.start_date);
-  const endDate = budget.end_date ? new Date(budget.end_date) : calculatePeriodEndDate(startDate, budget.period);
+  const endDate = budget.end_date
+    ? new Date(budget.end_date)
+    : calculatePeriodEndDate(startDate, budget.period);
   const today = new Date();
-  const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  );
 
   return {
     id: budget.id,
@@ -207,7 +222,9 @@ export function transformBudgetToUI(budget: Budget): UIBudget {
 }
 
 // Transform UI format to database format
-export function transformUIToBudget(uiBudget: Partial<UIBudget>): Partial<Budget> {
+export function transformUIToBudget(
+  uiBudget: Partial<UIBudget>
+): Partial<Budget> {
   return {
     id: uiBudget.id,
     user_id: uiBudget.userId,
@@ -253,9 +270,12 @@ export function transformBudgetAlertToUI(alert: BudgetAlert): UIBudgetAlert {
 }
 
 // Helper function to calculate period end date
-function calculatePeriodEndDate(startDate: Date, period: "weekly" | "monthly" | "quarterly" | "yearly"): Date {
+function calculatePeriodEndDate(
+  startDate: Date,
+  period: "weekly" | "monthly" | "quarterly" | "yearly"
+): Date {
   const endDate = new Date(startDate);
-  
+
   switch (period) {
     case "weekly":
       endDate.setDate(startDate.getDate() + 6);
@@ -273,53 +293,62 @@ function calculatePeriodEndDate(startDate: Date, period: "weekly" | "monthly" | 
       endDate.setDate(endDate.getDate() - 1);
       break;
   }
-  
+
   return endDate;
 }
 
 // Budget calculation utilities
-export function calculateBudgetStatus(currentSpent: number, budgetAmount: number, thresholdPercentage: number) {
-  const percentageUsed = budgetAmount > 0 ? (currentSpent / budgetAmount) * 100 : 0;
-  
+export function calculateBudgetStatus(
+  currentSpent: number,
+  budgetAmount: number,
+  thresholdPercentage: number
+) {
+  const percentageUsed =
+    budgetAmount > 0 ? (currentSpent / budgetAmount) * 100 : 0;
+
   if (percentageUsed >= 100) {
     return {
       status: "overspent" as const,
       severity: "high" as const,
-      message: "Budget exceeded"
+      message: "Budget exceeded",
     };
   } else if (percentageUsed >= thresholdPercentage) {
     return {
       status: "warning" as const,
       severity: "medium" as const,
-      message: `${Math.round(percentageUsed)}% of budget used`
+      message: `${Math.round(percentageUsed)}% of budget used`,
     };
   } else {
     return {
       status: "on_track" as const,
       severity: "low" as const,
-      message: "On track"
+      message: "On track",
     };
   }
 }
 
 export function shouldTriggerAlert(
-  currentSpent: number, 
-  budgetAmount: number, 
+  currentSpent: number,
+  budgetAmount: number,
   thresholdPercentage: number,
   lastAlertPercentage?: number
-): { shouldAlert: boolean; alertType: "threshold_warning" | "overspend_warning" | "budget_exceeded" } | null {
-  const percentageUsed = budgetAmount > 0 ? (currentSpent / budgetAmount) * 100 : 0;
-  
+): {
+  shouldAlert: boolean;
+  alertType: "threshold_warning" | "overspend_warning" | "budget_exceeded";
+} | null {
+  const percentageUsed =
+    budgetAmount > 0 ? (currentSpent / budgetAmount) * 100 : 0;
+
   // Don't trigger duplicate alerts
   if (lastAlertPercentage && percentageUsed <= lastAlertPercentage) {
     return null;
   }
-  
+
   if (percentageUsed >= 100) {
     return { shouldAlert: true, alertType: "budget_exceeded" };
   } else if (percentageUsed >= thresholdPercentage) {
     return { shouldAlert: true, alertType: "threshold_warning" };
   }
-  
+
   return null;
 }

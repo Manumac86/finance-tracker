@@ -9,7 +9,6 @@ import { GoalCard } from "@/components/goals/goal-card";
 import { CreateGoalModal } from "@/components/goals/create-goal-modal";
 import { EditGoalModal } from "@/components/goals/edit-goal-modal";
 import { UIGoal } from "@/lib/db/schemas/goal";
-import { GoalFormData } from "@/types/forms";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -26,7 +25,7 @@ export default function GoalsPage() {
 
   const goals = data?.goals || [];
 
-  const handleCreateGoal = async (goalData: GoalFormData) => {
+  const handleCreateGoal = async (goalData: Partial<UIGoal>) => {
     try {
       // Transform camelCase to snake_case for API
       const apiData = {
@@ -67,7 +66,7 @@ export default function GoalsPage() {
 
   const handleUpdateGoal = async (
     goalId: string,
-    updateData: GoalFormData
+    updateData: Partial<UIGoal>
   ) => {
     try {
       const response = await fetch(`/api/goals/${goalId}`, {

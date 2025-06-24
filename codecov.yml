@@ -1,0 +1,52 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+    patch:
+      default:
+        target: 75%
+        threshold: 5%
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+
+ignore:
+  - "**/*.config.js"
+  - "**/*.config.ts"
+  - "**/jest.setup.js"
+  - "**/*.d.ts"
+  - "app/**/layout.tsx"
+  - "app/**/loading.tsx"
+  - "app/**/error.tsx"
+  - "app/**/not-found.tsx"
+  - "**/__tests__/**"
+  - "**/coverage/**"
+  - "**/.next/**"
+  - "**/node_modules/**"
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches:
+    - main
+    - develop
+
+github_checks:
+  annotations: true

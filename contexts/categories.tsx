@@ -8,7 +8,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 interface CategoriesContextType {
   data: UICategory[] | null;
   isLoading: boolean;
-  error: any;
+  error: Error | null;
   mutate: () => void;
 }
 
@@ -24,10 +24,9 @@ export const CategoriesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, error, isLoading, mutate } = useSWR<{ categories: UICategory[] }>(
-    "/api/categories",
-    fetcher
-  );
+  const { data, error, isLoading, mutate } = useSWR<{
+    categories: UICategory[];
+  }>("/api/categories", fetcher);
 
   return (
     <CategoriesContext.Provider

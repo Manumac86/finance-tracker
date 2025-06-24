@@ -345,7 +345,19 @@ export default function RecurringTransactionsPage() {
           setSelectedTransaction(null);
         }}
         onSave={selectedTransaction ? handleUpdateTransaction : handleCreateTransaction}
-        initialData={selectedTransaction || undefined}
+        initialData={selectedTransaction ? {
+          name: selectedTransaction.name,
+          description: selectedTransaction.description || "",
+          amount: selectedTransaction.amount.toString(),
+          transactionType: selectedTransaction.transactionType,
+          categoryId: selectedTransaction.categoryId,
+          frequency: selectedTransaction.frequency,
+          startDate: selectedTransaction.startDate || "",
+          endDate: selectedTransaction.endDate || "",
+          isBill: selectedTransaction.isBill,
+          reminderDaysBefore: selectedTransaction.reminderDaysBefore,
+          autoCreateTransaction: selectedTransaction.autoCreateTransaction,
+        } : undefined}
       />
     </div>
   );
@@ -383,7 +395,7 @@ function TransactionCard({
                 </Badge>
               )}
               {isDueSoon && !isOverdue && (
-                <Badge variant="warning" className="text-xs">
+                <Badge variant="secondary" className="text-xs bg-yellow-900/20 text-yellow-300">
                   Due Soon
                 </Badge>
               )}

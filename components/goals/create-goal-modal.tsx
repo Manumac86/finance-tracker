@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { UIGoal } from "@/lib/db/schemas/goal";
 
 interface CreateGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (goalData: GoalFormData) => void;
+  onSave: (goalData: Partial<UIGoal>) => void;
 }
 
 export function CreateGoalModal({
@@ -28,12 +29,12 @@ export function CreateGoalModal({
   onClose,
   onSave,
 }: CreateGoalModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<GoalFormData>({
     name: "",
     description: "",
     type: "savings",
-    targetAmount: "",
-    currentAmount: "",
+    targetAmount: "0.00",
+    currentAmount: "0.00",
     targetDate: "",
     categoryId: "",
     period: "monthly",
@@ -68,7 +69,7 @@ export function CreateGoalModal({
     // Prepare data for submission
     const goalData = {
       name: formData.name,
-      description: formData.description || undefined,
+      description: formData.description || "",
       type: formData.type,
       targetAmount: parseFloat(formData.targetAmount),
       currentAmount: formData.currentAmount
@@ -156,7 +157,10 @@ export function CreateGoalModal({
               <Select
                 value={formData.type}
                 onValueChange={(value) =>
-                  setFormData({ ...formData, type: value })
+                  setFormData({
+                    ...formData,
+                    type: value as "savings" | "debt_payoff" | "spending_limit",
+                  })
                 }
               >
                 <SelectTrigger className="bg-gray-800 border-gray-700">
@@ -270,7 +274,10 @@ export function CreateGoalModal({
                 <Select
                   value={formData.period}
                   onValueChange={(value) =>
-                    setFormData({ ...formData, period: value })
+                    setFormData({
+                      ...formData,
+                      period: value as "weekly" | "monthly" | "yearly",
+                    })
                   }
                 >
                   <SelectTrigger className="bg-gray-800 border-gray-700">

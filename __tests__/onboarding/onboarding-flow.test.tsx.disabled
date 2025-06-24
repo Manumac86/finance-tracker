@@ -183,10 +183,21 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       const nextButton = await screen.findByRole("button", { name: /Next/i });
       fireEvent.click(nextButton);
       fireEvent.click(nextButton);
-      fireEvent.click(nextButton);
+      
+      // On the goal setting step, we need to save a goal first
+      const goalName = screen.getByLabelText(/Goal Name/i);
+      const targetAmount = screen.getByLabelText(/Target Amount/i);
+      const targetDate = screen.getByLabelText(/Target Date/i);
+      
+      fireEvent.change(goalName, { target: { value: 'Test Goal' } });
+      fireEvent.change(targetAmount, { target: { value: '1000' } });
+      fireEvent.change(targetDate, { target: { value: '2024-12-31' } });
+      
+      const saveGoalButton = screen.getByRole("button", { name: /Save Goal/i });
+      fireEvent.click(saveGoalButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/Try It Out/i)).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: /Try It Out/i })).toBeInTheDocument();
         expect(screen.getByTestId("sample-transactions")).toBeInTheDocument();
         expect(screen.getByText(/Coffee Shop/i)).toBeInTheDocument();
         expect(screen.getByText(/Grocery Store/i)).toBeInTheDocument();
@@ -203,7 +214,18 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       const nextButton = await screen.findByRole("button", { name: /Next/i });
       fireEvent.click(nextButton);
       fireEvent.click(nextButton);
-      fireEvent.click(nextButton);
+      
+      // Fill and save goal
+      const goalName = screen.getByLabelText(/Goal Name/i);
+      const targetAmount = screen.getByLabelText(/Target Amount/i);
+      const targetDate = screen.getByLabelText(/Target Date/i);
+      
+      fireEvent.change(goalName, { target: { value: 'Test Goal' } });
+      fireEvent.change(targetAmount, { target: { value: '1000' } });
+      fireEvent.change(targetDate, { target: { value: '2024-12-31' } });
+      
+      const saveGoalButton = screen.getByRole("button", { name: /Save Goal/i });
+      fireEvent.click(saveGoalButton);
 
       const editButton = await screen.findByRole("button", { name: /Edit/i });
       fireEvent.click(editButton);
@@ -244,11 +266,21 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       const startButton = screen.getByRole("button", { name: /Get Started/i });
       fireEvent.click(startButton);
 
-      // Click through all steps
-      for (let i = 0; i < 3; i++) {
-        const nextButton = await screen.findByRole("button", { name: /Next/i });
-        fireEvent.click(nextButton);
-      }
+      // Step 1 -> 2
+      const nextButton1 = await screen.findByRole("button", { name: /Next/i });
+      fireEvent.click(nextButton1);
+      
+      // Step 3: Fill and save goal
+      const goalName = screen.getByLabelText(/Goal Name/i);
+      const targetAmount = screen.getByLabelText(/Target Amount/i);
+      const targetDate = screen.getByLabelText(/Target Date/i);
+      
+      fireEvent.change(goalName, { target: { value: 'Test Goal' } });
+      fireEvent.change(targetAmount, { target: { value: '1000' } });
+      fireEvent.change(targetDate, { target: { value: '2024-12-31' } });
+      
+      const saveGoalButton = screen.getByRole("button", { name: /Save Goal/i });
+      fireEvent.click(saveGoalButton);
 
       const completeButton = await screen.findByRole("button", {
         name: /Complete Setup/i,
@@ -267,10 +299,21 @@ describe("TDD RED: Enhanced User Onboarding Tests", () => {
       const startButton = screen.getByRole("button", { name: /Get Started/i });
       fireEvent.click(startButton);
 
-      for (let i = 0; i < 3; i++) {
-        const nextButton = await screen.findByRole("button", { name: /Next/i });
-        fireEvent.click(nextButton);
-      }
+      // Navigate through steps
+      const nextButton = await screen.findByRole("button", { name: /Next/i });
+      fireEvent.click(nextButton);
+      
+      // Fill and save goal
+      const goalName = screen.getByLabelText(/Goal Name/i);
+      const targetAmount = screen.getByLabelText(/Target Amount/i);
+      const targetDate = screen.getByLabelText(/Target Date/i);
+      
+      fireEvent.change(goalName, { target: { value: 'Test Goal' } });
+      fireEvent.change(targetAmount, { target: { value: '1000' } });
+      fireEvent.change(targetDate, { target: { value: '2024-12-31' } });
+      
+      const saveGoalButton = screen.getByRole("button", { name: /Save Goal/i });
+      fireEvent.click(saveGoalButton);
 
       const completeButton = await screen.findByRole("button", {
         name: /Complete Setup/i,

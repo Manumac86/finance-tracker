@@ -230,9 +230,9 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    "FinTrack has completely changed how I manage my money. I
+                    &quot;FinTrack has completely changed how I manage my money. I
                     can now see exactly where my money goes and make better
-                    financial decisions."
+                    financial decisions.&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -265,9 +265,9 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    "I've tried many finance apps, but FinTrack is by far the
+                    &quot;I&apos;ve tried many finance apps, but FinTrack is by far the
                     most intuitive and comprehensive. The visual charts make it
-                    easy to understand my finances."
+                    easy to understand my finances.&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -300,9 +300,9 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    "Since using FinTrack, I've been able to save an extra $400
+                    &quot;Since using FinTrack, I&apos;ve been able to save an extra $400
                     per month. The insights it provides are invaluable for
-                    financial planning."
+                    financial planning.&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">

@@ -9,7 +9,9 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage --watchAll=false",
+    "test:ci": "jest --coverage --watchAll=false --maxWorkers=2",
+    "coverage:open": "open coverage/lcov-report/index.html"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.22.0",
@@ -29,6 +31,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.507.0",
     "mongodb": "^6.16.0",
     "next": "15.3.1",

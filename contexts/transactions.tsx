@@ -8,7 +8,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 interface TransactionsContextType {
   transactions: UITransaction[];
   isLoading: boolean;
-  error: any;
+  error: Error | null;
   mutate: () => void;
 }
 
@@ -24,10 +24,9 @@ export const TransactionsProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, error, isLoading, mutate } = useSWR<{ transactions: UITransaction[] }>(
-    "/api/transactions",
-    fetcher
-  );
+  const { data, error, isLoading, mutate } = useSWR<{
+    transactions: UITransaction[];
+  }>("/api/transactions", fetcher);
 
   return (
     <TransactionsContext.Provider
@@ -46,7 +45,9 @@ export const TransactionsProvider = ({
 export const useTransactions = () => {
   const context = useContext(TransactionsContext);
   if (!context) {
-    throw new Error("useTransactions must be used within a TransactionsProvider");
+    throw new Error(
+      "useTransactions must be used within a TransactionsProvider"
+    );
   }
   return context;
 };
