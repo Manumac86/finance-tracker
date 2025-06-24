@@ -24,7 +24,7 @@ interface BulkTransaction {
   id: string;
   name: string;
   amount: string;
-  transactionType: 'income' | 'expense';
+  transactionType: "income" | "expense";
   categoryId: string;
   description?: string;
   date: string;
@@ -35,8 +35,11 @@ interface BulkTransactionModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModalProps) {
-  const { categories } = useCategories();
+export function BulkTransactionModal({
+  open,
+  onOpenChange,
+}: BulkTransactionModalProps) {
+  const { data: categories } = useCategories();
   const { mutate } = useTransactions();
   const { checkBudgetAlerts } = useBudgetAlerts();
   const [transactions, setTransactions] = useState<BulkTransaction[]>([]);
@@ -52,50 +55,65 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
       transactionType: "expense",
       categoryId: "",
       description: "",
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
     };
     setTransactions([...transactions, newTransaction]);
   };
 
   // Remove a transaction
   const removeTransaction = (id: string) => {
-    setTransactions(transactions.filter(t => t.id !== id));
+    setTransactions(transactions.filter((t) => t.id !== id));
   };
 
   // Update a transaction field
-  const updateTransaction = (id: string, field: keyof BulkTransaction, value: string) => {
-    setTransactions(transactions.map(t => 
-      t.id === id ? { ...t, [field]: value } : t
-    ));
+  const updateTransaction = (
+    id: string,
+    field: keyof BulkTransaction,
+    value: string
+  ) => {
+    setTransactions(
+      transactions.map((t) => (t.id === id ? { ...t, [field]: value } : t))
+    );
   };
 
   // Parse text input for bulk transactions
   const parseTextInput = () => {
     if (!textInput.trim()) return;
 
-    const lines = textInput.trim().split('\n');
+    const lines = textInput.trim().split("\n");
     const newTransactions: BulkTransaction[] = [];
 
     lines.forEach((line, index) => {
       const parts = line.trim().split(/\s+/);
       if (parts.length >= 2) {
-        const amount = parts.find(part => /^\$?[\d.,]+$/.test(part))?.replace(/[$,]/g, '') || '';
-        const name = parts.filter(part => !/^\$?[\d.,]+$/.test(part) && !['expense', 'income'].includes(part.toLowerCase())).join(' ');
-        const type = parts.some(part => part.toLowerCase() === 'income') ? 'income' : 'expense';
-        
+        const amount =
+          parts
+            .find((part) => /^\$?[\d.,]+$/.test(part))
+            ?.replace(/[$,]/g, "") || "";
+        const name = parts
+          .filter(
+            (part) =>
+              !/^\$?[\d.,]+$/.test(part) &&
+              !["expense", "income"].includes(part.toLowerCase())
+          )
+          .join(" ");
+        const type = parts.some((part) => part.toLowerCase() === "income")
+          ? "income"
+          : "expense";
+
         // Auto-suggest category
-        const suggestedCategory = suggestCategory(name, categories);
-        
+        const suggestedCategory = suggestCategory(name, categories || []);
+
         const transaction: BulkTransaction = {
           id: `parsed_${Date.now()}_${index}`,
           name: name || `Transaction ${index + 1}`,
           amount,
           transactionType: type,
-          categoryId: suggestedCategory?.id || '',
-          description: '',
-          date: new Date().toISOString().split('T')[0],
+          categoryId: suggestedCategory?.id || "",
+          description: "",
+          date: new Date().toISOString().split("T")[0],
         };
-        
+
         newTransactions.push(transaction);
       }
     });
@@ -108,17 +126,17 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
   // Download CSV template
   const downloadTemplate = () => {
     const csvContent = [
-      'Name,Amount,Type,Category,Description,Date',
-      'Grocery Store,45.50,expense,Food & Drink,Weekly groceries,2024-01-15',
-      'Salary,3000.00,income,Income,Monthly salary,2024-01-15',
-      'Gas Station,35.00,expense,Transportation,Car fuel,2024-01-14'
-    ].join('\n');
+      "Name,Amount,Type,Category,Description,Date",
+      "Grocery Store,45.50,expense,Food & Drink,Weekly groceries,2024-01-15",
+      "Salary,3000.00,income,Income,Monthly salary,2024-01-15",
+      "Gas Station,35.00,expense,Transportation,Car fuel,2024-01-14",
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'bulk_transactions_template.csv';
+    a.download = "bulk_transactions_template.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -131,27 +149,31 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const lines = text.split('\n').slice(1); // Skip header
+      const lines = text.split("\n").slice(1); // Skip header
       const newTransactions: BulkTransaction[] = [];
 
       lines.forEach((line, index) => {
-        const [name, amount, type, categoryName, description, date] = line.split(',');
+        const [name, amount, type, categoryName, description, date] =
+          line.split(",");
         if (name && amount) {
           // Find category by name
-          const category = categories.find(cat => 
-            cat.name.toLowerCase() === categoryName?.toLowerCase().trim()
+          const category = categories?.find(
+            (cat) =>
+              cat.name.toLowerCase() === categoryName?.toLowerCase().trim()
           );
 
           const transaction: BulkTransaction = {
             id: `csv_${Date.now()}_${index}`,
             name: name.trim(),
             amount: amount.trim(),
-            transactionType: (type?.toLowerCase().trim() === 'income' ? 'income' : 'expense') as 'income' | 'expense',
-            categoryId: category?.id || '',
-            description: description?.trim() || '',
-            date: date?.trim() || new Date().toISOString().split('T')[0],
+            transactionType: (type?.toLowerCase().trim() === "income"
+              ? "income"
+              : "expense") as "income" | "expense",
+            categoryId: category?.id || "",
+            description: description?.trim() || "",
+            date: date?.trim() || new Date().toISOString().split("T")[0],
           };
-          
+
           newTransactions.push(transaction);
         }
       });
@@ -161,7 +183,7 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
     };
 
     reader.readAsText(file);
-    event.target.value = ''; // Reset file input
+    event.target.value = ""; // Reset file input
   };
 
   // Submit all transactions
@@ -172,12 +194,18 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
     }
 
     // Validate all transactions
-    const invalidTransactions = transactions.filter(t => 
-      !t.name.trim() || !t.amount || parseFloat(t.amount) <= 0 || !t.categoryId
+    const invalidTransactions = transactions.filter(
+      (t) =>
+        !t.name.trim() ||
+        !t.amount ||
+        parseFloat(t.amount) <= 0 ||
+        !t.categoryId
     );
 
     if (invalidTransactions.length > 0) {
-      toast.error(`${invalidTransactions.length} transactions have missing or invalid data`);
+      toast.error(
+        `${invalidTransactions.length} transactions have missing or invalid data`
+      );
       return;
     }
 
@@ -198,22 +226,25 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
             transactionDate: new Date(transaction.date).toISOString(),
           };
 
-          const response = await fetch('/api/transactions', {
-            method: 'POST',
+          const response = await fetch("/api/transactions", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
             },
             body: JSON.stringify(transactionData),
           });
 
           if (response.ok) {
             const result = await response.json();
-            
+
             // Check for budget alerts (only for expenses)
-            if (transaction.transactionType === 'expense' && result.transaction) {
+            if (
+              transaction.transactionType === "expense" &&
+              result.transaction
+            ) {
               await checkBudgetAlerts(result.transaction);
             }
-            
+
             createdCount++;
           } else {
             failedCount++;
@@ -225,11 +256,11 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
 
       // Refresh the transactions list
       mutate();
-      
+
       if (createdCount > 0) {
         toast.success(`Successfully created ${createdCount} transactions`);
       }
-      
+
       if (failedCount > 0) {
         toast.error(`Failed to create ${failedCount} transactions`);
       }
@@ -239,10 +270,9 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
         setTransactions([]);
         onOpenChange(false);
       }
-
     } catch (error) {
-      console.error('Error creating bulk transactions:', error);
-      toast.error('Failed to create transactions');
+      console.error("Error creating bulk transactions:", error);
+      toast.error("Failed to create transactions");
     } finally {
       setIsSubmitting(false);
     }
@@ -254,8 +284,8 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
   };
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onOpenChange={(isOpen) => {
         onOpenChange(isOpen);
         if (!isOpen) resetForm();
@@ -265,7 +295,8 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
         <DialogHeader>
           <DialogTitle>Bulk Transaction Entry</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Add multiple transactions at once using text input, CSV upload, or manual entry.
+            Add multiple transactions at once using text input, CSV upload, or
+            manual entry.
           </DialogDescription>
         </DialogHeader>
 
@@ -330,7 +361,9 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
           {transactions.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Transactions ({transactions.length})</h3>
+                <h3 className="text-lg font-semibold">
+                  Transactions ({transactions.length})
+                </h3>
                 <Button
                   type="button"
                   size="sm"
@@ -344,11 +377,20 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
 
               <div className="space-y-3 max-h-60 overflow-y-auto">
                 {transactions.map((transaction) => (
-                  <div key={transaction.id} className="grid grid-cols-6 gap-2 p-3 bg-gray-800 rounded-lg">
+                  <div
+                    key={transaction.id}
+                    className="grid grid-cols-6 gap-2 p-3 bg-gray-800 rounded-lg"
+                  >
                     <Input
                       placeholder="Name"
                       value={transaction.name}
-                      onChange={(e) => updateTransaction(transaction.id, 'name', e.target.value)}
+                      onChange={(e) =>
+                        updateTransaction(
+                          transaction.id,
+                          "name",
+                          e.target.value
+                        )
+                      }
                       className="bg-gray-700 border-gray-600 text-gray-50"
                     />
                     <Input
@@ -356,12 +398,24 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
                       step="0.01"
                       placeholder="Amount"
                       value={transaction.amount}
-                      onChange={(e) => updateTransaction(transaction.id, 'amount', e.target.value)}
+                      onChange={(e) =>
+                        updateTransaction(
+                          transaction.id,
+                          "amount",
+                          e.target.value
+                        )
+                      }
                       className="bg-gray-700 border-gray-600 text-gray-50"
                     />
                     <select
                       value={transaction.transactionType}
-                      onChange={(e) => updateTransaction(transaction.id, 'transactionType', e.target.value)}
+                      onChange={(e) =>
+                        updateTransaction(
+                          transaction.id,
+                          "transactionType",
+                          e.target.value
+                        )
+                      }
                       className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
                     >
                       <option value="expense">Expense</option>
@@ -369,12 +423,21 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
                     </select>
                     <select
                       value={transaction.categoryId}
-                      onChange={(e) => updateTransaction(transaction.id, 'categoryId', e.target.value)}
+                      onChange={(e) =>
+                        updateTransaction(
+                          transaction.id,
+                          "categoryId",
+                          e.target.value
+                        )
+                      }
                       className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
                     >
                       <option value="">Select Category</option>
                       {categories.map((cat) => (
-                        <option key={cat.id || cat.name} value={cat.id || cat.name}>
+                        <option
+                          key={cat.id || cat.name}
+                          value={cat.id || cat.name}
+                        >
                           {cat.name}
                         </option>
                       ))}
@@ -382,7 +445,13 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
                     <Input
                       type="date"
                       value={transaction.date}
-                      onChange={(e) => updateTransaction(transaction.id, 'date', e.target.value)}
+                      onChange={(e) =>
+                        updateTransaction(
+                          transaction.id,
+                          "date",
+                          e.target.value
+                        )
+                      }
                       className="bg-gray-700 border-gray-600 text-gray-50"
                     />
                     <Button
@@ -416,7 +485,9 @@ export function BulkTransactionModal({ open, onOpenChange }: BulkTransactionModa
             disabled={isSubmitting || transactions.length === 0}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
-            {isSubmitting ? "Creating..." : `Create ${transactions.length} Transactions`}
+            {isSubmitting
+              ? "Creating..."
+              : `Create ${transactions.length} Transactions`}
           </Button>
         </DialogFooter>
       </DialogContent>

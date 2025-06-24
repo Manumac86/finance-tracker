@@ -103,7 +103,7 @@ export function EditBudgetModal({
       budgetType: formData.budgetType as "category" | "total" | "custom",
       categoryId: formData.categoryId || "",
       amount: formData.amount,
-      period: formData.period as "weekly" | "monthly" | "quarterly" | "yearly",
+      period: formData.period,
       startDate: formData.startDate,
       endDate: formData.endDate || "",
       alertThresholdPercentage: formData.alertThresholdPercentage,
