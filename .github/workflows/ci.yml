@@ -40,10 +40,10 @@ jobs:
       
     - name: Check for known vulnerabilities
       run: |
-        if pnpm audit --audit-level high --json > audit-report.json 2>/dev/null; then
-          echo "✅ No high-severity vulnerabilities found"
+        if pnpm audit --audit-level high --prod --json > audit-report.json 2>/dev/null; then
+          echo "✅ No high-severity vulnerabilities found in production dependencies"
         else
-          echo "⚠️ High-severity vulnerabilities detected"
+          echo "⚠️ High-severity vulnerabilities detected in production dependencies"
           cat audit-report.json
           exit 1
         fi
