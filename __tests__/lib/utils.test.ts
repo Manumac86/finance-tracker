@@ -17,7 +17,7 @@ describe('Utils Functions', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockClsx.mockImplementation((...args) => args.filter(Boolean).join(' '));
-    mockTwMerge.mockImplementation((str) => str);
+    mockTwMerge.mockImplementation((str: any) => String(str || ''));
   });
 
   describe('cn function', () => {

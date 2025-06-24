@@ -385,7 +385,7 @@ describe('Transaction Schema and Transformations', () => {
 
       // UI -> DB -> UI
       const dbFromUI = transformTransactionToDB(mockUITransaction);
-      const backToUI = transformTransactionToUI(dbFromUI);
+      const backToUI = transformTransactionToUI(dbFromUI as Transaction);
 
       expect(backToUI).toEqual(mockUITransaction);
     });
