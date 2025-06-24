@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+// Jest globals are available in the test environment
 
 // Mock the database functions
 const mockSelectTransactions = jest.fn();
