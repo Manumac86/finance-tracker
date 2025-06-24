@@ -2,13 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 
 // Supabase client for database operations
 const supabaseUrl =
-  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-console.log(supabaseUrl, supabaseServiceKey);
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+// Fallback for build time when env vars might not be available
+const fallbackUrl = supabaseUrl || "https://test.supabase.co";
+const fallbackKey = supabaseServiceKey || "test-service-role-key";
+
+console.log(fallbackUrl, fallbackKey);
+const supabase = createClient(fallbackUrl, fallbackKey);
 
 export { supabase };
 
