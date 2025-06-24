@@ -93,7 +93,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
           <div className="text-left">
             <h4 className="font-semibold text-white mb-3 flex items-center">
               <Target className="w-4 h-4 mr-2" />
-              What's next?
+              What&apos;s next?
             </h4>
             <ul className="space-y-2">
               {getNextSteps().map((step, index) => (
