@@ -100,17 +100,17 @@ export function EditBudgetModal({
     const budgetData: BudgetFormData = {
       name: formData.name,
       description: formData.description || "",
-      budgetType: formData.budgetType,
+      budgetType: formData.budgetType as 'category' | 'total' | 'custom',
       categoryId: formData.categoryId || "",
       amount: formData.amount,
-      period: formData.period,
+      period: formData.period as 'weekly' | 'monthly' | 'yearly',
       startDate: formData.startDate,
       endDate: formData.endDate || "",
       alertThresholdPercentage: formData.alertThresholdPercentage,
       alertEnabled: formData.alertEnabled,
       overspendAlertEnabled: formData.overspendAlertEnabled,
       rolloverEnabled: formData.rolloverEnabled,
-      rolloverType: formData.rolloverType,
+      rolloverType: formData.rolloverType as 'none' | 'surplus' | 'deficit' | 'both',
     };
 
     onSave(budget.id!, budgetData);
