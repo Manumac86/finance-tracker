@@ -43,6 +43,10 @@ jobs:
         SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key"
         NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
         NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-anon-key"
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_test_dummy_clerk_key_for_ci_build"
+        CLERK_SECRET_KEY: "sk_test_dummy_clerk_secret_for_ci_build"
+        UPSTASH_REDIS_REST_URL: "https://test-redis.upstash.io"
+        UPSTASH_REDIS_REST_TOKEN: "test-redis-token"
       
     - name: Run tests with coverage
       run: pnpm test --coverage --watchAll=false

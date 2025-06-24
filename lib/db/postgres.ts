@@ -11,7 +11,6 @@ const supabaseServiceKey =
 const fallbackUrl = supabaseUrl || "https://test.supabase.co";
 const fallbackKey = supabaseServiceKey || "test-service-role-key";
 
-console.log(fallbackUrl, fallbackKey);
 const supabase = createClient(fallbackUrl, fallbackKey);
 
 export { supabase };
