@@ -75,18 +75,18 @@ export function CreateBudgetModal({
     // Prepare data for submission
     const budgetData = {
       name: formData.name,
-      description: formData.description || undefined,
-      budgetType: formData.budgetType,
-      categoryId: formData.categoryId || undefined,
-      amount: parseFloat(formData.amount),
-      period: formData.period,
+      description: formData.description || "",
+      budgetType: formData.budgetType as 'category' | 'total' | 'custom',
+      categoryId: formData.categoryId || "",
+      amount: formData.amount,
+      period: formData.period as 'weekly' | 'monthly' | 'yearly',
       startDate: formData.startDate,
-      endDate: formData.endDate || undefined,
+      endDate: formData.endDate || "",
       alertThresholdPercentage: formData.alertThresholdPercentage,
       alertEnabled: formData.alertEnabled,
       overspendAlertEnabled: formData.overspendAlertEnabled,
       rolloverEnabled: formData.rolloverEnabled,
-      rolloverType: formData.rolloverType,
+      rolloverType: formData.rolloverType as 'none' | 'surplus' | 'deficit' | 'both',
     };
 
     onSave(budgetData);

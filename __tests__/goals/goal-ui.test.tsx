@@ -23,7 +23,8 @@ jest.mock('swr', () => ({
 }))
 
 const mockUseUser = useUser as jest.MockedFunction<typeof useUser>
-const mockSWR = require('swr').default
+import useSWR from 'swr';
+const mockSWR = useSWR as jest.MockedFunction<typeof useSWR>;
 
 describe('TDD RED: Goal UI Components', () => {
   beforeEach(() => {

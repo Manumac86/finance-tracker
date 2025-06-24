@@ -39,12 +39,42 @@ global.Request = class {
   }
 };
 
+global.Headers = class extends Map {
+  constructor(init) {
+    super();
+    if (init) {
+      if (init instanceof Headers || init instanceof Map) {
+        for (const [key, value] of init) {
+          this.set(key, value);
+        }
+      } else if (typeof init === 'object') {
+        for (const [key, value] of Object.entries(init)) {
+          this.set(key, value);
+        }
+      }
+    }
+  }
+};
+
 global.Response = class {
   constructor(body, options = {}) {
     this.body = body;
     this.status = options.status || 200;
     this.ok = this.status >= 200 && this.status < 300;
-    this.headers = new Map(Object.entries(options.headers || {}));
+    this.headers = new global.Headers();
+    
+    // Handle headers correctly
+    if (options.headers) {
+      if (options.headers instanceof Map || options.headers instanceof global.Headers) {
+        for (const [key, value] of options.headers) {
+          this.headers.set(key, value);
+        }
+      } else if (typeof options.headers === 'object') {
+        for (const [key, value] of Object.entries(options.headers)) {
+          this.headers.set(key, value);
+        }
+      }
+    }
   }
   
   async json() {
@@ -57,25 +87,75 @@ global.Response = class {
 };
 
 // Mock fetch
-global.fetch = jest.fn(() =>
-  Promise.resolve({
+global.fetch = jest.fn((url, options) => {
+  // Mock different API endpoints
+  if (url.includes('/api/transactions/search')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({
+        transactions: [],
+        totalCount: 0,
+        page: 1,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }),
+    });
+  }
+  
+  if (url.includes('/api/transactions/bulk-edit')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({
+        updatedCount: 2,
+        transactionIds: ['1', '2'],
+        message: 'Transactions updated successfully'
+      }),
+    });
+  }
+  
+  if (url.includes('/api/transactions/') && url.includes('/split')) {
+    return Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({
+        splitTransactions: [
+          { id: 'split1', name: 'Transaction (Split 1/2)', amount: 3.00 },
+          { id: 'split2', name: 'Transaction (Split 2/2)', amount: 2.50 }
+        ],
+        originalTransactionId: '1',
+        message: 'Transaction split successfully'
+      }),
+    });
+  }
+  
+  // Default response
+  return Promise.resolve({
     ok: true,
     status: 200,
     json: () => Promise.resolve({}),
     text: () => Promise.resolve(''),
-  })
-);
+  });
+});
 
 // Mock Next.js server utilities
+const MockNextResponse = jest.fn((body, options = {}) => new global.Response(body, {
+  status: options.status || 200,
+  headers: options.headers || {},
+}));
+
+MockNextResponse.json = (data, options = {}) => new global.Response(JSON.stringify(data), {
+  status: options.status || 200,
+  headers: { 'Content-Type': 'application/json', ...options.headers },
+});
+
+MockNextResponse.redirect = jest.fn();
+
 jest.mock('next/server', () => ({
   NextRequest: global.Request,
-  NextResponse: {
-    json: (data, options = {}) => new global.Response(JSON.stringify(data), {
-      status: options.status || 200,
-      headers: { 'Content-Type': 'application/json', ...options.headers },
-    }),
-    redirect: jest.fn(),
-  },
+  NextResponse: MockNextResponse,
 }));
 
 // Mock Clerk auth server function
@@ -210,3 +290,6 @@ global.resizeWindow = (width, height) => {
   })
   window.dispatchEvent(new Event('resize'))
 }
+
+// Make resizeWindow available on globalThis for tests
+globalThis.resizeWindow = global.resizeWindow;

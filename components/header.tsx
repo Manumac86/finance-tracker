@@ -1,8 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat } from "lucide-react";
+import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat, FileDown, Menu, X, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
@@ -10,6 +11,7 @@ import { BudgetAlertsPanel } from "@/components/budgets/budget-alerts-panel";
 
 export function Header() {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950/95 px-4 backdrop-blur-sm sm:px-6">
@@ -70,7 +72,37 @@ export function Header() {
             Recurring
           </Button>
         </Link>
+        <Link href="/transactions/manage">
+          <Button 
+            variant={pathname === "/transactions/manage" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <BarChart3 className="h-4 w-4" />
+            Manage
+          </Button>
+        </Link>
+        <Link href="/reports/export">
+          <Button 
+            variant={pathname === "/reports/export" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <FileDown className="h-4 w-4" />
+            Reports
+          </Button>
+        </Link>
       </nav>
+
+      {/* Mobile Menu Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="md:hidden"
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      >
+        {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </Button>
 
       <div className="ml-auto flex items-center gap-4">
         <form className="relative hidden md:block">
@@ -99,6 +131,84 @@ export function Header() {
           }}
         />
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="absolute top-16 left-0 right-0 z-50 border-b border-gray-800 bg-gray-950/95 backdrop-blur-sm md:hidden">
+          <nav className="flex flex-col space-y-1 p-4">
+            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/dashboard" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <TrendingUp className="h-4 w-4" />
+                Dashboard
+              </Button>
+            </Link>
+            <Link href="/goals" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/goals" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Target className="h-4 w-4" />
+                Goals
+              </Button>
+            </Link>
+            <Link href="/budgets" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/budgets" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <DollarSign className="h-4 w-4" />
+                Budgets
+              </Button>
+            </Link>
+            <Link href="/transactions" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/transactions" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Receipt className="h-4 w-4" />
+                Transactions
+              </Button>
+            </Link>
+            <Link href="/recurring" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/recurring" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Repeat className="h-4 w-4" />
+                Recurring
+              </Button>
+            </Link>
+            <Link href="/transactions/manage" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/transactions/manage" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Manage
+              </Button>
+            </Link>
+            <Link href="/reports/export" onClick={() => setMobileMenuOpen(false)}>
+              <Button 
+                variant={pathname === "/reports/export" ? "default" : "ghost"}
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <FileDown className="h-4 w-4" />
+                Reports
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

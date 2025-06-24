@@ -10,6 +10,7 @@ import { CreateBudgetModal } from "@/components/budgets/create-budget-modal";
 import { EditBudgetModal } from "@/components/budgets/edit-budget-modal";
 import { BudgetAnalytics } from "@/components/budgets/budget-analytics";
 import { UIBudget } from "@/lib/db/schemas/budget";
+import { BudgetFormData } from "@/types/forms";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -28,7 +29,7 @@ export default function BudgetsPage() {
 
   const budgets = data?.budgets || [];
 
-  const handleCreateBudget = async (budgetData: Record<string, unknown>) => {
+  const handleCreateBudget = async (budgetData: BudgetFormData) => {
     try {
       // Transform camelCase to snake_case for API
       const apiData = {
@@ -74,13 +75,30 @@ export default function BudgetsPage() {
 
   const handleUpdateBudget = async (
     budgetId: string,
-    updateData: Record<string, unknown>
+    updateData: BudgetFormData
   ) => {
     try {
+      // Transform camelCase to snake_case for API
+      const apiData = {
+        name: updateData.name,
+        description: updateData.description,
+        budget_type: updateData.budgetType,
+        category_id: updateData.categoryId,
+        amount: updateData.amount,
+        period: updateData.period,
+        start_date: updateData.startDate,
+        end_date: updateData.endDate,
+        alert_threshold_percentage: updateData.alertThresholdPercentage,
+        alert_enabled: updateData.alertEnabled,
+        overspend_alert_enabled: updateData.overspendAlertEnabled,
+        rollover_enabled: updateData.rolloverEnabled,
+        rollover_type: updateData.rolloverType,
+      };
+
       const response = await fetch(`/api/budgets/${budgetId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updateData),
+        body: JSON.stringify(apiData),
       });
 
       if (response.ok) {

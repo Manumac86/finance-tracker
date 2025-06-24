@@ -19,7 +19,7 @@ import { AddTransactionButton } from "@/components/add-transaction-button";
 
 export default function TransactionsPage() {
   const { transactions, isLoading, error } = useTransactions();
-  const { categories } = useCategories();
+  const { data: categories } = useCategories();
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -300,7 +300,7 @@ export default function TransactionsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
+                  {categories?.map((category) => (
                     <SelectItem key={category.id} value={category.id!}>
                       {category.name}
                     </SelectItem>

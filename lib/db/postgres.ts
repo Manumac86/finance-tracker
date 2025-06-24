@@ -109,12 +109,19 @@ export async function deleteGoal(goalId: string, userId: string) {
 }
 
 // Category operations
-export async function selectCategories() {
-  const { data, error } = await supabase
+export async function selectCategories(/* _userId?: string */) {
+  const query = supabase
     .from("categories")
     .select("*")
     .eq("is_active", true)
     .order("name", { ascending: true });
+
+  // TODO: Add user filtering after migration
+  // if (userId) {
+  //   query = query.eq("user_id", userId);
+  // }
+
+  const { data, error } = await query;
 
   if (error) {
     throw new Error(`Failed to fetch categories: ${error.message}`);
@@ -392,6 +399,232 @@ export async function acknowledgeBudgetAlert(alertId: string, userId: string) {
 
   if (error) {
     throw new Error(`Failed to acknowledge budget alert: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Project operations
+export async function selectProjects(userId: string) {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch projects: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function selectProjectById(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch project: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function insertProject(project: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("projects")
+    .insert([project])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create project: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateProject(id: string, userId: string, updates: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("projects")
+    .update(updates)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update project: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteProject(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("projects")
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to delete project: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Recurring transactions operations
+export async function selectRecurringTransactions(userId: string) {
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("next_due_date", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch recurring transactions: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function selectRecurringTransactionById(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch recurring transaction: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function insertRecurringTransaction(transaction: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .insert([transaction])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create recurring transaction: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateRecurringTransaction(id: string, userId: string, updates: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .update(updates)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update recurring transaction: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteRecurringTransaction(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to delete recurring transaction: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Bill reminders operations
+export async function selectBillReminders(userId: string, upcomingOnly = false) {
+  let query = supabase
+    .from("bill_reminders")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (upcomingOnly) {
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+    
+    query = query
+      .in("status", ["pending", "overdue"])
+      .lte("due_date", sevenDaysFromNow.toISOString().split('T')[0]);
+  }
+
+  query = query.order("due_date", { ascending: true });
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch bill reminders: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function insertBillReminder(reminder: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("bill_reminders")
+    .insert([reminder])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create bill reminder: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateBillReminderStatus(id: string, userId: string, status: string) {
+  const updateData: Record<string, unknown> = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (status === 'paid') {
+    updateData.paid_at = new Date().toISOString();
+  }
+
+  const { data, error } = await supabase
+    .from("bill_reminders")
+    .update(updateData)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to delete bill reminder: ${error.message}`);
   }
 
   return data;

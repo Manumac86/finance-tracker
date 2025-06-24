@@ -1,0 +1,319 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ "main", "develop", "feature/*", "bugfix/*", "hotfix/*" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+  PNPM_VERSION: '8'
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run security audit
+      run: pnpm audit --audit-level moderate
+      continue-on-error: true
+      
+    - name: Check for known vulnerabilities
+      run: |
+        if pnpm audit --audit-level high --json > audit-report.json 2>/dev/null; then
+          echo "✅ No high-severity vulnerabilities found"
+        else
+          echo "⚠️ High-severity vulnerabilities detected"
+          cat audit-report.json
+          exit 1
+        fi
+
+  lint-and-typecheck:
+    name: Lint and Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run ESLint
+      run: pnpm lint
+      
+    - name: Type check
+      run: npx tsc --noEmit
+      
+    - name: Check formatting
+      run: |
+        if command -v prettier &> /dev/null; then
+          pnpm prettier --check .
+        else
+          echo "⚠️ Prettier not configured, skipping format check"
+        fi
+      continue-on-error: true
+
+  test-unit:
+    name: Unit Tests (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run unit tests
+      run: pnpm test:ci
+      env:
+        NODE_ENV: test
+        CI: true
+        
+    - name: Generate test summary
+      if: always()
+      run: |
+        if [ -f coverage/coverage-summary.json ]; then
+          echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          
+          LINES=$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')
+          FUNCTIONS=$(cat coverage/coverage-summary.json | jq -r '.total.functions.pct')
+          BRANCHES=$(cat coverage/coverage-summary.json | jq -r '.total.branches.pct')
+          STATEMENTS=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+          
+          echo "| Lines | ${LINES}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Functions | ${FUNCTIONS}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branches | ${BRANCHES}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Statements | ${STATEMENTS}% |" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '20.x'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-${{ github.sha }}
+        fail_ci_if_error: false
+        verbose: true
+        
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-node-${{ matrix.node-version }}
+        path: |
+          coverage/
+          jest-report.xml
+        retention-days: 7
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: ${{ env.PNPM_VERSION }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Build application
+      run: pnpm build
+      env:
+        NODE_ENV: production
+        
+    - name: Verify build output
+      run: |
+        if [ -d ".next" ] && [ -f ".next/BUILD_ID" ]; then
+          echo "✅ Build completed successfully"
+          echo "Build ID: $(cat .next/BUILD_ID)"
+          
+          # Check for critical files
+          if [ -f ".next/static/chunks/pages/_app.js" ]; then
+            echo "✅ App bundle generated"
+          else
+            echo "⚠️ App bundle missing"
+          fi
+          
+          # Check bundle sizes
+          if command -v du &> /dev/null; then
+            echo "📊 Bundle sizes:"
+            du -sh .next/static/chunks/* | head -10
+          fi
+        else
+          echo "❌ Build failed or incomplete"
+          exit 1
+        fi
+        
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-artifacts
+        path: |
+          .next/
+          !.next/cache/
+        retention-days: 1
+
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test-unit]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Download coverage reports
+      uses: actions/download-artifact@v3
+      with:
+        name: test-results-node-20.x
+        path: coverage-reports/
+        
+    - name: Comment coverage on PR
+      uses: romeovs/lcov-reporter-action@v0.3.1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        lcov-file: ./coverage-reports/lcov.info
+        delete-old-comments: true
+        title: "Test Coverage Report"
+        
+    - name: Check coverage thresholds
+      run: |
+        if [ -f coverage-reports/coverage-summary.json ]; then
+          LINES=$(cat coverage-reports/coverage-summary.json | jq -r '.total.lines.pct')
+          FUNCTIONS=$(cat coverage-reports/coverage-summary.json | jq -r '.total.functions.pct')
+          BRANCHES=$(cat coverage-reports/coverage-summary.json | jq -r '.total.branches.pct')
+          STATEMENTS=$(cat coverage-reports/coverage-summary.json | jq -r '.total.statements.pct')
+          
+          echo "Coverage: Lines=${LINES}%, Functions=${FUNCTIONS}%, Branches=${BRANCHES}%, Statements=${STATEMENTS}%"
+          
+          # Check thresholds (these match jest.config.js)
+          if (( $(echo "$LINES < 80" | bc -l) )); then
+            echo "❌ Line coverage below threshold (80%): ${LINES}%"
+            exit 1
+          fi
+          
+          if (( $(echo "$FUNCTIONS < 75" | bc -l) )); then
+            echo "❌ Function coverage below threshold (75%): ${FUNCTIONS}%"
+            exit 1
+          fi
+          
+          if (( $(echo "$BRANCHES < 70" | bc -l) )); then
+            echo "❌ Branch coverage below threshold (70%): ${BRANCHES}%"
+            exit 1
+          fi
+          
+          if (( $(echo "$STATEMENTS < 80" | bc -l) )); then
+            echo "❌ Statement coverage below threshold (80%): ${STATEMENTS}%"
+            exit 1
+          fi
+          
+          echo "✅ All coverage thresholds met"
+        else
+          echo "⚠️ Coverage summary not found"
+        fi
+
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, lint-and-typecheck, test-unit, build-test]
+    if: always()
+    
+    steps:
+    - name: CI Summary
+      run: |
+        echo "## 🚀 CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ needs.security-scan.result }}" == "success" ]; then
+          echo "✅ Security Scan: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Security Scan: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.lint-and-typecheck.result }}" == "success" ]; then
+          echo "✅ Lint & Type Check: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Lint & Type Check: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.test-unit.result }}" == "success" ]; then
+          echo "✅ Unit Tests: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Unit Tests: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [ "${{ needs.build-test.result }}" == "success" ]; then
+          echo "✅ Build Test: PASSED" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Build Test: FAILED" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
