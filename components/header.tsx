@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Search, Plus, Target, TrendingUp, Receipt } from "lucide-react";
+import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat } from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
@@ -58,6 +58,16 @@ export function Header() {
           >
             <Receipt className="h-4 w-4" />
             Transactions
+          </Button>
+        </Link>
+        <Link href="/recurring">
+          <Button 
+            variant={pathname === "/recurring" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <Repeat className="h-4 w-4" />
+            Recurring
           </Button>
         </Link>
       </nav>

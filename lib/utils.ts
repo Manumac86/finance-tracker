@@ -15,3 +15,13 @@ export const fetcher = async (url: string, method: string = "GET") => {
   }
   return res.json();
 };
+
+export function formatCurrency(amount: number, options?: Intl.NumberFormatOptions) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+    ...options,
+  }).format(amount);
+}

@@ -6,14 +6,14 @@ import useSWR from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface CategoriesContextType {
-  categories: UICategory[];
+  data: UICategory[] | null;
   isLoading: boolean;
   error: any;
   mutate: () => void;
 }
 
 export const CategoriesContext = createContext<CategoriesContextType>({
-  categories: [],
+  data: null,
   isLoading: false,
   error: null,
   mutate: () => {},
@@ -24,7 +24,7 @@ export const CategoriesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, error, isLoading, mutate } = useSWR<UICategory[]>(
+  const { data, error, isLoading, mutate } = useSWR<{ categories: UICategory[] }>(
     "/api/categories",
     fetcher
   );
@@ -32,7 +32,7 @@ export const CategoriesProvider = ({
   return (
     <CategoriesContext.Provider
       value={{
-        categories: data || [],
+        data: data?.categories || null,
         isLoading,
         error,
         mutate,
