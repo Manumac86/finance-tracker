@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { Filter, Search, TrendingUp, TrendingDown, Download, Plus, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,10 +17,14 @@ import { useTransactions } from "@/contexts/transactions";
 import { useCategories } from "@/contexts/categories";
 import { TransactionCard } from "@/components/transactions/transaction-card";
 import { AddTransactionButton } from "@/components/add-transaction-button";
+import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
+import { UITransaction } from "@/lib/db/schemas/transaction";
+import { toast } from "sonner";
 
 export default function TransactionsPage() {
-  const { transactions, isLoading, error } = useTransactions();
+  const { transactions, isLoading, error, mutate } = useTransactions();
   const { data: categories } = useCategories();
+  const searchParams = useSearchParams();
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,6 +35,10 @@ export default function TransactionsPage() {
     to: Date | undefined;
   }>({ from: undefined, to: undefined });
   const [sortBy, setSortBy] = useState<string>("date-desc");
+  
+  // Edit modal state
+  const [editingTransaction, setEditingTransaction] = useState<UITransaction | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Infinite scroll states
   const [displayedTransactions, setDisplayedTransactions] = useState<typeof transactions>([]);
@@ -121,6 +130,14 @@ export default function TransactionsPage() {
     }
   }, [filteredTransactions]);
 
+  // Handle URL search parameters after hydration
+  useEffect(() => {
+    const searchFromUrl = searchParams.get("search");
+    if (searchFromUrl) {
+      setSearchTerm(searchFromUrl);
+    }
+  }, [searchParams]);
+
   // Intersection Observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -181,6 +198,36 @@ export default function TransactionsPage() {
     setSelectedType("all");
     setDateRange({ from: undefined, to: undefined });
     setSortBy("date-desc");
+  };
+
+  const handleEdit = (transaction: UITransaction) => {
+    setEditingTransaction(transaction);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = async (transactionId: string) => {
+    if (!confirm("Are you sure you want to delete this transaction?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/transactions/${transactionId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete transaction");
+      }
+
+      // Refresh the transactions list
+      mutate();
+      
+      toast.success("Transaction deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete transaction");
+    }
   };
 
   if (error) {
@@ -413,7 +460,11 @@ export default function TransactionsPage() {
                     animationDelay: index < 10 ? `${index * 100}ms` : '0ms',
                   }}
                 >
-                  <TransactionCard transaction={transaction} />
+                  <TransactionCard 
+                    transaction={transaction} 
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
                 </div>
               ))}
             </div>
@@ -459,6 +510,17 @@ export default function TransactionsPage() {
 
       {/* Add Transaction Button */}
       <AddTransactionButton />
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        transaction={editingTransaction}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSuccess={() => {
+          setEditingTransaction(null);
+          mutate();
+        }}
+      />
     </div>
   );
 }
