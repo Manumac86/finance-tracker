@@ -78,7 +78,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     if (status === "overdue") {
       return (
         <Badge variant="destructive" className="text-xs">
-          <AlertTriangle className="w-3 h-3 mr-1" />
+          <AlertTriangle className="h-3 w-3 mr-1" />
           {daysRemaining} days overdue
         </Badge>
       );
@@ -87,7 +87,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     if (status === "approaching") {
       return (
         <Badge variant="secondary" className="text-xs bg-yellow-600">
-          <Clock className="w-3 h-3 mr-1" />
+          <Clock className="h-3 w-3 mr-1" />
           {daysRemaining} days remaining
         </Badge>
       );
@@ -111,7 +111,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
                     data-testid="achievement-badge"
                     className="text-xs bg-green-600"
                   >
-                    <Trophy className="w-3 h-3 mr-1" />
+                    <Trophy className="h-3 w-3 mr-1" />
                     Achieved
                   </Badge>
                 )}

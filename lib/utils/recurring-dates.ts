@@ -89,11 +89,36 @@ export function getUpcomingDates(
   count: number = 5
 ): string[] {
   const dates: string[] = [];
-  let currentDate = new Date(startDate);
+  const start = new Date(startDate);
+  const today = new Date();
+  
+  // If start date is in the future, use it as the first occurrence
+  const currentDate = start > today ? new Date(start) : new Date(calculateNextDueDate(startDate, frequency));
   
   for (let i = 0; i < count; i++) {
     dates.push(currentDate.toISOString().split('T')[0]);
-    currentDate = new Date(calculateNextDueDate(currentDate, frequency, currentDate));
+    
+    // Calculate next occurrence
+    switch (frequency) {
+      case "daily":
+        currentDate.setDate(currentDate.getDate() + 1);
+        break;
+      case "weekly":
+        currentDate.setDate(currentDate.getDate() + 7);
+        break;
+      case "biweekly":
+        currentDate.setDate(currentDate.getDate() + 14);
+        break;
+      case "monthly":
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        break;
+      case "quarterly":
+        currentDate.setMonth(currentDate.getMonth() + 3);
+        break;
+      case "yearly":
+        currentDate.setFullYear(currentDate.getFullYear() + 1);
+        break;
+    }
   }
   
   return dates;

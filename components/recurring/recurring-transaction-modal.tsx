@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Calendar, DollarSign, Repeat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCategories } from "@/contexts/categories";
 import { Frequency, getUpcomingDates } from "@/lib/utils/recurring-dates";
+import dayjs from "dayjs";
 
 interface RecurringTransactionModalProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ interface RecurringTransactionModalProps {
 export interface RecurringTransactionFormData {
   name: string;
   description: string;
-  amount: string;
+  amount: number;
   transactionType: "income" | "expense";
   categoryId: string;
   frequency: Frequency;
@@ -49,20 +50,55 @@ export function RecurringTransactionModal({
   const [formData, setFormData] = useState<RecurringTransactionFormData>({
     name: "",
     description: "",
-    amount: "",
+    amount: 0,
     transactionType: "expense",
     categoryId: "",
     frequency: "monthly",
-    startDate: new Date().toISOString().split("T")[0],
+    startDate: dayjs().format("YYYY-MM-DD"),
     endDate: "",
     isBill: true,
     reminderDaysBefore: 3,
     autoCreateTransaction: true,
-    ...initialData,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPreview, setShowPreview] = useState(false);
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        setFormData({
+          name: initialData.name || "",
+          description: initialData.description || "",
+          amount: initialData.amount || 0,
+          transactionType: initialData.transactionType || "expense",
+          categoryId: initialData.categoryId || "",
+          frequency: initialData.frequency || "monthly",
+          startDate: initialData.startDate || dayjs().format("YYYY-MM-DD"),
+          endDate: initialData.endDate || "",
+          isBill: initialData.isBill ?? true,
+          reminderDaysBefore: initialData.reminderDaysBefore ?? 3,
+          autoCreateTransaction: initialData.autoCreateTransaction ?? true,
+        });
+      } else {
+        // Reset to defaults when opening for new transaction
+        setFormData({
+          name: "",
+          description: "",
+          amount: 0,
+          transactionType: "expense",
+          categoryId: "",
+          frequency: "monthly",
+          startDate: dayjs().format("YYYY-MM-DD"),
+          endDate: "",
+          isBill: true,
+          reminderDaysBefore: 3,
+          autoCreateTransaction: true,
+        });
+      }
+    }
+  }, [isOpen, initialData, categories]);
 
   if (!isOpen) return null;
 
@@ -76,7 +112,7 @@ export function RecurringTransactionModal({
       newErrors.name = "Name is required";
     }
 
-    if (!formData.amount || parseFloat(formData.amount) <= 0) {
+    if (!formData.amount || formData.amount <= 0 || isNaN(formData.amount)) {
       newErrors.amount = "Amount must be greater than 0";
     }
 
@@ -93,7 +129,13 @@ export function RecurringTransactionModal({
       return;
     }
 
-    onSave(formData);
+    // Ensure empty endDate is sent as empty string, not null
+    const cleanedFormData = {
+      ...formData,
+      endDate: formData.endDate || ""
+    };
+    
+    onSave(cleanedFormData);
     handleClose();
   };
 
@@ -101,11 +143,11 @@ export function RecurringTransactionModal({
     setFormData({
       name: "",
       description: "",
-      amount: "",
+      amount: 0,
       transactionType: "expense",
       categoryId: "",
       frequency: "monthly",
-      startDate: new Date().toISOString().split("T")[0],
+      startDate: dayjs().format("YYYY-MM-DD"),
       endDate: "",
       isBill: true,
       reminderDaysBefore: 3,
@@ -116,7 +158,10 @@ export function RecurringTransactionModal({
     onClose();
   };
 
-  const updateFormData = (field: keyof RecurringTransactionFormData, value: string | number | boolean) => {
+  const updateFormData = (
+    field: keyof RecurringTransactionFormData,
+    value: string | number | boolean
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -156,8 +201,10 @@ export function RecurringTransactionModal({
             <div className="space-y-6">
               {/* Basic Info */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-gray-300">Basic Information</h3>
-                
+                <h3 className="text-sm font-medium text-gray-300">
+                  Basic Information
+                </h3>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="transactionType">Type</Label>
@@ -199,7 +246,11 @@ export function RecurringTransactionModal({
                     id="name"
                     value={formData.name}
                     onChange={(e) => updateFormData("name", e.target.value)}
-                    placeholder={formData.isBill ? "e.g., Netflix Subscription" : "e.g., Monthly Salary"}
+                    placeholder={
+                      formData.isBill
+                        ? "e.g., Netflix Subscription"
+                        : "e.g., Monthly Salary"
+                    }
                     className={`bg-gray-800 border-gray-700 ${
                       errors.name ? "border-red-500" : ""
                     }`}
@@ -218,8 +269,19 @@ export function RecurringTransactionModal({
                         id="amount"
                         type="number"
                         step="0.01"
-                        value={formData.amount}
-                        onChange={(e) => updateFormData("amount", e.target.value)}
+                        value={formData.amount || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty string for user to clear the field
+                          if (value === "") {
+                            updateFormData("amount", 0);
+                          } else {
+                            const numValue = parseFloat(value);
+                            if (!isNaN(numValue)) {
+                              updateFormData("amount", numValue);
+                            }
+                          }
+                        }}
                         placeholder="0.00"
                         className={`pl-10 bg-gray-800 border-gray-700 ${
                           errors.amount ? "border-red-500" : ""
@@ -234,24 +296,41 @@ export function RecurringTransactionModal({
                   <div className="space-y-2">
                     <Label htmlFor="categoryId">Category</Label>
                     <Select
-                      value={formData.categoryId}
-                      onValueChange={(value) => updateFormData("categoryId", value)}
+                      key={`category-${formData.categoryId}-${isOpen}`}
+                      value={formData.categoryId || ""}
+                      onValueChange={(value) =>
+                        updateFormData("categoryId", value)
+                      }
                     >
-                      <SelectTrigger className={`bg-gray-800 border-gray-700 ${
-                        errors.categoryId ? "border-red-500" : ""
-                      }`}>
+                      <SelectTrigger
+                        className={`bg-gray-800 border-gray-700 ${
+                          errors.categoryId ? "border-red-500" : ""
+                        }`}
+                      >
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories?.map((category) => (
-                          <SelectItem key={category.id} value={category.id!}>
-                            {category.name}
+                        {!categories ? (
+                          <SelectItem value="loading" disabled>
+                            Loading categories...
                           </SelectItem>
-                        ))}
+                        ) : categories.length === 0 ? (
+                          <SelectItem value="no-categories" disabled>
+                            No categories available
+                          </SelectItem>
+                        ) : (
+                          categories.map((category) => (
+                            <SelectItem key={category.id} value={category.id!}>
+                              {category.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     {errors.categoryId && (
-                      <p className="text-sm text-red-500">{errors.categoryId}</p>
+                      <p className="text-sm text-red-500">
+                        {errors.categoryId}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -261,7 +340,9 @@ export function RecurringTransactionModal({
                   <Textarea
                     id="description"
                     value={formData.description}
-                    onChange={(e) => updateFormData("description", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("description", e.target.value)
+                    }
                     placeholder="Optional notes about this recurring transaction"
                     className="bg-gray-800 border-gray-700"
                     rows={2}
@@ -275,7 +356,7 @@ export function RecurringTransactionModal({
                   <Repeat className="w-4 h-4" />
                   Recurrence Settings
                 </h3>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="frequency">Frequency</Label>
@@ -305,7 +386,9 @@ export function RecurringTransactionModal({
                       id="startDate"
                       type="date"
                       value={formData.startDate}
-                      onChange={(e) => updateFormData("startDate", e.target.value)}
+                      onChange={(e) =>
+                        updateFormData("startDate", e.target.value)
+                      }
                       className={`bg-gray-800 border-gray-700 ${
                         errors.startDate ? "border-red-500" : ""
                       }`}
@@ -321,8 +404,10 @@ export function RecurringTransactionModal({
                   <Input
                     id="endDate"
                     type="date"
-                    value={formData.endDate}
-                    onChange={(e) => updateFormData("endDate", e.target.value)}
+                    value={formData.endDate || ""}
+                    onChange={(e) =>
+                      updateFormData("endDate", e.target.value)
+                    }
                     className="bg-gray-800 border-gray-700"
                   />
                   <p className="text-xs text-gray-500">
@@ -368,10 +453,14 @@ export function RecurringTransactionModal({
               {/* Bill Settings */}
               {formData.isBill && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-300">Bill Settings</h3>
-                  
+                  <h3 className="text-sm font-medium text-gray-300">
+                    Bill Settings
+                  </h3>
+
                   <div className="space-y-2">
-                    <Label htmlFor="reminderDays">Reminder Days Before Due</Label>
+                    <Label htmlFor="reminderDays">
+                      Reminder Days Before Due
+                    </Label>
                     <Select
                       value={formData.reminderDaysBefore.toString()}
                       onValueChange={(value) =>

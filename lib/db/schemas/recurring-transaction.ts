@@ -85,7 +85,7 @@ export function transformUIToRecurringTransaction(
     category_id: uiTransaction.categoryId,
     frequency: uiTransaction.frequency,
     start_date: uiTransaction.startDate,
-    end_date: uiTransaction.endDate,
+    end_date: uiTransaction.endDate && uiTransaction.endDate.trim() !== "" ? uiTransaction.endDate : undefined,
     next_due_date: uiTransaction.nextDueDate,
     is_bill: uiTransaction.isBill,
     reminder_days_before: uiTransaction.reminderDaysBefore,

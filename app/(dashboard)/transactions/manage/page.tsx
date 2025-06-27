@@ -26,6 +26,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTransactions } from "@/contexts/transactions";
 import { useCategories } from "@/contexts/categories";
 import { UITransaction } from "@/lib/db/schemas/transaction";
+import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
+import { toast } from "sonner";
 import { 
   searchTransactions, 
   detectDuplicates, 
@@ -36,7 +38,7 @@ import {
 } from "@/lib/services/transaction-search";
 
 export default function TransactionManagePage() {
-  const { transactions } = useTransactions();
+  const { transactions, mutate } = useTransactions();
   const { data: categories } = useCategories();
   
   // Search and filter state
@@ -67,6 +69,10 @@ export default function TransactionManagePage() {
   // Duplicate detection
   const [duplicates, setDuplicates] = useState<Array<{ group: UITransaction[]; similarity: number }>>([]);
   const [showDuplicates, setShowDuplicates] = useState(false);
+  
+  // Edit modal state
+  const [editingTransaction, setEditingTransaction] = useState<UITransaction | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (transactions) {
@@ -205,6 +211,36 @@ export default function TransactionManagePage() {
     }
     
     return formatted;
+  };
+
+  const handleEditTransaction = (transaction: UITransaction) => {
+    setEditingTransaction(transaction);
+    setEditModalOpen(true);
+  };
+
+  const handleDeleteTransaction = async (transactionId: string) => {
+    if (!confirm("Are you sure you want to delete this transaction?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/transactions/${transactionId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete transaction");
+      }
+
+      // Refresh the transactions list
+      mutate();
+      
+      toast.success("Transaction deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to delete transaction");
+    }
   };
 
   const selectedCount = selectedTransactions.size;
@@ -483,10 +519,20 @@ export default function TransactionManagePage() {
                         >
                           <Split className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleEditTransaction(transaction)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-400">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-red-400"
+                          onClick={() => handleDeleteTransaction(transaction.id!)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -673,6 +719,17 @@ export default function TransactionManagePage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Edit Transaction Modal */}
+      <EditTransactionModal
+        transaction={editingTransaction}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        onSuccess={() => {
+          setEditingTransaction(null);
+          mutate();
+        }}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Building, Home, Tag, Filter, Settings } from "lucide-react";
+import { Plus, Building, Home, Tag, Filter, Settings, Edit, Trash2 } from "lucide-react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -507,7 +507,7 @@ function CategoryCard({
               onClick={() => onEdit(category)}
               className="h-8 w-8 p-0"
             >
-              ✏️
+              <Edit className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -515,7 +515,7 @@ function CategoryCard({
               onClick={() => onDelete(category.id!)}
               className="h-8 w-8 p-0 text-red-500 hover:text-red-400"
             >
-              🗑️
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -578,7 +578,7 @@ function ProjectCard({
               onClick={() => onEdit(project)}
               className="h-8 w-8 p-0"
             >
-              ✏️
+              <Edit className="h-4 w-4" />
             </Button>
           </div>
         </div>

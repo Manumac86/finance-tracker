@@ -72,11 +72,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   const getStatusIcon = (status?: string) => {
     switch (status) {
       case "overspent":
-        return <AlertTriangle className="w-3 h-3 mr-1" />;
+        return <AlertTriangle className="h-3 w-3 mr-1" />;
       case "warning":
-        return <AlertTriangle className="w-3 h-3 mr-1" />;
+        return <AlertTriangle className="h-3 w-3 mr-1" />;
       case "on_track":
-        return <TrendingUp className="w-3 h-3 mr-1" />;
+        return <TrendingUp className="h-3 w-3 mr-1" />;
       default:
         return null;
     }
@@ -195,12 +195,12 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Period Info */}
         <div className="flex justify-between items-center text-sm text-gray-400 border-t border-gray-800 pt-4">
           <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-1" />
+            <Calendar className="h-4 w-4 mr-1" />
             <span>Starts: {formatDate(budget.startDate)}</span>
           </div>
           {budget.daysRemaining !== undefined && (
             <div className="flex items-center">
-              <Target className="w-4 h-4 mr-1" />
+              <Target className="h-4 w-4 mr-1" />
               <span>{budget.daysRemaining} days left</span>
             </div>
           )}

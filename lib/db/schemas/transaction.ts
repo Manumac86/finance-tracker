@@ -44,10 +44,21 @@ export const createTransactionSchema = z.object({
   transactionDate: z.string().datetime().optional(),
 });
 
+// API input schema for updating transactions
+export const updateTransactionSchema = z.object({
+  amount: z.number().refine((val) => val !== 0, "Amount cannot be zero").optional(),
+  transactionType: z.enum(['income', 'expense']).optional(),
+  name: z.string().min(1, "Transaction name is required").optional(),
+  description: z.string().optional(),
+  categoryId: z.string().min(1, "Category is required").optional(),
+  transactionDate: z.string().datetime().optional(),
+});
+
 // Types
 export type Transaction = z.infer<typeof transactionDbSchema>;
 export type UITransaction = z.infer<typeof transactionUISchema>;
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
+export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>;
 
 // Transform functions between DB and UI formats
 export function transformTransactionToUI(transaction: Transaction): UITransaction {

@@ -191,4 +191,25 @@
   .hover\:scale-102:hover {
     transform: scale(1.02);
   }
+
+  /* Responsive spacing utilities */
+  .responsive-space-y {
+    @apply space-y-3 sm:space-y-4 lg:space-y-6;
+  }
+
+  .responsive-gap {
+    @apply gap-3 sm:gap-4 lg:gap-6;
+  }
+
+  .responsive-padding {
+    @apply p-3 sm:p-4 lg:p-6;
+  }
+
+  .responsive-padding-x {
+    @apply px-2 sm:px-4 lg:px-6;
+  }
+
+  .responsive-card-padding {
+    @apply px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6;
+  }
 }

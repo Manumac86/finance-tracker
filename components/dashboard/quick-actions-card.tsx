@@ -10,28 +10,28 @@ export function QuickActionsCard() {
     {
       label: "Add Transaction",
       href: "/transactions",
-      icon: <Plus className="w-4 h-4" />,
+      icon: <Plus className="h-4 w-4" />,
       description: "Record income or expense",
       color: "bg-emerald-600 hover:bg-emerald-700"
     },
     {
       label: "Create Goal",
       href: "/goals",
-      icon: <Target className="w-4 h-4" />,
+      icon: <Target className="h-4 w-4" />,
       description: "Set a financial target",
       color: "bg-blue-600 hover:bg-blue-700"
     },
     {
       label: "Set Budget",
       href: "/budgets",
-      icon: <DollarSign className="w-4 h-4" />,
+      icon: <DollarSign className="h-4 w-4" />,
       description: "Control your spending",
       color: "bg-purple-600 hover:bg-purple-700"
     },
     {
       label: "View Reports",
       href: "/reports",
-      icon: <PieChart className="w-4 h-4" />,
+      icon: <PieChart className="h-4 w-4" />,
       description: "Analyze your finances",
       color: "bg-orange-600 hover:bg-orange-700"
     }
@@ -58,7 +58,7 @@ export function QuickActionsCard() {
     <Card className="bg-gray-900 border-gray-800">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Settings className="w-5 h-5" />
+          <Settings className="h-5 w-5" />
           Quick Actions
         </CardTitle>
       </CardHeader>
@@ -94,7 +94,7 @@ export function QuickActionsCard() {
                 <div className={`text-xs flex items-center gap-1 ${
                   insight.positive ? 'text-emerald-500' : 'text-red-500'
                 }`}>
-                  <TrendingUp className={`w-3 h-3 ${
+                  <TrendingUp className={`h-3 w-3 ${
                     insight.positive ? '' : 'rotate-180'
                   }`} />
                   {insight.change}

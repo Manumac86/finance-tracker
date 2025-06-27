@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Tag, Building, Receipt, Plus } from "lucide-react";
+import { X, Tag, Building, Receipt, Plus, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { UICategory } from "@/lib/db/schemas/category";
 import { UIProject } from "@/lib/db/schemas/project";
+import { getCategoryIcon, AVAILABLE_CATEGORY_ICONS } from "@/lib/utils/icons";
 
 interface AdvancedCategoryModalProps {
   isOpen: boolean;
@@ -43,10 +44,7 @@ export interface CategoryFormData {
   projectId: string;
 }
 
-const CATEGORY_ICONS = [
-  "🍔", "🏠", "🚗", "⛽", "🛒", "💊", "🎬", "🎯", "💻", "📱",
-  "✈️", "🏖️", "🎓", "📚", "💡", "🔧", "🎨", "🏃", "💰", "📊"
-];
+// Category icons now use Lucide React icons from the utility
 
 const CATEGORY_COLORS = [
   "#EF4444", "#F97316", "#F59E0B", "#10B981", "#059669", 
@@ -90,7 +88,7 @@ export function AdvancedCategoryModal({
   const [formData, setFormData] = useState<CategoryFormData>({
     name: "",
     description: "",
-    icon: "📊",
+    icon: "BarChart3",
     color: "#6366F1",
     categoryType: "personal",
     parentCategoryId: "",
@@ -264,7 +262,7 @@ export function AdvancedCategoryModal({
                         <SelectContent>
                           <SelectItem value="personal">
                             <div className="flex items-center gap-2">
-                              <span>🏠</span>
+                              <Home className="w-4 h-4" />
                               Personal
                             </div>
                           </SelectItem>
@@ -282,19 +280,19 @@ export function AdvancedCategoryModal({
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label>Icon *</Label>
-                      <div className="grid grid-cols-5 gap-2">
-                        {CATEGORY_ICONS.map((icon) => (
+                      <div className="grid grid-cols-6 gap-2">
+                        {AVAILABLE_CATEGORY_ICONS.map((iconName) => (
                           <button
-                            key={icon}
+                            key={iconName}
                             type="button"
-                            onClick={() => updateFormData("icon", icon)}
-                            className={`p-3 text-xl rounded border-2 transition-colors ${
-                              formData.icon === icon
+                            onClick={() => updateFormData("icon", iconName)}
+                            className={`p-3 rounded border-2 transition-colors flex items-center justify-center ${
+                              formData.icon === iconName
                                 ? "border-emerald-500 bg-emerald-900/20"
                                 : "border-gray-700 hover:border-gray-600"
                             }`}
                           >
-                            {icon}
+                            {getCategoryIcon(iconName, "h-5 w-5")}
                           </button>
                         ))}
                       </div>

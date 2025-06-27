@@ -5,6 +5,7 @@ import {
   insertRecurringTransaction,
 } from "@/lib/db/postgres";
 import { transformRecurringTransactionToUI } from "@/lib/db/schemas/recurring-transaction";
+import { calculateNextDueDate } from "@/lib/utils/recurring-dates";
 
 export async function GET() {
   try {
@@ -46,12 +47,13 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       name: body.name,
       description: body.description,
-      amount: parseFloat(body.amount),
+      amount: body.amount,
       transaction_type: body.transactionType,
       category_id: body.categoryId,
       frequency: body.frequency,
       start_date: body.startDate,
-      end_date: body.endDate || null,
+      end_date: body.endDate && body.endDate.trim() !== "" ? body.endDate : null,
+      next_due_date: calculateNextDueDate(body.startDate, body.frequency),
       is_bill: body.isBill,
       reminder_days_before: body.reminderDaysBefore,
       auto_create_transaction: body.autoCreateTransaction,

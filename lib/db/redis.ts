@@ -57,10 +57,20 @@ export async function cacheGoalDetail(goalId: string, goal: unknown, ttl = 600) 
 export async function getCachedGoalDetail(goalId: string) {
   try {
     const cached = await redis.get(CACHE_KEYS.GOAL_DETAIL(goalId));
-    if (!cached || cached === '') return null;
-    return JSON.parse(cached as string);
+    if (!cached || cached === '' || cached === null || cached === undefined) {
+      return null;
+    }
+    
+    // Additional validation for valid JSON string
+    const cachedString = typeof cached === 'string' ? cached : String(cached);
+    if (cachedString.trim() === '' || cachedString === 'null' || cachedString === 'undefined') {
+      return null;
+    }
+    
+    return JSON.parse(cachedString);
   } catch (error) {
     console.error('Redis cache parse error:', error);
+    await redis.del(CACHE_KEYS.GOAL_DETAIL(goalId));
     return null;
   }
 }
@@ -79,10 +89,20 @@ export async function cacheDashboardData(userId: string, date: string, data: unk
 export async function getCachedDashboardData(userId: string, date: string) {
   try {
     const cached = await redis.get(CACHE_KEYS.DASHBOARD(userId, date));
-    if (!cached || cached === '') return null;
-    return JSON.parse(cached as string);
+    if (!cached || cached === '' || cached === null || cached === undefined) {
+      return null;
+    }
+    
+    // Additional validation for valid JSON string
+    const cachedString = typeof cached === 'string' ? cached : String(cached);
+    if (cachedString.trim() === '' || cachedString === 'null' || cachedString === 'undefined') {
+      return null;
+    }
+    
+    return JSON.parse(cachedString);
   } catch (error) {
     console.error('Redis cache parse error:', error);
+    await redis.del(CACHE_KEYS.DASHBOARD(userId, date));
     return null;
   }
 }
@@ -99,8 +119,17 @@ export async function cacheUserBudgets(userId: string, budgets: unknown[], ttl =
 export async function getCachedUserBudgets(userId: string) {
   try {
     const cached = await redis.get(CACHE_KEYS.USER_BUDGETS(userId));
-    if (!cached || cached === '') return null;
-    return JSON.parse(cached as string);
+    if (!cached || cached === '' || cached === null || cached === undefined) {
+      return null;
+    }
+    
+    // Additional validation for valid JSON string
+    const cachedString = typeof cached === 'string' ? cached : String(cached);
+    if (cachedString.trim() === '' || cachedString === 'null' || cachedString === 'undefined') {
+      return null;
+    }
+    
+    return JSON.parse(cachedString);
   } catch (error) {
     console.error('Redis cache parse error:', error);
     await redis.del(CACHE_KEYS.USER_BUDGETS(userId));
@@ -127,8 +156,17 @@ export async function cacheBudgetDetail(budgetId: string, budget: unknown, ttl =
 export async function getCachedBudgetDetail(budgetId: string) {
   try {
     const cached = await redis.get(CACHE_KEYS.BUDGET_DETAIL(budgetId));
-    if (!cached || cached === '') return null;
-    return JSON.parse(cached as string);
+    if (!cached || cached === '' || cached === null || cached === undefined) {
+      return null;
+    }
+    
+    // Additional validation for valid JSON string
+    const cachedString = typeof cached === 'string' ? cached : String(cached);
+    if (cachedString.trim() === '' || cachedString === 'null' || cachedString === 'undefined') {
+      return null;
+    }
+    
+    return JSON.parse(cachedString);
   } catch (error) {
     console.error('Redis cache parse error:', error);
     await redis.del(CACHE_KEYS.BUDGET_DETAIL(budgetId));
@@ -142,6 +180,44 @@ export async function invalidateBudgetCache(budgetId: string, userId: string) {
       redis.del(CACHE_KEYS.BUDGET_DETAIL(budgetId)),
       redis.del(CACHE_KEYS.USER_BUDGETS(userId)),
     ]);
+  } catch (error) {
+    console.error('Redis cache error:', error);
+  }
+}
+
+// Budget alerts cache functions
+export async function cacheBudgetAlerts(userId: string, alerts: unknown[], ttl = 300) {
+  try {
+    await redis.setex(CACHE_KEYS.BUDGET_ALERTS(userId), ttl, JSON.stringify(alerts));
+  } catch (error) {
+    console.error('Redis cache error:', error);
+  }
+}
+
+export async function getCachedBudgetAlerts(userId: string) {
+  try {
+    const cached = await redis.get(CACHE_KEYS.BUDGET_ALERTS(userId));
+    if (!cached || cached === '' || cached === null || cached === undefined) {
+      return null;
+    }
+    
+    // Additional validation for valid JSON string
+    const cachedString = typeof cached === 'string' ? cached : String(cached);
+    if (cachedString.trim() === '' || cachedString === 'null' || cachedString === 'undefined') {
+      return null;
+    }
+    
+    return JSON.parse(cachedString);
+  } catch (error) {
+    console.error('Redis cache parse error:', error);
+    await redis.del(CACHE_KEYS.BUDGET_ALERTS(userId));
+    return null;
+  }
+}
+
+export async function invalidateBudgetAlertsCache(userId: string) {
+  try {
+    await redis.del(CACHE_KEYS.BUDGET_ALERTS(userId));
   } catch (error) {
     console.error('Redis cache error:', error);
   }
