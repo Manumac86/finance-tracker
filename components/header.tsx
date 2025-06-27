@@ -3,7 +3,19 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Search, Plus, Target, TrendingUp, Receipt, Repeat, FileDown, Menu, X, BarChart3, Users } from "lucide-react";
+import {
+  DollarSign,
+  Search,
+  Target,
+  TrendingUp,
+  Receipt,
+  Repeat,
+  FileDown,
+  Menu,
+  X,
+  BarChart3,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,7 +35,9 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/transactions?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(
+        `/transactions?search=${encodeURIComponent(searchQuery.trim())}`
+      );
       setSearchQuery("");
     }
   };
@@ -34,12 +48,14 @@ export function Header() {
         <DollarSign className="h-6 w-6 text-emerald-500" />
         <span>FinTrack</span>
       </Link>
-      
+
       {/* Navigation Links */}
       <nav className="hidden lg:flex items-center gap-1 ml-4 xl:ml-8">
         <Link href="/dashboard">
-          <Button 
-            variant={isHydrated && pathname === "/dashboard" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -48,7 +64,7 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/goals">
-          <Button 
+          <Button
             variant={isHydrated && pathname === "/goals" ? "default" : "ghost"}
             size="sm"
             className="gap-2"
@@ -58,8 +74,10 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/budgets">
-          <Button 
-            variant={isHydrated && pathname === "/budgets" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/budgets" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -68,8 +86,10 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/transactions">
-          <Button 
-            variant={isHydrated && pathname === "/transactions" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/transactions" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -78,8 +98,10 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/recurring">
-          <Button 
-            variant={isHydrated && pathname === "/recurring" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/recurring" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -88,8 +110,12 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/transactions/manage">
-          <Button 
-            variant={isHydrated && pathname === "/transactions/manage" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/transactions/manage"
+                ? "default"
+                : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -98,8 +124,10 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/reports/export">
-          <Button 
-            variant={isHydrated && pathname === "/reports/export" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/reports/export" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-2"
           >
@@ -108,7 +136,7 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/family">
-          <Button 
+          <Button
             variant={isHydrated && pathname === "/family" ? "default" : "ghost"}
             size="sm"
             className="gap-2"
@@ -122,8 +150,10 @@ export function Header() {
       {/* Tablet Navigation - Condensed */}
       <nav className="hidden md:flex lg:hidden items-center gap-1 ml-4">
         <Link href="/dashboard">
-          <Button 
-            variant={isHydrated && pathname === "/dashboard" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-1 px-2"
             title="Dashboard"
@@ -133,8 +163,10 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/transactions">
-          <Button 
-            variant={isHydrated && pathname === "/transactions" ? "default" : "ghost"}
+          <Button
+            variant={
+              isHydrated && pathname === "/transactions" ? "default" : "ghost"
+            }
             size="sm"
             className="gap-1 px-2"
             title="Transactions"
@@ -144,7 +176,7 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/budgets">
-          <Button 
+          <Button
             variant={pathname === "/budgets" ? "default" : "ghost"}
             size="sm"
             className="gap-1 px-2"
@@ -155,7 +187,7 @@ export function Header() {
           </Button>
         </Link>
         <Link href="/goals">
-          <Button 
+          <Button
             variant={isHydrated && pathname === "/goals" ? "default" : "ghost"}
             size="sm"
             className="gap-1 px-2"
@@ -174,7 +206,11 @@ export function Header() {
         className="lg:hidden"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
       >
-        {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {mobileMenuOpen ? (
+          <X className="h-5 w-5" />
+        ) : (
+          <Menu className="h-5 w-5" />
+        )}
       </Button>
 
       <div className="ml-auto flex items-center gap-4">
@@ -189,12 +225,12 @@ export function Header() {
           />
         </form>
         <BudgetAlertsPanel />
-        <UserButton 
+        <UserButton
           afterSignOutUrl="/signin"
           appearance={{
             elements: {
-              avatarBox: "w-8 h-8 sm:w-10 sm:h-10"
-            }
+              avatarBox: "w-8 h-8 sm:w-10 sm:h-10",
+            },
           }}
         />
       </div>
@@ -204,8 +240,10 @@ export function Header() {
         <div className="absolute top-16 left-0 right-0 z-50 border-b border-gray-800 bg-gray-950/95 backdrop-blur-sm lg:hidden">
           <nav className="flex flex-col space-y-1 p-4">
             <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/dashboard" ? "default" : "ghost"}
+              <Button
+                variant={
+                  isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -214,8 +252,10 @@ export function Header() {
               </Button>
             </Link>
             <Link href="/goals" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/goals" ? "default" : "ghost"}
+              <Button
+                variant={
+                  isHydrated && pathname === "/goals" ? "default" : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -224,7 +264,7 @@ export function Header() {
               </Button>
             </Link>
             <Link href="/budgets" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
+              <Button
                 variant={pathname === "/budgets" ? "default" : "ghost"}
                 size="sm"
                 className="w-full justify-start gap-2"
@@ -234,8 +274,12 @@ export function Header() {
               </Button>
             </Link>
             <Link href="/transactions" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/transactions" ? "default" : "ghost"}
+              <Button
+                variant={
+                  isHydrated && pathname === "/transactions"
+                    ? "default"
+                    : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -244,8 +288,10 @@ export function Header() {
               </Button>
             </Link>
             <Link href="/recurring" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/recurring" ? "default" : "ghost"}
+              <Button
+                variant={
+                  isHydrated && pathname === "/recurring" ? "default" : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -253,9 +299,16 @@ export function Header() {
                 Recurring
               </Button>
             </Link>
-            <Link href="/transactions/manage" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/transactions/manage" ? "default" : "ghost"}
+            <Link
+              href="/transactions/manage"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Button
+                variant={
+                  isHydrated && pathname === "/transactions/manage"
+                    ? "default"
+                    : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -263,9 +316,16 @@ export function Header() {
                 Manage
               </Button>
             </Link>
-            <Link href="/reports/export" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/reports/export" ? "default" : "ghost"}
+            <Link
+              href="/reports/export"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Button
+                variant={
+                  isHydrated && pathname === "/reports/export"
+                    ? "default"
+                    : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
@@ -274,8 +334,10 @@ export function Header() {
               </Button>
             </Link>
             <Link href="/family" onClick={() => setMobileMenuOpen(false)}>
-              <Button 
-                variant={isHydrated && pathname === "/family" ? "default" : "ghost"}
+              <Button
+                variant={
+                  isHydrated && pathname === "/family" ? "default" : "ghost"
+                }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
