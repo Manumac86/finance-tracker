@@ -12,7 +12,8 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/', 
     '<rootDir>/node_modules/',
-    '<rootDir>/__tests__/transactions/recurring-transactions.test.ts', // Temporarily disabled due to mocking issues
+    '<rootDir>/e2e/', // Exclude all E2E tests from Jest
+    '<rootDir>/__tests__/transactions/recurring-transactions.test.ts.disabled', // Temporarily disabled due to mocking issues
     '<rootDir>/__tests__/goals/goal-ui.test.tsx', // Temporarily disabled - component not fully implemented
     '<rootDir>/__tests__/onboarding/onboarding-flow.test.tsx', // Temporarily disabled - UI components missing
     '<rootDir>/__tests__/auth/protected-routes.test.tsx', // Temporarily disabled - dashboard content expectations
@@ -59,6 +60,7 @@ const customJestConfig = {
     '<rootDir>/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/**/*.(test|spec).{js,jsx,ts,tsx}',
     '!<rootDir>/**/__tests__/setup.ts',
+    '!<rootDir>/e2e/**/*',
   ],
 }
 
