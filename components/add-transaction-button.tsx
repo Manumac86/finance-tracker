@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect, useRef } from "react";
-import { CalendarIcon, Plus, Mic, MicOff, Upload } from "lucide-react";
+import { CalendarIcon, Plus, Mic, MicOff, X, Download } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Popover,
   PopoverContent,
@@ -37,8 +38,17 @@ import { useCategories } from "@/contexts/categories";
 import { useTransactions } from "@/contexts/transactions";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
 import { suggestCategory, suggestMerchant, getQuickMerchantSuggestions } from "@/lib/utils/smart-suggestions";
-import { BulkTransactionModal } from "@/components/bulk-transaction-modal";
 import { toast } from "sonner";
+
+interface BulkTransaction {
+  id: string;
+  name: string;
+  amount: string;
+  transactionType: "income" | "expense";
+  categoryId: string;
+  description?: string;
+  date: string;
+}
 
 export function AddTransactionButton() {
   const { data: categories } = useCategories();
@@ -56,8 +66,12 @@ export function AddTransactionButton() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
-  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("single");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  
+  // Bulk transaction states
+  const [bulkTransactions, setBulkTransactions] = useState<BulkTransaction[]>([]);
+  const [textInput, setTextInput] = useState("");
 
   // Initialize speech recognition
   useEffect(() => {
@@ -177,6 +191,9 @@ export function AddTransactionButton() {
     setDescription("");
     setMerchantSuggestions([]);
     setShowSuggestions(false);
+    setBulkTransactions([]);
+    setTextInput("");
+    setActiveTab("single");
     if (isListening) {
       stopListening();
     }
@@ -216,24 +233,235 @@ export function AddTransactionButton() {
     }
   };
 
+  // Bulk transaction functions
+  const addBulkTransaction = () => {
+    const newTransaction: BulkTransaction = {
+      id: `bulk_${Date.now()}_${Math.random()}`,
+      name: "",
+      amount: "",
+      transactionType: "expense",
+      categoryId: "",
+      description: "",
+      date: new Date().toISOString().split("T")[0],
+    };
+    setBulkTransactions([...bulkTransactions, newTransaction]);
+  };
+
+  const removeBulkTransaction = (id: string) => {
+    setBulkTransactions(bulkTransactions.filter((t) => t.id !== id));
+  };
+
+  const updateBulkTransaction = (
+    id: string,
+    field: keyof BulkTransaction,
+    value: string
+  ) => {
+    setBulkTransactions(
+      bulkTransactions.map((t) => (t.id === id ? { ...t, [field]: value } : t))
+    );
+  };
+
+  const parseTextInput = () => {
+    if (!textInput.trim()) return;
+
+    const lines = textInput.trim().split("\n");
+    const newTransactions: BulkTransaction[] = [];
+
+    lines.forEach((line, index) => {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length >= 2) {
+        const amount =
+          parts
+            .find((part) => /^\$?[\d.,]+$/.test(part))
+            ?.replace(/[$,]/g, "") || "";
+        const name = parts
+          .filter(
+            (part) =>
+              !/^\$?[\d.,]+$/.test(part) &&
+              !["expense", "income"].includes(part.toLowerCase())
+          )
+          .join(" ");
+        const type = parts.some((part) => part.toLowerCase() === "income")
+          ? "income"
+          : "expense";
+
+        const suggestedCategory = suggestCategory(name, categories || []);
+
+        const transaction: BulkTransaction = {
+          id: `parsed_${Date.now()}_${index}`,
+          name: name || `Transaction ${index + 1}`,
+          amount,
+          transactionType: type,
+          categoryId: suggestedCategory?.id || "",
+          description: "",
+          date: new Date().toISOString().split("T")[0],
+        };
+
+        newTransactions.push(transaction);
+      }
+    });
+
+    setBulkTransactions([...bulkTransactions, ...newTransactions]);
+    setTextInput("");
+    toast.success(`Added ${newTransactions.length} transactions`);
+  };
+
+  const downloadTemplate = () => {
+    const csvContent = [
+      "Name,Amount,Type,Category,Description,Date",
+      "Grocery Store,45.50,expense,Food & Drink,Weekly groceries,2024-01-15",
+      "Salary,3000.00,income,Income,Monthly salary,2024-01-15",
+      "Gas Station,35.00,expense,Transportation,Car fuel,2024-01-14",
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bulk_transactions_template.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split("\n").slice(1);
+      const newTransactions: BulkTransaction[] = [];
+
+      lines.forEach((line, index) => {
+        const [name, amount, type, categoryName, description, date] =
+          line.split(",");
+        if (name && amount) {
+          const category = categories?.find(
+            (cat) =>
+              cat.name.toLowerCase() === categoryName?.toLowerCase().trim()
+          );
+
+          const transaction: BulkTransaction = {
+            id: `csv_${Date.now()}_${index}`,
+            name: name.trim(),
+            amount: amount.trim(),
+            transactionType: (type?.toLowerCase().trim() === "income"
+              ? "income"
+              : "expense") as "income" | "expense",
+            categoryId: category?.id || "",
+            description: description?.trim() || "",
+            date: date?.trim() || new Date().toISOString().split("T")[0],
+          };
+
+          newTransactions.push(transaction);
+        }
+      });
+
+      setBulkTransactions([...bulkTransactions, ...newTransactions]);
+      toast.success(`Imported ${newTransactions.length} transactions from CSV`);
+    };
+
+    reader.readAsText(file);
+    event.target.value = "";
+  };
+
+  const handleBulkSubmit = async () => {
+    if (bulkTransactions.length === 0) {
+      toast.error("Add at least one transaction");
+      return;
+    }
+
+    const invalidTransactions = bulkTransactions.filter(
+      (t) =>
+        !t.name.trim() ||
+        !t.amount ||
+        parseFloat(t.amount) <= 0 ||
+        !t.categoryId
+    );
+
+    if (invalidTransactions.length > 0) {
+      toast.error(
+        `${invalidTransactions.length} transactions have missing or invalid data`
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      let createdCount = 0;
+      let failedCount = 0;
+
+      for (const transaction of bulkTransactions) {
+        try {
+          const transactionData = {
+            amount: parseFloat(transaction.amount),
+            transactionType: transaction.transactionType,
+            name: transaction.name.trim(),
+            description: transaction.description?.trim() || undefined,
+            categoryId: transaction.categoryId,
+            transactionDate: new Date(transaction.date).toISOString(),
+          };
+
+          const response = await fetch("/api/transactions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(transactionData),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+
+            if (
+              transaction.transactionType === "expense" &&
+              result.transaction
+            ) {
+              await checkBudgetAlerts(result.transaction);
+            }
+
+            createdCount++;
+          } else {
+            failedCount++;
+          }
+        } catch {
+          failedCount++;
+        }
+      }
+
+      mutate();
+
+      if (createdCount > 0) {
+        toast.success(`Successfully created ${createdCount} transactions`);
+      }
+
+      if (failedCount > 0) {
+        toast.error(`Failed to create ${failedCount} transactions`);
+      }
+
+      if (failedCount === 0) {
+        resetForm();
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Error creating bulk transactions:", error);
+      toast.error("Failed to create transactions");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
-      <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center gap-4">
-        <Button
-          onClick={() => setBulkModalOpen(true)}
-          size="lg"
-          className="h-12 px-4 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-blue-700 hover:shadow-xl"
-        >
-          <Upload className="h-5 w-5 mr-2" />
-          Bulk
-          <span className="sr-only">Bulk Add Transactions</span>
-        </Button>
+      <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => setOpen(true)}
           size="lg"
-          className="h-14 w-14 rounded-full bg-white text-emerald-600 hover:text-white hover:bg-emerald-700 shadow-lg hover:shadow-emerald-700 hover:shadow-2xl"
+          className="h-16 w-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-emerald-500/20"
         >
-          <Plus className="h-8 w-8" />
+          <Plus className="h-6 w-6" />
           <span className="sr-only">Add Transaction</span>
         </Button>
       </div>
@@ -246,15 +474,23 @@ export function AddTransactionButton() {
           if (!isOpen) resetForm();
         }}
       >
-        <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-gray-50">
+        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800 text-gray-50">
           <DialogHeader>
             <DialogTitle>Add Transaction</DialogTitle>
             <DialogDescription className="text-gray-400">
-              Enter the details of your transaction below.
+              Add single transactions or import multiple transactions at once.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
+          
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="single">Single Transaction</TabsTrigger>
+              <TabsTrigger value="bulk">Bulk Import</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="single" className="space-y-4">
+              <form onSubmit={handleSubmit}>
+                <div className="grid gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="transaction-type">Transaction Type</Label>
                 <RadioGroup
@@ -437,38 +673,227 @@ export function AddTransactionButton() {
                   </p>
                 )}
               </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setOpen(false)}
-                className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className={cn(
-                  "text-white",
-                  transactionType === "expense"
-                    ? "bg-rose-600 hover:bg-rose-700"
-                    : "bg-emerald-600 hover:bg-emerald-700"
-                )}
-              >
-                {isSubmitting ? "Saving..." : "Save Transaction"}
-              </Button>
-            </DialogFooter>
-          </form>
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setOpen(false)}
+                    className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={cn(
+                      "text-white",
+                      transactionType === "expense"
+                        ? "bg-rose-600 hover:bg-rose-700"
+                        : "bg-emerald-600 hover:bg-emerald-700"
+                    )}
+                  >
+                    {isSubmitting ? "Saving..." : "Save Transaction"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="bulk" className="space-y-6">
+              {/* Import Options */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Quick Text Entry</Label>
+                  <Textarea
+                    placeholder="Grocery Store $45.50&#10;Salary $3000 income&#10;Gas Station $35"
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-gray-50 h-20"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={parseTextInput}
+                    disabled={!textInput.trim()}
+                    className="w-full"
+                  >
+                    Parse Text
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>CSV Upload</Label>
+                  <div className="space-y-2">
+                    <Input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileUpload}
+                      className="bg-gray-800 border-gray-700 text-gray-50"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={downloadTemplate}
+                      className="w-full border-gray-700"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Template
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Manual Entry</Label>
+                  <Button
+                    type="button"
+                    onClick={addBulkTransaction}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Transaction
+                  </Button>
+                </div>
+              </div>
+
+              {/* Transaction List */}
+              {bulkTransactions.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      Transactions ({bulkTransactions.length})
+                    </h3>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setBulkTransactions([])}
+                      className="border-gray-700"
+                    >
+                      Clear All
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {bulkTransactions.map((transaction) => (
+                      <div
+                        key={transaction.id}
+                        className="grid grid-cols-6 gap-2 p-3 bg-gray-800 rounded-lg"
+                      >
+                        <Input
+                          placeholder="Name"
+                          value={transaction.name}
+                          onChange={(e) =>
+                            updateBulkTransaction(
+                              transaction.id,
+                              "name",
+                              e.target.value
+                            )
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-50"
+                        />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Amount"
+                          value={transaction.amount}
+                          onChange={(e) =>
+                            updateBulkTransaction(
+                              transaction.id,
+                              "amount",
+                              e.target.value
+                            )
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-50"
+                        />
+                        <select
+                          value={transaction.transactionType}
+                          onChange={(e) =>
+                            updateBulkTransaction(
+                              transaction.id,
+                              "transactionType",
+                              e.target.value
+                            )
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
+                        >
+                          <option value="expense">Expense</option>
+                          <option value="income">Income</option>
+                        </select>
+                        <select
+                          value={transaction.categoryId}
+                          onChange={(e) =>
+                            updateBulkTransaction(
+                              transaction.id,
+                              "categoryId",
+                              e.target.value
+                            )
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
+                        >
+                          <option value="">Select Category</option>
+                          {categories?.map((cat) => (
+                            <option
+                              key={cat.id || cat.name}
+                              value={cat.id || cat.name}
+                            >
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <Input
+                          type="date"
+                          value={transaction.date}
+                          onChange={(e) =>
+                            updateBulkTransaction(
+                              transaction.id,
+                              "date",
+                              e.target.value
+                            )
+                          }
+                          className="bg-gray-700 border-gray-600 text-gray-50"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => removeBulkTransaction(transaction.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setOpen(false)}
+                  className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleBulkSubmit}
+                  disabled={isSubmitting || bulkTransactions.length === 0}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {isSubmitting
+                    ? "Creating..."
+                    : bulkTransactions.length > 0
+                    ? `Create ${bulkTransactions.length} Transaction${bulkTransactions.length === 1 ? '' : 's'}`
+                    : "Create Transactions"}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
-
-      {/* Bulk Transaction Modal */}
-      <BulkTransactionModal 
-        open={bulkModalOpen} 
-        onOpenChange={setBulkModalOpen} 
-      />
     </>
   );
 }
