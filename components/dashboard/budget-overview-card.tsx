@@ -121,7 +121,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
 
   if (budgets.length === 0) {
     return (
-      <Card className="bg-gray-900 border-gray-800">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
@@ -129,7 +129,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-6">
-          <div className="text-gray-400 mb-4">No budgets set yet</div>
+          <div className="text-muted-foreground mb-4">No budgets set yet</div>
           <Link href="/budgets">
             <Button className="bg-emerald-600 hover:bg-emerald-700">
               Create Your First Budget
@@ -141,7 +141,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -162,7 +162,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
         {/* Overall Progress */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">
+            <span className="text-muted-foreground">
               {formatCurrency(overallStats.totalSpent)} / {formatCurrency(overallStats.totalBudgeted)}
             </span>
             <span className="text-emerald-500">
@@ -179,27 +179,27 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-emerald-500">{overallStats.onTrackCount}</div>
-            <div className="text-xs text-gray-400">On Track</div>
+            <div className="text-xs text-muted-foreground">On Track</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-yellow-500">{overallStats.warningCount}</div>
-            <div className="text-xs text-gray-400">Warning</div>
+            <div className="text-xs text-muted-foreground">Warning</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-red-500">{overallStats.exceededCount}</div>
-            <div className="text-xs text-gray-400">Exceeded</div>
+            <div className="text-xs text-muted-foreground">Exceeded</div>
           </div>
         </div>
 
         {/* Top Concerning Budgets */}
         {budgetAnalyses.length > 0 && (
           <div className="space-y-3">
-            <div className="text-sm font-medium text-gray-300">Budget Status</div>
+            <div className="text-sm font-medium text-muted-foreground">Budget Status</div>
             {budgetAnalyses
               .sort((a, b) => b.percentage - a.percentage)
               .slice(0, 3)
               .map((analysis) => (
-                <div key={analysis.budget.id} className="space-y-2 p-3 bg-gray-800/50 rounded-lg">
+                <div key={analysis.budget.id} className="space-y-2 p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-sm">{analysis.budget.name}</div>
                     <Badge className={getStatusColor(analysis.status)}>
@@ -210,7 +210,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
                   
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">
+                      <span className="text-muted-foreground">
                         {formatCurrency(analysis.spent)} / {formatCurrency(analysis.budget.amount)}
                       </span>
                       <span className={analysis.remaining <= 0 ? 'text-red-500' : 'text-emerald-500'}>
@@ -234,7 +234,7 @@ export function BudgetOverviewCard({ budgets, transactions }: BudgetOverviewCard
         <Link href="/budgets">
           <Button 
             variant="outline" 
-            className="w-full border-gray-700 hover:bg-gray-800"
+            className="w-full"
           >
             Manage All Budgets
           </Button>

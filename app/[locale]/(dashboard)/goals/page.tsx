@@ -126,7 +126,7 @@ export default function GoalsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading goals...</p>
+          <p className="text-muted-foreground">Loading goals...</p>
         </div>
       </div>
     );
@@ -146,7 +146,7 @@ export default function GoalsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Goals</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Track your financial progress and stay motivated
           </p>
         </div>
@@ -170,7 +170,7 @@ export default function GoalsPage() {
             className={
               selectedFilter === option.value
                 ? "bg-emerald-600 hover:bg-emerald-700"
-                : "border-gray-600 text-gray-300 hover:bg-gray-800"
+                : ""
             }
           >
             {option.label}
@@ -180,11 +180,11 @@ export default function GoalsPage() {
 
       {/* Goals Grid */}
       {goals.length === 0 ? (
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardContent className="text-center py-12">
-            <Target className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+            <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No goals yet</h3>
-            <p className="text-gray-400 mb-6">
+            <p className="text-muted-foreground mb-6">
               Start by creating your first financial goal to track your progress
             </p>
             <Button
@@ -211,7 +211,7 @@ export default function GoalsPage() {
 
       {/* Goal Summary */}
       {goals.length > 0 && (
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardHeader>
             <CardTitle>Goals Summary</CardTitle>
           </CardHeader>
@@ -221,13 +221,13 @@ export default function GoalsPage() {
                 <div className="text-2xl font-bold text-emerald-500">
                   {goals.length}
                 </div>
-                <div className="text-sm text-gray-400">Total Goals</div>
+                <div className="text-sm text-muted-foreground">Total Goals</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-500">
                   {goals.filter((goal) => goal.isAchieved).length}
                 </div>
-                <div className="text-sm text-gray-400">Achieved</div>
+                <div className="text-sm text-muted-foreground">Achieved</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-500">
@@ -237,7 +237,7 @@ export default function GoalsPage() {
                     ).length
                   }
                 </div>
-                <div className="text-sm text-gray-400">In Progress</div>
+                <div className="text-sm text-muted-foreground">In Progress</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-500">
@@ -247,7 +247,7 @@ export default function GoalsPage() {
                     ).length
                   }
                 </div>
-                <div className="text-sm text-gray-400">Due Soon</div>
+                <div className="text-sm text-muted-foreground">Due Soon</div>
               </div>
             </div>
           </CardContent>

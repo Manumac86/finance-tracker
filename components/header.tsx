@@ -19,12 +19,19 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { BudgetAlertsPanel } from "@/components/budgets/budget-alerts-panel";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const params = useParams();
+  const locale = params.locale as string;
+  const t = useTranslations('navigation');
+  const tCommon = useTranslations('common');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isHydrated, setIsHydrated] = useState(false);
@@ -37,83 +44,83 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(
-        `/transactions?search=${encodeURIComponent(searchQuery.trim())}`
+        `/${locale}/transactions?search=${encodeURIComponent(searchQuery.trim())}`
       );
       setSearchQuery("");
     }
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950/95 backdrop-blur-sm">
-      <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-        <DollarSign className="h-6 w-6 text-emerald-500" />
-        <span>FinTrack</span>
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur-sm">
+      <Link href={`/${locale}/dashboard`} className="flex items-center gap-2 font-semibold">
+        <DollarSign className="h-6 w-6 text-primary" />
+        <span>{tCommon('appName')}</span>
       </Link>
 
       {/* Navigation Links */}
       <nav className="hidden lg:flex items-center gap-1 ml-4 xl:ml-8">
-        <Link href="/dashboard">
+        <Link href={`/${locale}/dashboard`}>
           <Button
             variant={
-              isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/dashboard` ? "default" : "ghost"
             }
             size="sm"
             className="gap-2"
           >
             <TrendingUp className="h-4 w-4" />
-            Dashboard
+            {t('dashboard')}
           </Button>
         </Link>
-        <Link href="/goals">
+        <Link href={`/${locale}/goals`}>
           <Button
-            variant={isHydrated && pathname === "/goals" ? "default" : "ghost"}
+            variant={isHydrated && pathname === `/${locale}/goals` ? "default" : "ghost"}
             size="sm"
             className="gap-2"
           >
             <Target className="h-4 w-4" />
-            Goals
+            {t('goals')}
           </Button>
         </Link>
-        <Link href="/budgets">
+        <Link href={`/${locale}/budgets`}>
           <Button
             variant={
-              isHydrated && pathname === "/budgets" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/budgets` ? "default" : "ghost"
             }
             size="sm"
             className="gap-2"
           >
             <DollarSign className="h-4 w-4" />
-            Budgets
+            {t('budgets')}
           </Button>
         </Link>
-        <Link href="/transactions">
+        <Link href={`/${locale}/transactions`}>
           <Button
             variant={
-              isHydrated && pathname === "/transactions" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/transactions` ? "default" : "ghost"
             }
             size="sm"
             className="gap-2"
           >
             <Receipt className="h-4 w-4" />
-            Transactions
+            {t('transactions')}
           </Button>
         </Link>
-        <Link href="/recurring">
+        <Link href={`/${locale}/recurring`}>
           <Button
             variant={
-              isHydrated && pathname === "/recurring" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/recurring` ? "default" : "ghost"
             }
             size="sm"
             className="gap-2"
           >
             <Repeat className="h-4 w-4" />
-            Recurring
+            {t('recurring')}
           </Button>
         </Link>
-        <Link href="/transactions/manage">
+        <Link href={`/${locale}/transactions/manage`}>
           <Button
             variant={
-              isHydrated && pathname === "/transactions/manage"
+              isHydrated && pathname === `/${locale}/transactions/manage`
                 ? "default"
                 : "ghost"
             }
@@ -121,91 +128,91 @@ export function Header() {
             className="gap-2"
           >
             <BarChart3 className="h-4 w-4" />
-            Manage
+            {t('manage')}
           </Button>
         </Link>
-        <Link href="/reports/export">
+        <Link href={`/${locale}/reports/export`}>
           <Button
             variant={
-              isHydrated && pathname === "/reports/export" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/reports/export` ? "default" : "ghost"
             }
             size="sm"
             className="gap-2"
           >
             <FileDown className="h-4 w-4" />
-            Reports
+            {t('reports')}
           </Button>
         </Link>
-        <Link href="/banking">
+        <Link href={`/${locale}/banking`}>
           <Button
-            variant={isHydrated && pathname === "/banking" ? "default" : "ghost"}
+            variant={isHydrated && pathname === `/${locale}/banking` ? "default" : "ghost"}
             size="sm"
             className="gap-2"
           >
             <Building2 className="h-4 w-4" />
-            Banking
+            {t('banking')}
           </Button>
         </Link>
-        <Link href="/family">
+        <Link href={`/${locale}/family`}>
           <Button
-            variant={isHydrated && pathname === "/family" ? "default" : "ghost"}
+            variant={isHydrated && pathname === `/${locale}/family` ? "default" : "ghost"}
             size="sm"
             className="gap-2"
           >
             <Users className="h-4 w-4" />
-            Family
+            {t('family')}
           </Button>
         </Link>
       </nav>
 
       {/* Tablet Navigation - Condensed */}
       <nav className="hidden md:flex lg:hidden items-center gap-1 ml-4">
-        <Link href="/dashboard">
+        <Link href={`/${locale}/dashboard`}>
           <Button
             variant={
-              isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/dashboard` ? "default" : "ghost"
             }
             size="sm"
             className="gap-1 px-2"
-            title="Dashboard"
+            title={t('dashboard')}
           >
             <TrendingUp className="h-4 w-4" />
-            <span className="hidden xl:inline">Dashboard</span>
+            <span className="hidden xl:inline">{t('dashboard')}</span>
           </Button>
         </Link>
-        <Link href="/transactions">
+        <Link href={`/${locale}/transactions`}>
           <Button
             variant={
-              isHydrated && pathname === "/transactions" ? "default" : "ghost"
+              isHydrated && pathname === `/${locale}/transactions` ? "default" : "ghost"
             }
             size="sm"
             className="gap-1 px-2"
-            title="Transactions"
+            title={t('transactions')}
           >
             <Receipt className="h-4 w-4" />
-            <span className="hidden xl:inline">Transactions</span>
+            <span className="hidden xl:inline">{t('transactions')}</span>
           </Button>
         </Link>
-        <Link href="/budgets">
+        <Link href={`/${locale}/budgets`}>
           <Button
-            variant={pathname === "/budgets" ? "default" : "ghost"}
+            variant={pathname === `/${locale}/budgets` ? "default" : "ghost"}
             size="sm"
             className="gap-1 px-2"
-            title="Budgets"
+            title={t('budgets')}
           >
             <DollarSign className="h-4 w-4" />
-            <span className="hidden xl:inline">Budgets</span>
+            <span className="hidden xl:inline">{t('budgets')}</span>
           </Button>
         </Link>
-        <Link href="/goals">
+        <Link href={`/${locale}/goals`}>
           <Button
-            variant={isHydrated && pathname === "/goals" ? "default" : "ghost"}
+            variant={isHydrated && pathname === `/${locale}/goals` ? "default" : "ghost"}
             size="sm"
             className="gap-1 px-2"
-            title="Goals"
+            title={t('goals')}
           >
             <Target className="h-4 w-4" />
-            <span className="hidden xl:inline">Goals</span>
+            <span className="hidden xl:inline">{t('goals')}</span>
           </Button>
         </Link>
       </nav>
@@ -226,16 +233,18 @@ export function Header() {
 
       <div className="ml-auto flex items-center gap-4">
         <form onSubmit={handleSearch} className="relative hidden xl:block">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search transactions..."
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-48 xl:w-64 rounded-lg bg-gray-900 pl-8 text-sm ring-offset-gray-950 placeholder:text-gray-500 focus-visible:ring-gray-800"
+            className="w-48 xl:w-64 rounded-lg bg-input pl-8 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring"
           />
         </form>
         <BudgetAlertsPanel />
+        <ThemeSwitcher />
+        <LanguageSwitcher />
         <UserButton
           afterSignOutUrl="/signin"
           appearance={{
@@ -248,46 +257,46 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute top-16 left-0 right-0 z-50 border-b border-gray-800 bg-gray-950/95 backdrop-blur-sm lg:hidden">
+        <div className="absolute top-16 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur-sm lg:hidden">
           <nav className="flex flex-col space-y-1 p-4">
-            <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/dashboard`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/dashboard" ? "default" : "ghost"
+                  isHydrated && pathname === `/${locale}/dashboard` ? "default" : "ghost"
                 }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <TrendingUp className="h-4 w-4" />
-                Dashboard
+                {t('dashboard')}
               </Button>
             </Link>
-            <Link href="/goals" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/goals`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/goals" ? "default" : "ghost"
+                  isHydrated && pathname === `/${locale}/goals` ? "default" : "ghost"
                 }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <Target className="h-4 w-4" />
-                Goals
+                {t('goals')}
               </Button>
             </Link>
-            <Link href="/budgets" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/budgets`} onClick={() => setMobileMenuOpen(false)}>
               <Button
-                variant={pathname === "/budgets" ? "default" : "ghost"}
+                variant={pathname === `/${locale}/budgets` ? "default" : "ghost"}
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <DollarSign className="h-4 w-4" />
-                Budgets
+                {t('budgets')}
               </Button>
             </Link>
-            <Link href="/transactions" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/transactions`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/transactions"
+                  isHydrated && pathname === `/${locale}/transactions`
                     ? "default"
                     : "ghost"
                 }
@@ -295,28 +304,28 @@ export function Header() {
                 className="w-full justify-start gap-2"
               >
                 <Receipt className="h-4 w-4" />
-                Transactions
+                {t('transactions')}
               </Button>
             </Link>
-            <Link href="/recurring" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/recurring`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/recurring" ? "default" : "ghost"
+                  isHydrated && pathname === `/${locale}/recurring` ? "default" : "ghost"
                 }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <Repeat className="h-4 w-4" />
-                Recurring
+                {t('recurring')}
               </Button>
             </Link>
             <Link
-              href="/transactions/manage"
+              href={`/${locale}/transactions/manage`}
               onClick={() => setMobileMenuOpen(false)}
             >
               <Button
                 variant={
-                  isHydrated && pathname === "/transactions/manage"
+                  isHydrated && pathname === `/${locale}/transactions/manage`
                     ? "default"
                     : "ghost"
                 }
@@ -324,16 +333,16 @@ export function Header() {
                 className="w-full justify-start gap-2"
               >
                 <BarChart3 className="h-4 w-4" />
-                Manage
+                {t('manage')}
               </Button>
             </Link>
             <Link
-              href="/reports/export"
+              href={`/${locale}/reports/export`}
               onClick={() => setMobileMenuOpen(false)}
             >
               <Button
                 variant={
-                  isHydrated && pathname === "/reports/export"
+                  isHydrated && pathname === `/${locale}/reports/export`
                     ? "default"
                     : "ghost"
                 }
@@ -341,31 +350,31 @@ export function Header() {
                 className="w-full justify-start gap-2"
               >
                 <FileDown className="h-4 w-4" />
-                Reports
+                {t('reports')}
               </Button>
             </Link>
-            <Link href="/banking" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/banking`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/banking" ? "default" : "ghost"
+                  isHydrated && pathname === `/${locale}/banking` ? "default" : "ghost"
                 }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <Building2 className="h-4 w-4" />
-                Banking
+                {t('banking')}
               </Button>
             </Link>
-            <Link href="/family" onClick={() => setMobileMenuOpen(false)}>
+            <Link href={`/${locale}/family`} onClick={() => setMobileMenuOpen(false)}>
               <Button
                 variant={
-                  isHydrated && pathname === "/family" ? "default" : "ghost"
+                  isHydrated && pathname === `/${locale}/family` ? "default" : "ghost"
                 }
                 size="sm"
                 className="w-full justify-start gap-2"
               >
                 <Users className="h-4 w-4" />
-                Family
+                {t('family')}
               </Button>
             </Link>
           </nav>

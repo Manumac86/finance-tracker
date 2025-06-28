@@ -25,6 +25,13 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-bill: var(--bill);
+  --color-bill-foreground: var(--bill-foreground);
+  --color-subscription: var(--subscription);
+  --color-subscription-foreground: var(--subscription-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -45,71 +52,140 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Base colors - Clean, professional white backgrounds */
+  --background: oklch(0.99 0.01 142.495); /* Subtle green-tinted white */
+  --foreground: oklch(0.15 0.02 142.495); /* Deep green-black for text */
+
+  /* Card components - Slight elevation with green undertones */
+  --card: oklch(0.995 0.008 142.495);
+  --card-foreground: oklch(0.15 0.02 142.495);
+
+  /* Popovers maintain card styling */
+  --popover: oklch(0.995 0.008 142.495);
+  --popover-foreground: oklch(0.15 0.02 142.495);
+
+  /* Primary - Vibrant green from palette #500 */
+  --primary: oklch(0.55 0.19 142.495); /* #1cb938 adapted */
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* Secondary - Light neutral background with dark text for better contrast */
+  --secondary: oklch(0.92 0.02 142.495);
+  --secondary-foreground: oklch(0.25 0.03 142.495);
+
+  /* Muted - Soft green-gray for subtle elements */
+  --muted: oklch(0.94 0.02 142.495);
+  --muted-foreground: oklch(0.45 0.02 142.495);
+
+  /* Accent - Fresh mint green for highlights */
+  --accent: oklch(0.85 0.12 165); /* Between green and cyan */
+  --accent-foreground: oklch(0.15 0.02 142.495);
+
+  /* Destructive - Medium red background with white text for better visibility */
+  --destructive: oklch(0.6 0.2 27);
+  --destructive-foreground: oklch(0.98 0.01 0);
+
+  /* Success - Light green background with dark green text for better contrast */
+  --success: oklch(0.94 0.06 142.495);
+  --success-foreground: oklch(0.35 0.16 142.495);
+
+  /* Bill badge - Light blue colors */
+  --bill: oklch(0.92 0.05 240);
+  --bill-foreground: oklch(0.35 0.15 240);
+
+  /* Subscription badge - Light purple colors */
+  --subscription: oklch(0.92 0.06 300);
+  --subscription-foreground: oklch(0.35 0.18 300);
+
+  /* Borders and inputs - Subtle green-gray */
+  --border: oklch(0.905 0.093 164.15);
+  --input: oklch(0.92 0.01 142.495);
+  --ring: oklch(0.55 0.19 142.495);
+
+  /* Chart colors - Harmonious palette */
+  --chart-1: oklch(0.55 0.19 142.495); /* Primary green */
+  --chart-2: oklch(0.68 0.08 200); /* Teal */
+  --chart-3: oklch(0.65 0.15 100); /* Yellow-green */
+  --chart-4: oklch(0.7 0.12 220); /* Blue-teal */
+  --chart-5: oklch(0.6 0.17 165); /* Mint */
+
+  /* Sidebar - Clean with subtle contrast */
+  --sidebar: oklch(0.975 0.01 142.495);
+  --sidebar-foreground: oklch(0.15 0.02 142.495);
+  --sidebar-primary: oklch(0.55 0.19 142.495);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.92 0.02 142.495);
+  --sidebar-accent-foreground: oklch(0.15 0.02 142.495);
+  --sidebar-border: oklch(0.88 0.015 142.495);
+  --sidebar-ring: oklch(0.55 0.19 142.495);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Base colors - Rich dark with subtle green undertones */
+  --background: oklch(0.13 0.02 142.495); /* Deep green-black */
+  --foreground: oklch(0.95 0.01 142.495); /* Soft white with green tint */
+
+  /* Card components - Elevated dark surfaces */
+  --card: oklch(0.17 0.02 142.495);
+  --card-foreground: oklch(0.95 0.01 142.495);
+
+  /* Popovers maintain card styling */
+  --popover: oklch(0.17 0.02 142.495);
+  --popover-foreground: oklch(0.95 0.01 142.495);
+
+  /* Primary - Bright green that pops in dark mode */
+  --primary: oklch(0.72 0.18 142.495); /* Lighter, more vibrant green */
+  --primary-foreground: oklch(0.13 0.02 142.495);
+
+  /* Secondary - Dark neutral background with light text for better contrast */
+  --secondary: oklch(0.22 0.02 142.495);
+  --secondary-foreground: oklch(0.85 0.02 142.495);
+
+  /* Muted - Dark green-gray */
+  --muted: oklch(0.22 0.02 142.495);
+  --muted-foreground: oklch(0.65 0.01 142.495);
+
+  /* Accent - Vibrant mint for highlights */
+  --accent: oklch(0.75 0.15 165); /* Bright mint */
+  --accent-foreground: oklch(0.13 0.02 142.495);
+
+  /* Destructive - Vibrant red background with white text for better visibility */
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 0);
+
+  /* Success - Dark green background with light green text for better contrast */
+  --success: oklch(0.25 0.12 142.495);
+  --success-foreground: oklch(0.85 0.08 142.495);
+
+  /* Bill badge - Blue colors */
+  --bill: oklch(0.6 0.15 240);
+  --bill-foreground: oklch(0.98 0.01 0);
+
+  /* Subscription badge - Purple colors */
+  --subscription: oklch(0.6 0.18 300);
+  --subscription-foreground: oklch(0.98 0.01 0);
+
+  /* Borders and inputs - Subtle visibility */
+  --border: oklch(0.25 0.02 142.495);
+  --input: oklch(0.2 0.02 142.495);
+  --ring: oklch(0.72 0.18 142.495);
+
+  /* Chart colors - Vibrant but balanced for dark backgrounds */
+  --chart-1: oklch(0.72 0.18 142.495); /* Primary green */
+  --chart-2: oklch(0.65 0.12 195); /* Cyan */
+  --chart-3: oklch(0.7 0.16 110); /* Lime */
+  --chart-4: oklch(0.6 0.14 220); /* Blue */
+  --chart-5: oklch(0.75 0.15 165); /* Mint */
+
+  /* Sidebar - Slightly different from background */
+  --sidebar: oklch(0.15 0.02 142.495);
+  --sidebar-foreground: oklch(0.95 0.01 142.495);
+  --sidebar-primary: oklch(0.72 0.18 142.495);
+  --sidebar-primary-foreground: oklch(0.13 0.02 142.495);
+  --sidebar-accent: oklch(0.22 0.02 142.495);
+  --sidebar-accent-foreground: oklch(0.95 0.01 142.495);
+  --sidebar-border: oklch(0.25 0.02 142.495);
+  --sidebar-ring: oklch(0.72 0.18 142.495);
 }
 
 @layer base {
@@ -131,6 +207,19 @@
     @media (min-width: 768px) {
       @apply min-h-fit;
     }
+  }
+}
+
+/* Badge variants for bills and subscriptions */
+@layer components {
+  .badge-bill {
+    background-color: var(--bill);
+    color: var(--bill-foreground);
+  }
+  
+  .badge-subscription {
+    background-color: var(--subscription);
+    color: var(--subscription-foreground);
   }
 }
 

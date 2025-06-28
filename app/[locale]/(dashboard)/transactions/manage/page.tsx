@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Edit, Trash2, Split, Download, AlertTriangle } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Split,
+  Download,
+  AlertTriangle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,64 +36,78 @@ import { useCategories } from "@/contexts/categories";
 import { UITransaction } from "@/lib/db/schemas/transaction";
 import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
 import { toast } from "sonner";
-import { 
-  searchTransactions, 
-  detectDuplicates, 
-  validateBulkEdit, 
+import {
+  searchTransactions,
+  detectDuplicates,
+  validateBulkEdit,
   validateSplitTransaction,
   type SearchFilters,
-  type SplitTransaction
+  type SplitTransaction,
 } from "@/lib/services/transaction-search";
 
 export default function TransactionManagePage() {
   const { transactions, mutate } = useTransactions();
   const { data: categories } = useCategories();
-  
+
   // Search and filter state
   const [searchText, setSearchText] = useState("");
   const [filters, setFilters] = useState<SearchFilters>({});
-  const [filteredTransactions, setFilteredTransactions] = useState<UITransaction[]>([]);
-  
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    UITransaction[]
+  >([]);
+
   // Selection state
-  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(new Set());
-  
+  const [selectedTransactions, setSelectedTransactions] = useState<Set<string>>(
+    new Set()
+  );
+
   // Modal states
   const [bulkEditOpen, setBulkEditOpen] = useState(false);
   const [splitTransactionOpen, setSplitTransactionOpen] = useState(false);
-  const [selectedTransactionForSplit, setSelectedTransactionForSplit] = useState<UITransaction | null>(null);
-  
+  const [selectedTransactionForSplit, setSelectedTransactionForSplit] =
+    useState<UITransaction | null>(null);
+
   // Bulk edit state
   const [bulkEditData, setBulkEditData] = useState({
     categoryId: "",
     description: "",
   });
-  
+
   // Split transaction state
   const [splitData, setSplitData] = useState<SplitTransaction[]>([
     { amount: 0, categoryId: "", description: "" },
     { amount: 0, categoryId: "", description: "" },
   ]);
-  
+
   // Duplicate detection
-  const [duplicates, setDuplicates] = useState<Array<{ group: UITransaction[]; similarity: number }>>([]);
+  const [duplicates, setDuplicates] = useState<
+    Array<{ group: UITransaction[]; similarity: number }>
+  >([]);
   const [showDuplicates, setShowDuplicates] = useState(false);
-  
+
   // Edit modal state
-  const [editingTransaction, setEditingTransaction] = useState<UITransaction | null>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<UITransaction | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     if (transactions) {
-      const filtered = searchTransactions(transactions, { ...filters, searchText });
+      const filtered = searchTransactions(transactions, {
+        ...filters,
+        searchText,
+      });
       setFilteredTransactions(filtered);
-      
+
       // Detect duplicates
       const detectedDuplicates = detectDuplicates(transactions);
       setDuplicates(detectedDuplicates);
     }
   }, [transactions, filters, searchText]);
 
-  const handleSelectTransaction = (transactionId: string, selected: boolean) => {
+  const handleSelectTransaction = (
+    transactionId: string,
+    selected: boolean
+  ) => {
     const newSelected = new Set(selectedTransactions);
     if (selected) {
       newSelected.add(transactionId);
@@ -97,7 +119,7 @@ export default function TransactionManagePage() {
 
   const handleSelectAll = (selected: boolean) => {
     if (selected) {
-      const allIds = new Set(filteredTransactions.map(t => t.id!));
+      const allIds = new Set(filteredTransactions.map((t) => t.id!));
       setSelectedTransactions(allIds);
     } else {
       setSelectedTransactions(new Set());
@@ -107,7 +129,7 @@ export default function TransactionManagePage() {
   const handleBulkEdit = async () => {
     const transactionIds = Array.from(selectedTransactions);
     const validation = validateBulkEdit(transactionIds, bulkEditData);
-    
+
     if (!validation.isValid) {
       alert("Validation failed: " + validation.errors.join(", "));
       return;
@@ -140,20 +162,26 @@ export default function TransactionManagePage() {
 
   const handleSplitTransaction = async () => {
     if (!selectedTransactionForSplit) return;
-    
-    const validation = validateSplitTransaction(selectedTransactionForSplit, splitData);
-    
+
+    const validation = validateSplitTransaction(
+      selectedTransactionForSplit,
+      splitData
+    );
+
     if (!validation.isValid) {
       alert("Validation failed: " + validation.errors.join(", "));
       return;
     }
 
     try {
-      const response = await fetch(`/api/transactions/${selectedTransactionForSplit.id}/split`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ splits: splitData }),
-      });
+      const response = await fetch(
+        `/api/transactions/${selectedTransactionForSplit.id}/split`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ splits: splitData }),
+        }
+      );
 
       if (response.ok) {
         setSplitTransactionOpen(false);
@@ -177,14 +205,21 @@ export default function TransactionManagePage() {
     setSelectedTransactionForSplit(transaction);
     const halfAmount = transaction.amount / 2;
     setSplitData([
-      { amount: halfAmount, categoryId: transaction.categoryId, description: transaction.description || "" },
+      {
+        amount: halfAmount,
+        categoryId: transaction.categoryId,
+        description: transaction.description || "",
+      },
       { amount: halfAmount, categoryId: "", description: "" },
     ]);
     setSplitTransactionOpen(true);
   };
 
   const addSplitEntry = () => {
-    setSplitData([...splitData, { amount: 0, categoryId: "", description: "" }]);
+    setSplitData([
+      ...splitData,
+      { amount: 0, categoryId: "", description: "" },
+    ]);
   };
 
   const removeSplitEntry = (index: number) => {
@@ -193,23 +228,30 @@ export default function TransactionManagePage() {
     }
   };
 
-  const updateSplitEntry = (index: number, field: keyof SplitTransaction, value: string | number) => {
+  const updateSplitEntry = (
+    index: number,
+    field: keyof SplitTransaction,
+    value: string | number
+  ) => {
     const newSplitData = [...splitData];
     newSplitData[index] = { ...newSplitData[index], [field]: value };
     setSplitData(newSplitData);
   };
 
-  const formatCurrency = (amount: number, transactionType?: 'income' | 'expense') => {
+  const formatCurrency = (
+    amount: number,
+    transactionType?: "income" | "expense"
+  ) => {
     const absAmount = Math.abs(amount);
     const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(absAmount);
-    
+
     if (transactionType) {
-      return transactionType === 'income' ? `+${formatted}` : `-${formatted}`;
+      return transactionType === "income" ? `+${formatted}` : `-${formatted}`;
     }
-    
+
     return formatted;
   };
 
@@ -235,11 +277,13 @@ export default function TransactionManagePage() {
 
       // Refresh the transactions list
       mutate();
-      
+
       toast.success("Transaction deleted successfully!");
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete transaction");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete transaction"
+      );
     }
   };
 
@@ -250,26 +294,28 @@ export default function TransactionManagePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Transaction Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Transaction Management
+          </h1>
           <p className="text-gray-400">
             Search, filter, edit, and organize your transactions
           </p>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => setShowDuplicates(!showDuplicates)}
-            className="border-gray-700"
+            className="border-border"
           >
             <AlertTriangle className="h-4 w-4 mr-2" />
             Duplicates ({duplicates.length})
           </Button>
-          
-          <Button 
-            variant="outline" 
-            className="border-gray-700"
-            onClick={() => window.open('/reports/export', '_blank')}
+
+          <Button
+            variant="outline"
+            className="border-border"
+            onClick={() => window.open("/reports/export", "_blank")}
           >
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -278,32 +324,37 @@ export default function TransactionManagePage() {
       </div>
 
       {/* Search and Filters */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-background">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
+            <Search className="h-5 w-5 text-muted-foreground" />
             Search & Filter
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label>Search Text</Label>
+              <Label className="text-muted-foreground">Search Text</Label>
               <Input
                 placeholder="Search transactions..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                className="bg-gray-800 border-gray-700"
+                className="bg-background border-border"
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label className="text-muted-foreground">Category</Label>
               <Select
                 value={filters.categoryId || "all"}
-                onValueChange={(value) => setFilters({ ...filters, categoryId: value === 'all' ? undefined : value })}
+                onValueChange={(value) =>
+                  setFilters({
+                    ...filters,
+                    categoryId: value === "all" ? undefined : value,
+                  })
+                }
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -316,14 +367,22 @@ export default function TransactionManagePage() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label className="text-muted-foreground">Type</Label>
               <Select
                 value={filters.transactionType || "all"}
-                onValueChange={(value) => setFilters({ ...filters, transactionType: value === 'all' ? undefined : (value as 'income' | 'expense') })}
+                onValueChange={(value) =>
+                  setFilters({
+                    ...filters,
+                    transactionType:
+                      value === "all"
+                        ? undefined
+                        : (value as "income" | "expense"),
+                  })
+                }
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -333,34 +392,42 @@ export default function TransactionManagePage() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
-              <Label>Amount Range</Label>
+              <Label className="text-muted-foreground">Amount Range</Label>
               <div className="flex gap-2">
                 <Input
                   type="number"
                   placeholder="Min"
                   value={filters.minAmount || ""}
-                  onChange={(e) => setFilters({ 
-                    ...filters, 
-                    minAmount: e.target.value ? parseFloat(e.target.value) : undefined 
-                  })}
-                  className="bg-gray-800 border-gray-700"
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      minAmount: e.target.value
+                        ? parseFloat(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  className="bg-background border-border"
                 />
                 <Input
                   type="number"
                   placeholder="Max"
                   value={filters.maxAmount || ""}
-                  onChange={(e) => setFilters({ 
-                    ...filters, 
-                    maxAmount: e.target.value ? parseFloat(e.target.value) : undefined 
-                  })}
-                  className="bg-gray-800 border-gray-700"
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      maxAmount: e.target.value
+                        ? parseFloat(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  className="bg-background border-border"
                 />
               </div>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -368,7 +435,7 @@ export default function TransactionManagePage() {
                 setFilters({});
                 setSearchText("");
               }}
-              className="border-gray-700"
+              className="border-border"
             >
               Clear Filters
             </Button>
@@ -378,31 +445,37 @@ export default function TransactionManagePage() {
 
       {/* Bulk Actions */}
       {selectedCount > 0 && (
-        <Card className="bg-emerald-900/20 border-emerald-800">
+        <Card className="bg-background border-border">
           <CardContent className="flex items-center justify-between p-4">
-            <span className="text-emerald-300">
-              {selectedCount} transaction{selectedCount !== 1 ? 's' : ''} selected
+            <span className="text-muted-foreground">
+              {selectedCount} transaction{selectedCount !== 1 ? "s" : ""}{" "}
+              selected
             </span>
             <div className="flex gap-2">
               <Dialog open={bulkEditOpen} onOpenChange={setBulkEditOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="border-emerald-700">
+                  <Button variant="outline" size="sm" className="border-border">
                     <Edit className="h-4 w-4 mr-2" />
                     Bulk Edit
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-gray-900 border-gray-800">
+                <DialogContent className="bg-background border-border">
                   <DialogHeader>
                     <DialogTitle>Bulk Edit Transactions</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Category</Label>
+                      <Label className="text-muted-foreground">Category</Label>
                       <Select
                         value={bulkEditData.categoryId}
-                        onValueChange={(value) => setBulkEditData({ ...bulkEditData, categoryId: value })}
+                        onValueChange={(value) =>
+                          setBulkEditData({
+                            ...bulkEditData,
+                            categoryId: value,
+                          })
+                        }
                       >
-                        <SelectTrigger className="bg-gray-800 border-gray-700">
+                        <SelectTrigger className="bg-background border-border">
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -414,30 +487,48 @@ export default function TransactionManagePage() {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label>Description</Label>
+                      <Label className="text-muted-foreground">
+                        Description
+                      </Label>
                       <Input
                         value={bulkEditData.description}
-                        onChange={(e) => setBulkEditData({ ...bulkEditData, description: e.target.value })}
-                        className="bg-gray-800 border-gray-700"
+                        onChange={(e) =>
+                          setBulkEditData({
+                            ...bulkEditData,
+                            description: e.target.value,
+                          })
+                        }
+                        className="bg-background border-border"
                         placeholder="Update description"
                       />
                     </div>
-                    
+
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setBulkEditOpen(false)}>
+                      <Button
+                        variant="outline"
+                        onClick={() => setBulkEditOpen(false)}
+                      >
                         Cancel
                       </Button>
-                      <Button onClick={handleBulkEdit} className="bg-emerald-600 hover:bg-emerald-700">
-                        Update {selectedCount} Transaction{selectedCount !== 1 ? 's' : ''}
+                      <Button
+                        onClick={handleBulkEdit}
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                      >
+                        Update {selectedCount} Transaction
+                        {selectedCount !== 1 ? "s" : ""}
                       </Button>
                     </div>
                   </div>
                 </DialogContent>
               </Dialog>
-              
-              <Button variant="outline" size="sm" className="border-red-700 text-red-400">
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-red-700 text-red-400 bg-background"
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete
               </Button>
@@ -459,13 +550,16 @@ export default function TransactionManagePage() {
 
         <TabsContent value="transactions" className="space-y-4">
           {/* Transaction Table */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-background border-border">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Transactions</CardTitle>
                 <div className="flex items-center gap-2">
                   <Checkbox
-                    checked={selectedCount === filteredTransactions.length && filteredTransactions.length > 0}
+                    checked={
+                      selectedCount === filteredTransactions.length &&
+                      filteredTransactions.length > 0
+                    }
                     onCheckedChange={handleSelectAll}
                   />
                   <Label className="text-sm">Select All</Label>
@@ -477,39 +571,55 @@ export default function TransactionManagePage() {
                 {filteredTransactions.map((transaction) => (
                   <div
                     key={transaction.id}
-                    className="flex items-center gap-4 p-4 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors"
+                    className="flex items-center gap-4 p-4 rounded-lg border border-border hover:border-border transition-colors"
                   >
                     <Checkbox
                       checked={selectedTransactions.has(transaction.id!)}
-                      onCheckedChange={(checked) => handleSelectTransaction(transaction.id!, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleSelectTransaction(
+                          transaction.id!,
+                          checked as boolean
+                        )
+                      }
                     />
-                    
+
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4">
                       <div>
                         <div className="font-medium">{transaction.name}</div>
-                        <div className="text-sm text-gray-400">{transaction.transactionDate}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {transaction.transactionDate}
+                        </div>
                       </div>
-                      
+
                       <div>
-                        <div className={`font-medium ${
-                          transaction.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'
-                        }`}>
-                          {formatCurrency(transaction.amount, transaction.transactionType)}
+                        <div
+                          className={`font-medium ${
+                            transaction.transactionType === "income"
+                              ? "text-green-500"
+                              : "text-red-500"
+                          }`}
+                        >
+                          {formatCurrency(
+                            transaction.amount,
+                            transaction.transactionType
+                          )}
                         </div>
                         <Badge variant="outline" className="text-xs">
                           {transaction.transactionType}
                         </Badge>
                       </div>
-                      
+
                       <div>
                         <div className="text-sm">
-                          {categories?.find(c => c.id === transaction.categoryId)?.name || 'Uncategorized'}
+                          {categories?.find(
+                            (c) => c.id === transaction.categoryId
+                          )?.name || "Uncategorized"}
                         </div>
-                        <div className="text-xs text-gray-400 truncate">
+                        <div className="text-xs text-muted-foreground truncate">
                           {transaction.description}
                         </div>
                       </div>
-                      
+
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -519,19 +629,21 @@ export default function TransactionManagePage() {
                         >
                           <Split className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="h-8 w-8 p-0"
                           onClick={() => handleEditTransaction(transaction)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="h-8 w-8 p-0 text-red-400"
-                          onClick={() => handleDeleteTransaction(transaction.id!)}
+                          onClick={() =>
+                            handleDeleteTransaction(transaction.id!)
+                          }
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -539,12 +651,14 @@ export default function TransactionManagePage() {
                     </div>
                   </div>
                 ))}
-                
+
                 {filteredTransactions.length === 0 && (
                   <div className="text-center py-12">
-                    <Search className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No transactions found</h3>
-                    <p className="text-gray-400">
+                    <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">
+                      No transactions found
+                    </h3>
+                    <p className="text-muted-foreground">
                       Try adjusting your search filters or search terms
                     </p>
                   </div>
@@ -557,12 +671,15 @@ export default function TransactionManagePage() {
         <TabsContent value="duplicates" className="space-y-4">
           {/* Duplicate Groups */}
           {duplicates.map((duplicateGroup, index) => (
-            <Card key={index} className="bg-gray-900 border-yellow-800">
+            <Card key={index} className="bg-background border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-yellow-400">
                   <AlertTriangle className="h-5 w-5" />
-                  Duplicate Group {index + 1} 
-                  <Badge variant="secondary" className="bg-yellow-900/20 text-yellow-300">
+                  Duplicate Group {index + 1}
+                  <Badge
+                    variant="secondary"
+                    className="bg-yellow-900/20 text-yellow-300 bg-background"
+                  >
                     {Math.round(duplicateGroup.similarity * 100)}% similar
                   </Badge>
                 </CardTitle>
@@ -572,28 +689,38 @@ export default function TransactionManagePage() {
                   {duplicateGroup.group.map((transaction: UITransaction) => (
                     <div
                       key={transaction.id}
-                      className="flex items-center gap-4 p-3 rounded border border-gray-700 bg-gray-800/50"
+                      className="flex items-center gap-4 p-3 rounded border border-border bg-background"
                     >
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <div className="font-medium">{transaction.name}</div>
-                          <div className="text-sm text-gray-400">{transaction.transactionDate}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {transaction.transactionDate}
+                          </div>
                         </div>
-                        
+
                         <div>
-                          <div className={`font-medium ${
-                            transaction.transactionType === 'income' ? 'text-emerald-400' : 'text-red-400'
-                          }`}>
+                          <div
+                            className={`font-medium ${
+                              transaction.transactionType === "income"
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }`}
+                          >
                             {formatCurrency(transaction.amount)}
                           </div>
                         </div>
-                        
-                        <div className="text-sm text-gray-400 truncate">
+
+                        <div className="text-sm text-muted-foreground truncate">
                           {transaction.description}
                         </div>
                       </div>
-                      
-                      <Button variant="outline" size="sm" className="border-red-700 text-red-400">
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-700 text-red-400 bg-background"
+                      >
                         Remove
                       </Button>
                     </div>
@@ -602,13 +729,15 @@ export default function TransactionManagePage() {
               </CardContent>
             </Card>
           ))}
-          
+
           {duplicates.length === 0 && (
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className="bg-background border-border">
               <CardContent className="text-center py-12">
-                <AlertTriangle className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No duplicates found</h3>
-                <p className="text-gray-400">
+                <AlertTriangle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">
+                  No duplicates found
+                </h3>
+                <p className="text-muted-foreground">
                   Your transactions look clean!
                 </p>
               </CardContent>
@@ -618,24 +747,29 @@ export default function TransactionManagePage() {
       </Tabs>
 
       {/* Split Transaction Dialog */}
-      <Dialog open={splitTransactionOpen} onOpenChange={setSplitTransactionOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 max-w-2xl">
+      <Dialog
+        open={splitTransactionOpen}
+        onOpenChange={setSplitTransactionOpen}
+      >
+        <DialogContent className="bg-background border-border max-w-2xl">
           <DialogHeader>
             <DialogTitle>Split Transaction</DialogTitle>
           </DialogHeader>
-          
+
           {selectedTransactionForSplit && (
             <div className="space-y-4">
-              <div className="p-4 bg-gray-800 rounded-lg">
-                <div className="font-medium">{selectedTransactionForSplit.name}</div>
-                <div className="text-emerald-400 font-medium">
+              <div className="p-4 bg-background rounded-lg">
+                <div className="font-medium">
+                  {selectedTransactionForSplit.name}
+                </div>
+                <div className="text-green-500 font-medium">
                   {formatCurrency(selectedTransactionForSplit.amount)}
                 </div>
-                <div className="text-sm text-gray-400">
+                <div className="text-sm text-muted-foreground">
                   {selectedTransactionForSplit.transactionDate}
                 </div>
               </div>
-              
+
               <div className="space-y-3">
                 {splitData.map((split, index) => (
                   <div key={index} className="flex gap-3 items-end">
@@ -646,47 +780,64 @@ export default function TransactionManagePage() {
                           type="number"
                           step="0.01"
                           value={split.amount}
-                          onChange={(e) => updateSplitEntry(index, 'amount', parseFloat(e.target.value) || 0)}
-                          className="bg-gray-800 border-gray-700"
+                          onChange={(e) =>
+                            updateSplitEntry(
+                              index,
+                              "amount",
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          className="bg-background border-border"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label>Category</Label>
                         <Select
                           value={split.categoryId}
-                          onValueChange={(value) => updateSplitEntry(index, 'categoryId', value)}
+                          onValueChange={(value) =>
+                            updateSplitEntry(index, "categoryId", value)
+                          }
                         >
-                          <SelectTrigger className="bg-gray-800 border-gray-700">
+                          <SelectTrigger className="bg-background border-border">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                           <SelectContent>
                             {categories?.map((category) => (
-                              <SelectItem key={category.id} value={category.id!}>
+                              <SelectItem
+                                key={category.id}
+                                value={category.id!}
+                              >
                                 {category.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label>Description</Label>
                         <Input
                           value={split.description}
-                          onChange={(e) => updateSplitEntry(index, 'description', e.target.value)}
-                          className="bg-gray-800 border-gray-700"
+                          onChange={(e) =>
+                            updateSplitEntry(
+                              index,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          className="bg-background border-border"
                           placeholder="Description"
                         />
                       </div>
                     </div>
-                    
+
                     {splitData.length > 2 && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => removeSplitEntry(index)}
-                        className="border-red-700 text-red-400"
+                        className="border-red-700 text-red-400 bg-background"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -694,24 +845,37 @@ export default function TransactionManagePage() {
                   </div>
                 ))}
               </div>
-              
+
               <div className="flex justify-between">
-                <Button variant="outline" onClick={addSplitEntry} className="border-gray-700">
+                <Button
+                  variant="outline"
+                  onClick={addSplitEntry}
+                  className="border-border"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Split
                 </Button>
-                
-                <div className="text-sm text-gray-400">
-                  Total: {formatCurrency(splitData.reduce((sum, split) => sum + split.amount, 0))} / 
-                  {formatCurrency(selectedTransactionForSplit.amount)}
+
+                <div className="text-sm text-muted-foreground">
+                  Total:{" "}
+                  {formatCurrency(
+                    splitData.reduce((sum, split) => sum + split.amount, 0)
+                  )}{" "}
+                  /{formatCurrency(selectedTransactionForSplit.amount)}
                 </div>
               </div>
-              
-              <div className="flex justify-end gap-2 pt-4 border-t border-gray-800">
-                <Button variant="outline" onClick={() => setSplitTransactionOpen(false)}>
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-border">
+                <Button
+                  variant="outline"
+                  onClick={() => setSplitTransactionOpen(false)}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleSplitTransaction} className="bg-emerald-600 hover:bg-emerald-700">
+                <Button
+                  onClick={handleSplitTransaction}
+                  className="bg-green-600 hover:bg-green-700"
+                >
                   Split Transaction
                 </Button>
               </div>

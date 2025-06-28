@@ -21,7 +21,7 @@ export function ViewToggle({
   }
 
   return (
-    <div className={`flex items-center gap-1 p-1 bg-gray-800 rounded-lg ${className}`}>
+    <div className={`flex items-center gap-1 p-1 bg-muted rounded-lg ${className}`}>
       <Button
         variant={currentView === "individual" ? "default" : "ghost"}
         size="sm"
@@ -52,7 +52,7 @@ export function ViewModeIndicator({
   familyName?: string;
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm text-gray-400">
+    <div className="flex items-center gap-2 text-sm text-muted-foreground">
       <Eye className="h-4 w-4" />
       <span>
         Viewing: {currentView === "family" ? (familyName || "Family") : "Individual"} data

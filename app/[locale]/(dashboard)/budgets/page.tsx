@@ -154,7 +154,7 @@ export default function BudgetsPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>
-          <p className="mt-2 text-gray-400">Loading budgets...</p>
+          <p className="mt-2 text-muted-foreground">Loading budgets...</p>
         </div>
       </div>
     );
@@ -177,7 +177,7 @@ export default function BudgetsPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold">Budget Management</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Track your spending limits and stay on budget
           </p>
         </div>
@@ -193,9 +193,9 @@ export default function BudgetsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total Budgets
             </CardTitle>
           </CardHeader>
@@ -204,9 +204,9 @@ export default function BudgetsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Active Budgets
             </CardTitle>
           </CardHeader>
@@ -217,9 +217,9 @@ export default function BudgetsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Warnings
             </CardTitle>
           </CardHeader>
@@ -230,9 +230,9 @@ export default function BudgetsPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Over Budget
             </CardTitle>
           </CardHeader>
@@ -250,7 +250,7 @@ export default function BudgetsPage() {
           variant={selectedFilter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => setSelectedFilter("all")}
-          className="border-gray-800"
+          className="border"
         >
           All Budgets
         </Button>
@@ -258,7 +258,7 @@ export default function BudgetsPage() {
           variant={selectedFilter === "monthly" ? "default" : "outline"}
           size="sm"
           onClick={() => setSelectedFilter("monthly")}
-          className="border-gray-800"
+          className="border"
         >
           Monthly
         </Button>
@@ -266,7 +266,7 @@ export default function BudgetsPage() {
           variant={selectedFilter === "weekly" ? "default" : "outline"}
           size="sm"
           onClick={() => setSelectedFilter("weekly")}
-          className="border-gray-800"
+          className="border"
         >
           Weekly
         </Button>
@@ -274,7 +274,7 @@ export default function BudgetsPage() {
           variant={selectedFilter === "yearly" ? "default" : "outline"}
           size="sm"
           onClick={() => setSelectedFilter("yearly")}
-          className="border-gray-800"
+          className="border"
         >
           Yearly
         </Button>
@@ -285,14 +285,14 @@ export default function BudgetsPage() {
 
       {/* Budgets Grid */}
       {budgets.length === 0 ? (
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <div className="text-center">
               <div className="h-12 w-12 rounded-full bg-emerald-600/10 flex items-center justify-center mx-auto mb-4">
                 <Plus className="h-6 w-6 text-emerald-500" />
               </div>
               <h3 className="text-lg font-medium mb-2">No budgets yet</h3>
-              <p className="text-gray-400 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Create your first budget to start tracking your spending limits
               </p>
               <Button

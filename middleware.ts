@@ -1,118 +1,78 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { match } from "@formatjs/intl-localematcher";
-import Negotiator from "negotiator";
-import { defaultLocale, locales } from "@/i18n/config";
-import { routing } from "./i18n/routing";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import createMiddleware from "next-intl/middleware";
+import { routing } from "./i18n/routing";
 
-const handleI18nRouting = createMiddleware(routing);
-// Create patterns dynamically based on available locales
-const localePattern = `(${locales.join("|")})`;
+const intlMiddleware = createMiddleware(routing);
 
-// Use createRouteMatcher with dynamic patterns that work with any locale
-const isProtectedRoute = createRouteMatcher([
-  `/${localePattern}/dashboard(.*)`,
-  `/${localePattern}/transactions(.*)`,
-  `/${localePattern}/categories(.*)`,
-  `/${localePattern}/settings(.*)`,
-  `/${localePattern}/goals(.*)`,
-  `/${localePattern}/budgets(.*)`,
-  `/${localePattern}/recurring(.*)`,
-  `/${localePattern}/reports(.*)`,
-  `/${localePattern}/banking(.*)`,
-  `/${localePattern}/family(.*)`,
-  `/${localePattern}/onboarding(.*)`,
-]);
-
-const isPublicRoute = createRouteMatcher([
-  "/",
-  `/${localePattern}`,
-  `/${localePattern}/signin(.*)`,
-  `/${localePattern}/signup(.*)`,
-]);
-
-function getLocale(request: NextRequest): string {
-  // Check if there's a locale cookie
-  const localeCookie = request.cookies.get("locale");
-  if (
-    localeCookie &&
-    locales.includes(localeCookie.value as (typeof locales)[number])
-  ) {
-    return localeCookie.value;
-  }
-
-  // Check Accept-Language header
-  const acceptLanguage = request.headers.get("accept-language") || "";
-  const languages = new Negotiator({
-    headers: { "accept-language": acceptLanguage },
-  }).languages();
-
-  try {
-    return match(languages, [...locales], defaultLocale);
-  } catch {
-    return defaultLocale;
-  }
-}
-
-export default clerkMiddleware(async (auth, req: NextRequest) => {
+export default clerkMiddleware(async (auth, req) => {
   const pathname = req.nextUrl.pathname;
 
+  // Handle API routes - protect them but skip i18n
   if (pathname.startsWith("/api/")) {
-    await auth.protect();
-    return;
-  }
-
-  const pathnameHasLocale = locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  );
-
-  // If pathname has locale, handle authentication and continue
-  if (pathnameHasLocale) {
-    // Handle authentication for protected routes
-    if (isProtectedRoute(req) && !isPublicRoute(req)) {
+    // Protect API routes that need authentication
+    if (
+      pathname.startsWith("/api/transactions") ||
+      pathname.startsWith("/api/categories") ||
+      pathname.startsWith("/api/budgets") ||
+      pathname.startsWith("/api/goals") ||
+      pathname.startsWith("/api/family") ||
+      pathname.startsWith("/api/banking") ||
+      pathname.startsWith("/api/projects") ||
+      pathname.startsWith("/api/recurring-transactions") ||
+      pathname.startsWith("/api/budget-alerts") ||
+      pathname.startsWith("/api/bill-reminders") ||
+      pathname.startsWith("/api/export")
+    ) {
       await auth.protect();
     }
     return;
   }
 
-  // If no locale in pathname, redirect to localized version
-  const locale = getLocale(req);
-  const newPathname = `/${locale}${pathname === "/" ? "" : pathname}`;
+  // Define protected routes patterns
+  const protectedPatterns = [
+    "/dashboard",
+    "/transactions",
+    "/categories",
+    "/settings",
+    "/goals",
+    "/budgets",
+    "/recurring",
+    "/reports",
+    "/banking",
+    "/family",
+    "/onboarding",
+  ];
 
-  const response = NextResponse.redirect(new URL(newPathname, req.url));
+  // Check if the current route is protected
+  const locale = pathname.split("/")[1];
+  const pathWithoutLocale = pathname.replace(`/${locale}`, "") || "/";
 
-  // Set locale cookie
-  response.cookies.set("locale", locale, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 365, // 1 year
-    path: "/",
-  });
+  const isProtectedRoute = protectedPatterns.some(
+    (pattern) =>
+      pathWithoutLocale === pattern ||
+      pathWithoutLocale.startsWith(pattern + "/")
+  );
 
-  return handleI18nRouting(req);
+  // If it's a protected route and has a valid locale, protect it
+  if (
+    isProtectedRoute &&
+    routing.locales.includes(locale as (typeof routing.locales)[number])
+  ) {
+    await auth.protect();
+  }
+
+  // Let next-intl handle the i18n routing
+  return intlMiddleware(req);
 });
 
 export const config = {
+  // Match all pathnames except for
+  // - _next/static (static files)
+  // - _next/image (image optimization files)
+  // - favicon.ico (favicon file)
+  // - public assets (images, etc)
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    // "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|manifest.json|robots.txt).*)",
-    "/(api|trpc)(.*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|bmp)$).*)",
+    "/api/(.*)",
   ],
 };
-
-// export const config = {
-//   matcher: [
-//     // Match all pathnames except for
-//     // - api routes
-//     // - _next/static (static files)
-//     // - _next/image (image optimization files)
-//     // - favicon.ico (favicon file)
-//     // - any file with an extension
-//     "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|manifest.json|robots.txt).*)",
-//   ],
-// };

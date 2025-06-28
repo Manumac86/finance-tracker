@@ -15,9 +15,9 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, title = "FinTrack" }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-950 text-gray-50">
+    <div className="flex min-h-screen w-full flex-col bg-background text-foreground">
       {/* Mobile-optimized header - extracted for reusability */}
-      <header className="flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950/95 px-4 sm:px-6">
+      <header className="flex h-16 items-center gap-4 border-b bg-background/95 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <DollarSign className="h-6 w-6 text-emerald-500" />
           <span>{title}</span>

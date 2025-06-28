@@ -40,8 +40,16 @@ export interface ProjectFormData {
 }
 
 const PROJECT_COLORS = [
-  "#EF4444", "#F97316", "#F59E0B", "#10B981", "#059669", 
-  "#0891B2", "#3B82F6", "#6366F1", "#8B5CF6", "#EC4899"
+  "#EF4444",
+  "#F97316",
+  "#F59E0B",
+  "#10B981",
+  "#059669",
+  "#0891B2",
+  "#3B82F6",
+  "#6366F1",
+  "#8B5CF6",
+  "#EC4899",
 ];
 
 const PROJECT_STATUS_OPTIONS = [
@@ -78,7 +86,7 @@ export function ProjectModal({
 
   useEffect(() => {
     if (initialData) {
-      setFormData(prev => ({ ...prev, ...initialData }));
+      setFormData((prev) => ({ ...prev, ...initialData }));
     }
   }, [initialData]);
 
@@ -94,7 +102,11 @@ export function ProjectModal({
       newErrors.name = "Project name is required";
     }
 
-    if (formData.endDate && formData.startDate && formData.endDate < formData.startDate) {
+    if (
+      formData.endDate &&
+      formData.startDate &&
+      formData.endDate < formData.startDate
+    ) {
       newErrors.endDate = "End date must be after start date";
     }
 
@@ -135,7 +147,10 @@ export function ProjectModal({
     onClose();
   };
 
-  const updateFormData = (field: keyof ProjectFormData, value: string | number | boolean | string[]) => {
+  const updateFormData = (
+    field: keyof ProjectFormData,
+    value: string | number | boolean | string[]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -150,22 +165,25 @@ export function ProjectModal({
   };
 
   const removeTag = (tagToRemove: string) => {
-    updateFormData("tags", formData.tags.filter(tag => tag !== tagToRemove));
+    updateFormData(
+      "tags",
+      formData.tags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   const generateProjectCode = () => {
     const clientCode = formData.clientName
       .split(" ")
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .join("")
       .slice(0, 3);
     const projectCode = formData.name
       .split(" ")
-      .map(word => word.charAt(0).toUpperCase())
+      .map((word) => word.charAt(0).toUpperCase())
       .join("")
       .slice(0, 3);
     const year = new Date().getFullYear().toString().slice(-2);
-    
+
     updateFormData("projectCode", `${clientCode}${projectCode}${year}`);
   };
 
@@ -245,7 +263,9 @@ export function ProjectModal({
                   <Input
                     id="projectCode"
                     value={formData.projectCode}
-                    onChange={(e) => updateFormData("projectCode", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("projectCode", e.target.value)
+                    }
                     placeholder="e.g., ACMWR24"
                     className="bg-gray-800 border-gray-700"
                   />
@@ -268,7 +288,9 @@ export function ProjectModal({
                 <Label>Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value: "active" | "completed" | "on_hold" | "cancelled") => updateFormData("status", value)}
+                  onValueChange={(
+                    value: "active" | "completed" | "on_hold" | "cancelled"
+                  ) => updateFormData("status", value)}
                 >
                   <SelectTrigger className="bg-gray-800 border-gray-700">
                     <SelectValue />
@@ -327,7 +349,7 @@ export function ProjectModal({
                     value={formData.budget}
                     onChange={(e) => updateFormData("budget", e.target.value)}
                     placeholder="0.00"
-                    className={`pl-10 bg-gray-800 border-gray-700 ${
+                    className={`pl-10 bg-background border-border ${
                       errors.budget ? "border-red-500" : ""
                     }`}
                   />
@@ -346,9 +368,11 @@ export function ProjectModal({
                     type="number"
                     step="0.01"
                     value={formData.hourlyRate}
-                    onChange={(e) => updateFormData("hourlyRate", e.target.value)}
+                    onChange={(e) =>
+                      updateFormData("hourlyRate", e.target.value)
+                    }
                     placeholder="0.00"
-                    className={`pl-10 bg-gray-800 border-gray-700 ${
+                    className={`pl-10 bg-background border-border ${
                       errors.hourlyRate ? "border-red-500" : ""
                     }`}
                   />
@@ -365,7 +389,9 @@ export function ProjectModal({
                 <Checkbox
                   id="billable"
                   checked={formData.isBillable}
-                  onCheckedChange={(checked) => updateFormData("isBillable", checked)}
+                  onCheckedChange={(checked) =>
+                    updateFormData("isBillable", checked)
+                  }
                 />
                 <Label htmlFor="billable" className="cursor-pointer">
                   This is a billable project
@@ -382,8 +408,8 @@ export function ProjectModal({
                       onClick={() => updateFormData("color", color)}
                       className={`w-8 h-8 rounded border-2 transition-all ${
                         formData.color === color
-                          ? "border-white scale-110"
-                          : "border-gray-600"
+                          ? "border-white scale-110 bg-background"
+                          : "border-border"
                       }`}
                       style={{ backgroundColor: color }}
                     />
@@ -400,19 +426,21 @@ export function ProjectModal({
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   placeholder="Add a tag"
-                  className="bg-gray-800 border-gray-700"
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  className="bg-background border-border"
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), addTag())
+                  }
                 />
                 <Button
                   type="button"
                   variant="outline"
                   onClick={addTag}
-                  className="border-gray-700"
+                  className="border-border"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
-              
+
               {formData.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {formData.tags.map((tag) => (
@@ -431,14 +459,11 @@ export function ProjectModal({
             </div>
           </CardContent>
 
-          <div className="border-t border-gray-800 p-6 flex justify-end gap-2">
+          <div className="border-t border-border p-6 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
+            <Button type="submit" className="bg-green-600 hover:bg-green-700">
               {initialData ? "Update" : "Create"} Project
             </Button>
           </div>

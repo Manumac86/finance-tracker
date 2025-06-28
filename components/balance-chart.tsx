@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTranslations } from "next-intl";
 
 // Sample data for the chart
 const yearData = [
@@ -50,6 +51,7 @@ const tenDaysData = [
 
 export function BalanceChart() {
   const [period, setPeriod] = useState("year");
+  const t = useTranslations("dates");
 
   const data =
     period === "year" ? yearData : period === "month" ? monthData : tenDaysData;
@@ -57,21 +59,19 @@ export function BalanceChart() {
   return (
     <div className="space-y-4">
       <Tabs defaultValue="year" onValueChange={setPeriod} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-          <TabsTrigger value="year" className="data-[state=active]:bg-gray-700">
-            Last Year
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="year">
+            {t("lastYear")}
           </TabsTrigger>
           <TabsTrigger
             value="month"
-            className="data-[state=active]:bg-gray-700"
           >
-            Last Month
+            {t("lastMonth")}
           </TabsTrigger>
           <TabsTrigger
             value="tenDays"
-            className="data-[state=active]:bg-gray-700"
           >
-            Last 10 Days
+            Últimos 10 Días
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -93,16 +93,16 @@ export function BalanceChart() {
                 <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-            <XAxis dataKey="name" stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
+            <CartesianGrid strokeDasharray="3 3" className="stroke-border" stroke="currentColor" />
+            <XAxis dataKey="name" className="stroke-muted-foreground" stroke="currentColor" />
+            <YAxis className="stroke-muted-foreground" stroke="currentColor" />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#1f2937",
-                borderColor: "#374151",
-                color: "#f9fafb",
+                backgroundColor: "hsl(var(--card))",
+                borderColor: "hsl(var(--border))",
+                color: "hsl(var(--foreground))",
               }}
-              itemStyle={{ color: "#f9fafb" }}
+              itemStyle={{ color: "hsl(var(--foreground))" }}
               formatter={(value) => [`$${value}`, "Balance"]}
             />
             <Area

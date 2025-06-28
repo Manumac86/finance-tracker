@@ -62,10 +62,10 @@ export function ExpensesList() {
           <div className="flex items-center gap-2">
             <Progress
               value={expense.percentage}
-              className="h-2 bg-gray-800"
+              className="h-2 bg-muted"
               indicatorClassName={expense.color}
             />
-            <div className="text-xs text-gray-400">{expense.percentage}%</div>
+            <div className="text-xs text-muted-foreground">{expense.percentage}%</div>
           </div>
         </div>
       ))}

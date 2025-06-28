@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Users, UserPlus, Settings, Crown, User, Eye } from "lucide-react";
@@ -13,7 +19,7 @@ import { useFamilyGroup } from "@/hooks/use-family-group";
 export default function FamilyPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  
+
   const { familyGroup, isLoading, error } = useFamilyGroup();
 
   if (isLoading) {
@@ -29,8 +35,12 @@ export default function FamilyPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="max-w-md">
           <CardContent className="pt-6">
-            <p className="text-center text-red-500">Failed to load family data</p>
-            <p className="text-center text-sm text-gray-500 mt-2">{error.message}</p>
+            <p className="text-center text-red-500">
+              Failed to load family data
+            </p>
+            <p className="text-center text-sm text-gray-500 mt-2">
+              {error.message}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -51,9 +61,17 @@ export default function FamilyPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case "org:admin":
-        return <Badge variant="default" className="bg-yellow-500/10 text-yellow-400">Admin</Badge>;
+        return (
+          <Badge variant="default" className="bg-yellow-500/10 text-yellow-400">
+            Admin
+          </Badge>
+        );
       case "org:member":
-        return <Badge variant="secondary" className="bg-blue-500/10 text-blue-400">Member</Badge>;
+        return (
+          <Badge variant="secondary" className="bg-blue-500/10 text-blue-400">
+            Member
+          </Badge>
+        );
       default:
         return <Badge variant="outline">Viewer</Badge>;
     }
@@ -61,41 +79,50 @@ export default function FamilyPage() {
 
   if (!familyGroup) {
     return (
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="space-y-6">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Family Management</h1>
-            <p className="text-gray-400 mt-2">
-              Create or join a family group to share budgets, goals, and track expenses together.
+            <h1 className="text-3xl font-bold text-foreground">
+              Family Management
+            </h1>
+            <p className="text-muted-foreground">
+              Create or join a family group to share budgets, goals, and track
+              expenses together.
             </p>
           </div>
-
-          <Card className="border-gray-800 bg-gray-900/50">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2">
-                <Users className="h-6 w-6 text-emerald-500" />
-                No Family Group
-              </CardTitle>
-              <CardDescription>
-                You&apos;re currently managing your finances individually. Create a family group to start collaborating.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <div className="space-y-2">
-                <Button onClick={() => setShowCreateModal(true)} className="gap-2">
-                  <UserPlus className="h-4 w-4" />
-                  Create Family Group
-                </Button>
-                <p className="text-sm text-gray-500">
-                  or ask a family admin to invite you to their group
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Button onClick={() => setShowCreateModal(true)} className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            Create Family
+          </Button>
         </div>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center py-12">
+              <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">
+                No Family Group
+              </h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                You&apos;re currently managing your finances individually.
+                Create a family group to start collaborating.
+              </p>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="gap-2"
+              >
+                <UserPlus className="h-4 w-4" />
+                Create Family
+              </Button>
+              <p className="text-sm text-muted-foreground mt-4">
+                or ask a family admin to invite you to their group
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-        <CreateFamilyModal 
-          open={showCreateModal} 
+        <CreateFamilyModal
+          open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
@@ -231,16 +258,18 @@ export default function FamilyPage() {
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
                     <p className="font-medium">Shared Currency</p>
-                    <p className="text-sm text-gray-400">{familyGroup.settings.sharedCurrency}</p>
+                    <p className="text-sm text-gray-400">
+                      {familyGroup.settings.sharedCurrency}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
                     <p className="font-medium">Monthly Budget</p>
                     <p className="text-sm text-gray-400">
-                      {familyGroup.settings.monthlyFamilyBudget 
-                        ? `$${familyGroup.settings.monthlyFamilyBudget}` 
-                        : 'Not set'}
+                      {familyGroup.settings.monthlyFamilyBudget
+                        ? `$${familyGroup.settings.monthlyFamilyBudget}`
+                        : "Not set"}
                     </p>
                   </div>
                 </div>
@@ -248,18 +277,42 @@ export default function FamilyPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <p className="font-medium">Members can view all transactions</p>
+                    <p className="font-medium">
+                      Members can view all transactions
+                    </p>
                   </div>
-                  <Badge variant={familyGroup.settings.permissions.membersCanViewAllTransactions ? "default" : "secondary"}>
-                    {familyGroup.settings.permissions.membersCanViewAllTransactions ? "Enabled" : "Disabled"}
+                  <Badge
+                    variant={
+                      familyGroup.settings.permissions
+                        .membersCanViewAllTransactions
+                        ? "default"
+                        : "secondary"
+                    }
+                  >
+                    {familyGroup.settings.permissions
+                      .membersCanViewAllTransactions
+                      ? "Enabled"
+                      : "Disabled"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <p className="font-medium">Members can edit shared budgets</p>
+                    <p className="font-medium">
+                      Members can edit shared budgets
+                    </p>
                   </div>
-                  <Badge variant={familyGroup.settings.permissions.membersCanEditSharedBudgets ? "default" : "secondary"}>
-                    {familyGroup.settings.permissions.membersCanEditSharedBudgets ? "Enabled" : "Disabled"}
+                  <Badge
+                    variant={
+                      familyGroup.settings.permissions
+                        .membersCanEditSharedBudgets
+                        ? "default"
+                        : "secondary"
+                    }
+                  >
+                    {familyGroup.settings.permissions
+                      .membersCanEditSharedBudgets
+                      ? "Enabled"
+                      : "Disabled"}
                   </Badge>
                 </div>
               </div>
@@ -269,7 +322,7 @@ export default function FamilyPage() {
       </div>
 
       {/* Modals */}
-      <FamilySettingsModal 
+      <FamilySettingsModal
         open={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         familyGroup={familyGroup}

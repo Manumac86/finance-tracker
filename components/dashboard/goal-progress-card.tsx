@@ -68,7 +68,7 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
 
   if (goals.length === 0) {
     return (
-      <Card className="bg-gray-900 border-gray-800">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
@@ -76,7 +76,7 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center py-6">
-          <div className="text-gray-400 mb-4">No goals set yet</div>
+          <div className="text-muted-foreground mb-4">No goals set yet</div>
           <Link href="/goals">
             <Button className="bg-emerald-600 hover:bg-emerald-700">
               Create Your First Goal
@@ -88,14 +88,14 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
   }
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />
             Goal Progress
           </CardTitle>
-          <Badge variant="secondary" className="bg-gray-800">
+          <Badge variant="secondary">
             {achievedGoals.length}/{goals.length} complete
           </Badge>
         </div>
@@ -105,36 +105,36 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-emerald-500">{achievedGoals.length}</div>
-            <div className="text-xs text-gray-400">Achieved</div>
+            <div className="text-xs text-muted-foreground">Achieved</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-blue-500">{activeGoals.length}</div>
-            <div className="text-xs text-gray-400">In Progress</div>
+            <div className="text-xs text-muted-foreground">In Progress</div>
           </div>
           <div>
             <div className="text-2xl font-bold text-yellow-500">
               {activeGoals.filter(g => g.deadlineStatus?.status === 'approaching').length}
             </div>
-            <div className="text-xs text-gray-400">Due Soon</div>
+            <div className="text-xs text-muted-foreground">Due Soon</div>
           </div>
         </div>
 
         {/* Priority Goals */}
         {priorityGoals.length > 0 && (
           <div className="space-y-3">
-            <div className="text-sm font-medium text-gray-300">Priority Goals</div>
+            <div className="text-sm font-medium text-muted-foreground">Priority Goals</div>
             {priorityGoals.map((goal) => {
               const progress = goal.progress ?? 0;
               const daysUntil = getDaysUntilTarget(goal.targetDate);
               
               return (
-                <div key={goal.id} className="space-y-2 p-3 bg-gray-800/50 rounded-lg">
+                <div key={goal.id} className="space-y-2 p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       {getGoalTypeIcon(goal.type)}
                       <span className="font-medium text-sm">{goal.name}</span>
                     </div>
-                    <div className="text-right text-xs text-gray-400">
+                    <div className="text-right text-xs text-muted-foreground">
                       {goal.targetDate && (
                         <div className={daysUntil !== null && daysUntil < 30 ? 'text-yellow-500' : ''}>
                           {formatDate(goal.targetDate)}
@@ -145,7 +145,7 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
                   
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-gray-400">
+                      <span className="text-muted-foreground">
                         {formatCurrency(goal.currentAmount ?? 0)} / {formatCurrency(goal.targetAmount)}
                       </span>
                       <span className="text-emerald-500">{Math.round(progress)}%</span>
@@ -169,7 +169,7 @@ export function GoalProgressCard({ goals }: GoalProgressCardProps) {
         <Link href="/goals">
           <Button 
             variant="outline" 
-            className="w-full border-gray-700 hover:bg-gray-800"
+            className="w-full"
           >
             Manage All Goals
           </Button>

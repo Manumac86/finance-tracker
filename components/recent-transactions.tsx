@@ -85,15 +85,15 @@ export function RecentTransactions() {
       <div className="space-y-4">
         <div className="max-h-[350px] overflow-auto pr-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between py-3 border-b border-gray-800">
+            <div key={i} className="flex items-center justify-between py-3 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 bg-gray-800 rounded-full animate-pulse" />
+                <div className="h-9 w-9 bg-muted rounded-full animate-pulse" />
                 <div className="space-y-1">
-                  <div className="h-4 w-24 bg-gray-800 rounded animate-pulse" />
-                  <div className="h-3 w-16 bg-gray-800 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                  <div className="h-3 w-16 bg-muted rounded animate-pulse" />
                 </div>
               </div>
-              <div className="h-4 w-16 bg-gray-800 rounded animate-pulse" />
+              <div className="h-4 w-16 bg-muted rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -105,7 +105,7 @@ export function RecentTransactions() {
     <div className="space-y-4">
       <div className="max-h-[350px] overflow-auto pr-2">
         {transactions.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
+          <div className="text-center py-8 text-muted-foreground">
             <p>No transactions yet</p>
             <p className="text-sm">Start by adding your first transaction</p>
           </div>
@@ -113,7 +113,7 @@ export function RecentTransactions() {
           transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between py-3 border-b border-gray-800"
+              className="flex items-center justify-between py-3 border-b border-border"
             >
               <div className="flex items-center gap-3">
                 <div
@@ -126,10 +126,10 @@ export function RecentTransactions() {
                   {getCategoryIcon(transaction.categoryIcon)}
                 </div>
                 <div>
-                  <div className="font-medium text-sm text-white">
+                  <div className="font-medium text-sm">
                     {transaction.name}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-xs text-muted-foreground">
                     {transaction.categoryName} • {formatDate(transaction.transactionDate)}
                   </div>
                 </div>

@@ -59,7 +59,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
 
   return (
     <Card 
-      className={`group bg-gray-900 border-gray-800 transition-all duration-200 hover:border-gray-700 hover:shadow-lg ${
+      className={`group bg-card border transition-all duration-200 hover:border-accent hover:shadow-lg ${
         isHovered ? 'transform hover:scale-102' : ''
       }`}
       onMouseEnter={() => setIsHovered(true)}
@@ -82,7 +82,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             {/* Transaction Details */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-white truncate">
+                <h3 className="font-semibold truncate">
                   {transaction.name}
                 </h3>
                 <Badge
@@ -97,7 +97,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                 </Badge>
               </div>
               
-              <div className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>{transaction.categoryName}</span>
                 <span>•</span>
                 <span>{formatDate(transaction.transactionDate)}</span>
@@ -106,7 +106,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
               </div>
               
               {transaction.description && (
-                <p className="text-sm text-gray-500 mt-1 truncate">
+                <p className="text-sm text-muted-foreground mt-1 truncate">
                   {transaction.description}
                 </p>
               )}
@@ -137,11 +137,11 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
+                <DropdownMenuContent align="end" className="bg-popover border">
                   {onEdit && (
                     <DropdownMenuItem
                       onClick={() => onEdit(transaction)}
-                      className="text-gray-300 hover:text-white hover:bg-gray-700"
+                      className="text-foreground hover:text-foreground hover:bg-accent"
                     >
                       <Edit className="h-4 w-4 mr-2" />
                       Edit

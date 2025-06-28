@@ -5,16 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Building2, 
-  CreditCard, 
-  Plus, 
-  RefreshCw, 
+import {
+  Building2,
+  CreditCard,
+  Plus,
+  RefreshCw,
   Settings,
   AlertCircle,
   CheckCircle,
   Clock,
-  Globe
+  Globe,
 } from "lucide-react";
 import { BankConnectionModal } from "@/components/banking/bank-connection-modal";
 
@@ -31,7 +31,7 @@ interface BankAccount {
   provider?: string;
   region?: string;
   formattedBalance?: string;
-  syncStatus?: 'synced' | 'pending' | 'failed' | 'disconnected';
+  syncStatus?: "synced" | "pending" | "failed" | "disconnected";
   lastSyncedAt?: string;
   lastError?: string;
   isActive?: boolean;
@@ -71,14 +71,14 @@ export default function BankingPage() {
 
   const fetchBankAccounts = async () => {
     try {
-      const response = await fetch('/api/banking/connect?action=accounts');
+      const response = await fetch("/api/banking/connect?action=accounts");
       const data = await response.json();
-      
+
       if (data.success) {
         setBankAccounts(data.data.accounts);
       }
     } catch (error) {
-      console.error('Failed to fetch bank accounts:', error);
+      console.error("Failed to fetch bank accounts:", error);
     } finally {
       setIsLoading(false);
     }
@@ -86,28 +86,28 @@ export default function BankingPage() {
 
   const fetchSyncStatus = async () => {
     try {
-      const response = await fetch('/api/banking/sync');
+      const response = await fetch("/api/banking/sync");
       const data = await response.json();
-      
+
       if (data.success) {
         setSyncStatus(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch sync status:', error);
+      console.error("Failed to fetch sync status:", error);
     }
   };
 
   const handleSyncAll = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch('/api/banking/sync?action=all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/banking/sync?action=all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchBankAccounts();
         await fetchSyncStatus();
@@ -115,8 +115,11 @@ export default function BankingPage() {
         throw new Error(data.message);
       }
     } catch (error) {
-      console.error('Failed to sync accounts:', error);
-      alert('Failed to sync accounts: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      console.error("Failed to sync accounts:", error);
+      alert(
+        "Failed to sync accounts: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     } finally {
       setIsSyncing(false);
     }
@@ -124,14 +127,14 @@ export default function BankingPage() {
 
   const handleSyncAccount = async (accountId: string) => {
     try {
-      const response = await fetch('/api/banking/sync?action=account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/banking/sync?action=account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ accountId }),
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await fetchBankAccounts();
         await fetchSyncStatus();
@@ -139,24 +142,27 @@ export default function BankingPage() {
         throw new Error(data.message);
       }
     } catch (error) {
-      console.error('Failed to sync account:', error);
-      alert('Failed to sync account: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      console.error("Failed to sync account:", error);
+      alert(
+        "Failed to sync account: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     }
   };
 
   const handleConnectionSuccess = (accounts: BankAccount[]) => {
-    setBankAccounts(prev => [...prev, ...accounts]);
+    setBankAccounts((prev) => [...prev, ...accounts]);
     setIsConnectionModalOpen(false);
     fetchSyncStatus(); // Refresh sync status
   };
 
   const getSyncStatusIcon = (status: string) => {
     switch (status) {
-      case 'synced':
+      case "synced":
         return <CheckCircle className="h-4 w-4 text-emerald-600" />;
-      case 'pending':
+      case "pending":
         return <Clock className="h-4 w-4 text-yellow-600" />;
-      case 'failed':
+      case "failed":
         return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
         return <AlertCircle className="h-4 w-4 text-gray-400" />;
@@ -165,34 +171,42 @@ export default function BankingPage() {
 
   const getSyncStatusColor = (status: string) => {
     switch (status) {
-      case 'synced':
-        return 'bg-emerald-100 text-emerald-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'failed':
-        return 'bg-red-100 text-red-800';
+      case "synced":
+        return "bg-emerald-100 text-emerald-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "failed":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getProviderInfo = (provider: string, region: string) => {
     const providerInfo = {
-      plaid: { name: 'Plaid', flag: '🇺🇸', region: 'United States' },
-      truelayer: { name: 'TrueLayer', flag: '🇪🇸', region: 'Spain & Europe' },
-      belvo: { name: 'Belvo', flag: '🇦🇷', region: 'Argentina & LATAM' },
+      plaid: { name: "Plaid", flag: "🇺🇸", region: "United States" },
+      truelayer: { name: "TrueLayer", flag: "🇪🇸", region: "Spain & Europe" },
+      belvo: { name: "Belvo", flag: "🇦🇷", region: "Argentina & LATAM" },
     };
-    return providerInfo[provider as keyof typeof providerInfo] || { name: provider, flag: '🌍', region };
+    return (
+      providerInfo[provider as keyof typeof providerInfo] || {
+        name: provider,
+        flag: "🌍",
+        region,
+      }
+    );
   };
 
   const formatLastSync = (lastSyncedAt?: string) => {
-    if (!lastSyncedAt) return 'Never';
-    
+    if (!lastSyncedAt) return "Never";
+
     const date = new Date(lastSyncedAt);
     const now = new Date();
-    const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffMinutes < 1) return 'Just now';
+    const diffMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
+
+    if (diffMinutes < 1) return "Just now";
     if (diffMinutes < 60) return `${diffMinutes}m ago`;
     if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
     return `${Math.floor(diffMinutes / 1440)}d ago`;
@@ -205,7 +219,7 @@ export default function BankingPage() {
           <h1 className="text-3xl font-bold">Bank Accounts</h1>
         </div>
         <div className="grid gap-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <Card key={i}>
               <CardContent className="pt-6">
                 <div className="animate-pulse">
@@ -225,8 +239,10 @@ export default function BankingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Bank Accounts</h1>
-          <p className="text-gray-600">Manage your connected bank accounts and sync transactions</p>
+          <h1 className="text-3xl font-bold text-foreground">Bank Accounts</h1>
+          <p className="text-muted-foreground">
+            Manage your connected bank accounts and sync transactions
+          </p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -265,19 +281,27 @@ export default function BankingPage() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold">{syncStatus.summary.totalAccounts}</div>
+                <div className="text-2xl font-bold">
+                  {syncStatus.summary.totalAccounts}
+                </div>
                 <div className="text-sm text-gray-600">Total Accounts</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-emerald-600">{syncStatus.summary.syncedAccounts}</div>
+                <div className="text-2xl font-bold text-emerald-600">
+                  {syncStatus.summary.syncedAccounts}
+                </div>
                 <div className="text-sm text-gray-600">Synced</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{syncStatus.summary.failedAccounts}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {syncStatus.summary.failedAccounts}
+                </div>
                 <div className="text-sm text-gray-600">Failed</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">{syncStatus.summary.activeAccounts}</div>
+                <div className="text-2xl font-bold">
+                  {syncStatus.summary.activeAccounts}
+                </div>
                 <div className="text-sm text-gray-600">Active</div>
               </div>
             </div>
@@ -291,9 +315,12 @@ export default function BankingPage() {
           <CardContent className="pt-6">
             <div className="text-center py-12">
               <Building2 className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Bank Accounts Connected</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                No Bank Accounts Connected
+              </h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Connect your bank accounts to automatically import transactions and keep your finances up to date.
+                Connect your bank accounts to automatically import transactions
+                and keep your finances up to date.
               </p>
               <Button onClick={() => setIsConnectionModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
@@ -308,9 +335,14 @@ export default function BankingPage() {
       {bankAccounts.length > 0 && (
         <div className="grid gap-4">
           {bankAccounts.map((account) => {
-            const providerInfo = getProviderInfo(account.provider || '', account.region || '');
-            const syncInfo = syncStatus?.accounts.find(s => s.accountId === account.id);
-            
+            const providerInfo = getProviderInfo(
+              account.provider || "",
+              account.region || ""
+            );
+            const syncInfo = syncStatus?.accounts.find(
+              (s) => s.accountId === account.id
+            );
+
             return (
               <Card key={account.id}>
                 <CardContent className="pt-6">
@@ -321,7 +353,9 @@ export default function BankingPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold">{account.accountName}</h3>
+                          <h3 className="font-semibold">
+                            {account.accountName}
+                          </h3>
                           <Badge variant="outline" className="text-xs">
                             {account.accountType}
                           </Badge>
@@ -341,8 +375,13 @@ export default function BankingPage() {
                           </div>
                           <div>{account.currencyCode}</div>
                           <div className="flex items-center gap-1">
-                            {getSyncStatusIcon(syncInfo?.syncStatus || 'unknown')}
-                            <span>Last sync: {formatLastSync(syncInfo?.lastSyncedAt)}</span>
+                            {getSyncStatusIcon(
+                              syncInfo?.syncStatus || "unknown"
+                            )}
+                            <span>
+                              Last sync:{" "}
+                              {formatLastSync(syncInfo?.lastSyncedAt)}
+                            </span>
                           </div>
                         </div>
                         {syncInfo?.lastError && (
@@ -358,11 +397,15 @@ export default function BankingPage() {
                     <div className="flex items-center gap-2">
                       {account.formattedBalance && (
                         <div className="text-right mr-4">
-                          <div className="font-semibold">{account.formattedBalance}</div>
-                          <Badge 
-                            className={`text-xs ${getSyncStatusColor(syncInfo?.syncStatus || 'unknown')}`}
+                          <div className="font-semibold">
+                            {account.formattedBalance}
+                          </div>
+                          <Badge
+                            className={`text-xs ${getSyncStatusColor(
+                              syncInfo?.syncStatus || "unknown"
+                            )}`}
                           >
-                            {syncInfo?.syncStatus || 'unknown'}
+                            {syncInfo?.syncStatus || "unknown"}
                           </Badge>
                         </div>
                       )}

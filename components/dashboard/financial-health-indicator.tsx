@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from "lucide-rea
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "next-intl";
 
 interface FinancialHealthData {
   totalIncome: number;
@@ -29,6 +30,8 @@ interface HealthScore {
 }
 
 export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps) {
+  const t = useTranslations("financialHealth");
+  
   const healthScore = useMemo((): HealthScore => {
     const {
       totalIncome,
@@ -59,29 +62,29 @@ export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps
 
     if (overallScore >= 80) {
       status = 'excellent';
-      color = 'text-emerald-500 bg-emerald-900/20';
+      color = 'text-emerald-500 bg-emerald-500/10';
       icon = <CheckCircle className="w-4 h-4" />;
-      recommendations.push("Great job! Keep up the excellent financial habits.");
+      recommendations.push(t("recommendations.excellent"));
     } else if (overallScore >= 65) {
       status = 'good';
-      color = 'text-green-500 bg-green-900/20';
+      color = 'text-green-500 bg-green-500/10';
       icon = <TrendingUp className="w-4 h-4" />;
-      if (savingsRate < 20) recommendations.push("Try to increase your savings rate to 20%+");
-      if (emergencyScore < 60) recommendations.push("Build your emergency fund to 3-6 months of expenses");
+      if (savingsRate < 20) recommendations.push(t("recommendations.increaseSavings"));
+      if (emergencyScore < 60) recommendations.push(t("recommendations.buildEmergencyFund"));
     } else if (overallScore >= 40) {
       status = 'warning';
-      color = 'text-yellow-500 bg-yellow-900/20';
+      color = 'text-yellow-500 bg-yellow-500/10';
       icon = <AlertTriangle className="w-4 h-4" />;
-      if (budgetUtilization > 90) recommendations.push("You're overspending! Review your budget");
-      if (savingsRate < 10) recommendations.push("Focus on reducing expenses to save more");
-      if (goalProgress < 50) recommendations.push("Review your financial goals and create action plans");
+      if (budgetUtilization > 90) recommendations.push(t("recommendations.overspending"));
+      if (savingsRate < 10) recommendations.push(t("recommendations.reduceFocus"));
+      if (goalProgress < 50) recommendations.push(t("recommendations.reviewGoals"));
     } else {
       status = 'critical';
-      color = 'text-red-500 bg-red-900/20';
+      color = 'text-red-500 bg-red-500/10';
       icon = <TrendingDown className="w-4 h-4" />;
-      recommendations.push("Immediate action needed: Create a strict budget");
-      recommendations.push("Consider additional income sources");
-      recommendations.push("Eliminate non-essential expenses");
+      recommendations.push(t("recommendations.immediateAction"));
+      recommendations.push(t("recommendations.additionalIncome"));
+      recommendations.push(t("recommendations.eliminateExpenses"));
     }
 
     return {
@@ -91,22 +94,17 @@ export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps
       icon,
       recommendations
     };
-  }, [data]);
+  }, [data, t]);
 
   const getStatusLabel = (status: HealthStatus) => {
-    switch (status) {
-      case 'excellent': return 'Excellent';
-      case 'good': return 'Good';
-      case 'warning': return 'Needs Attention';
-      case 'critical': return 'Critical';
-    }
+    return t(`status.${status}`);
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          Financial Health Score
+          {t("title")}
           <Badge className={healthScore.color}>
             {healthScore.icon}
             {getStatusLabel(healthScore.status)}
@@ -116,7 +114,7 @@ export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps
       <CardContent className="space-y-4">
         {/* Overall Score */}
         <div className="text-center">
-          <div className="text-3xl font-bold text-white mb-2">
+          <div className="text-3xl font-bold mb-2">
             {healthScore.score}/100
           </div>
           <Progress 
@@ -128,22 +126,22 @@ export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps
         {/* Breakdown */}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="text-gray-400">Savings Rate</div>
+            <div className="text-muted-foreground">{t("metrics.savingsRate")}</div>
             <div className="font-medium">
               {data.totalIncome > 0 ? 
                 Math.round(((data.totalIncome - data.totalExpenses) / data.totalIncome) * 100) : 0}%
             </div>
           </div>
           <div>
-            <div className="text-gray-400">Budget Usage</div>
+            <div className="text-muted-foreground">{t("metrics.budgetUsage")}</div>
             <div className="font-medium">{Math.round(data.budgetUtilization)}%</div>
           </div>
           <div>
-            <div className="text-gray-400">Goal Progress</div>
+            <div className="text-muted-foreground">{t("metrics.goalProgress")}</div>
             <div className="font-medium">{Math.round(data.goalProgress)}%</div>
           </div>
           <div>
-            <div className="text-gray-400">Emergency Fund</div>
+            <div className="text-muted-foreground">{t("metrics.emergencyFund")}</div>
             <div className="font-medium">{data.emergencyFundRatio.toFixed(1)}mo</div>
           </div>
         </div>
@@ -151,8 +149,8 @@ export function FinancialHealthIndicator({ data }: FinancialHealthIndicatorProps
         {/* Recommendations */}
         {healthScore.recommendations.length > 0 && (
           <div className="space-y-2">
-            <div className="text-sm font-medium text-gray-300">Recommendations:</div>
-            <ul className="text-sm text-gray-400 space-y-1">
+            <div className="text-sm font-medium">{t("recommendations.title")}</div>
+            <ul className="text-sm text-muted-foreground space-y-1">
               {healthScore.recommendations.map((rec, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <span className="text-emerald-500 mt-1">•</span>

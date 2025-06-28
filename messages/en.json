@@ -31,17 +31,24 @@
     "banking": "Banking",
     "family": "Family",
     "settings": "Settings",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "searchPlaceholder": "Search transactions..."
   },
   "dashboard": {
     "title": "Financial Overview",
     "welcome": "Welcome back!",
+    "subtitle": "Your complete financial overview and actionable insights",
     "totalBalance": "Total Balance",
+    "currentBalance": "Current Balance",
+    "income": "Income",
+    "expenses": "Expenses",
     "monthlyIncome": "Monthly Income",
     "monthlyExpenses": "Monthly Expenses",
     "recentTransactions": "Recent Transactions",
+    "recentActivity": "Recent Activity",
     "budgetOverview": "Budget Overview",
     "goalProgress": "Goal Progress",
+    "goalsProgress": "Goals Progress",
     "noRecentTransactions": "No recent transactions",
     "viewAllTransactions": "View all transactions",
     "thisWeek": "This Week",
@@ -49,7 +56,13 @@
     "thisQuarter": "This Quarter",
     "thisYear": "This Year",
     "lastMonth": "Last Month",
-    "yearToDate": "Year to Date"
+    "yearToDate": "Year to Date",
+    "savingsRate": "savings rate",
+    "total": "total",
+    "goalsCompleted": "goals completed",
+    "errorLoading": "Error loading dashboard data",
+    "loadingOverview": "Loading your financial overview...",
+    "retry": "Retry"
   },
   "transactions": {
     "title": "Transactions",
@@ -201,5 +214,321 @@
     "lastYear": "Last Year",
     "custom": "Custom",
     "to": "to"
+  },
+  "landing": {
+    "hero": {
+      "title": "Take Control of Your Finances",
+      "subtitle": "Track expenses, monitor income, and achieve your financial goals with our intuitive finance tracker.",
+      "getStarted": "Get Started",
+      "viewDemo": "View Demo"
+    },
+    "navigation": {
+      "pricing": "Pricing",
+      "about": "About",
+      "signIn": "Sign In",
+      "signUp": "Sign Up"
+    },
+    "features": {
+      "badge": "Features",
+      "title": "Everything You Need",
+      "subtitle": "Our finance tracker provides all the tools you need to manage your money effectively.",
+      "expenseTracking": {
+        "title": "Expense Tracking",
+        "description": "Easily track and categorize your expenses to understand your spending habits."
+      },
+      "financialInsights": {
+        "title": "Financial Insights",
+        "description": "Get detailed charts and analytics to visualize your financial progress over time."
+      },
+      "savingsGoals": {
+        "title": "Savings Goals",
+        "description": "Set and track savings goals to help you achieve your financial objectives."
+      },
+      "incomeMonitoring": {
+        "title": "Income Monitoring",
+        "description": "Track multiple income sources and understand your earning patterns."
+      },
+      "secureData": {
+        "title": "Secure Data",
+        "description": "Your financial data is encrypted and securely stored for your peace of mind."
+      },
+      "budgetPlanning": {
+        "title": "Budget Planning",
+        "description": "Create and manage budgets to keep your spending in check and reach your goals."
+      }
+    },
+    "testimonials": {
+      "badge": "Testimonials",
+      "title": "What Our Users Say",
+      "subtitle": "Join thousands of users who have transformed their financial lives with FinTrack.",
+      "testimonial1": {
+        "quote": "FinTrack has completely changed how I manage my money. I can now see exactly where my money goes and make better financial decisions.",
+        "name": "Alex Johnson",
+        "role": "Software Developer"
+      },
+      "testimonial2": {
+        "quote": "I've tried many finance apps, but FinTrack is by far the most intuitive and comprehensive. The visual charts make it easy to understand my finances.",
+        "name": "Sarah Miller",
+        "role": "Marketing Manager"
+      },
+      "testimonial3": {
+        "quote": "Since using FinTrack, I've been able to save an extra $400 per month. The insights it provides are invaluable for financial planning.",
+        "name": "Michael Chen",
+        "role": "Small Business Owner"
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Finances?",
+      "subtitle": "Join thousands of users who have taken control of their financial future with FinTrack.",
+      "getStartedFree": "Get Started for Free",
+      "learnMore": "Learn More"
+    },
+    "footer": {
+      "copyright": "FinTrack © 2024",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "contact": "Contact Us"
+    }
+  },
+  "forms": {
+    "transactionName": "Transaction Name",
+    "transactionNamePlaceholder": "e.g., Grocery Store, Salary",
+    "selectCategory": "Select a category",
+    "transactionType": "Transaction Type",
+    "amount": "Amount",
+    "amountPlaceholder": "0.00",
+    "date": "Date",
+    "description": "Description",
+    "descriptionPlaceholder": "Add any additional notes...",
+    "notes": "Notes (optional)",
+    "category": "Category",
+    "type": "Type",
+    "name": "Name",
+    "targetAmount": "Target Amount",
+    "currentAmount": "Current Amount",
+    "targetDate": "Target Date",
+    "monthlyLimit": "Monthly Limit",
+    "alertThreshold": "Alert Threshold (%)",
+    "enableAlerts": "Enable Alerts",
+    "goalName": "Goal Name",
+    "goalNamePlaceholder": "e.g., Emergency Fund",
+    "budgetLimit": "Budget Limit",
+    "income": "Income",
+    "expense": "Expense",
+    "voiceInput": "Start voice input",
+    "bulkImport": "Bulk Import",
+    "csvUpload": "CSV Upload",
+    "manualEntry": "Manual Entry",
+    "quickTextEntry": "Quick Text Entry"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "updating": "Updating...",
+    "deleting": "Deleting...",
+    "noDataFound": "No data found",
+    "noResultsFound": "No results found",
+    "tryAgain": "Try again",
+    "tryAdjustingFilters": "Try adjusting your filters",
+    "loadingMore": "Loading more...",
+    "allLoaded": "All items loaded",
+    "errorOccurred": "An error occurred",
+    "failedToLoad": "Failed to load data",
+    "redirecting": "Redirecting...",
+    "redirectingToSignIn": "Redirecting to sign in...",
+    "listeningVoice": "Listening... Speak now to add description"
+  },
+  "pages": {
+    "transactions": {
+      "title": "Transactions",
+      "description": "View and manage all your financial transactions",
+      "totalIncome": "Total Income",
+      "totalExpenses": "Total Expenses",
+      "netAmount": "Net Amount",
+      "totalTransactions": "Total Transactions",
+      "searchPlaceholder": "Search transactions...",
+      "allCategories": "All Categories",
+      "allTypes": "All Types",
+      "sortBy": "Sort By",
+      "sortNewest": "Date (Newest First)",
+      "sortOldest": "Date (Oldest First)",
+      "sortAmountHigh": "Amount (Highest First)",
+      "sortAmountLow": "Amount (Lowest First)",
+      "clearFilters": "Clear Filters",
+      "export": "Export",
+      "loadMoreTransactions": "Load More Transactions",
+      "noTransactionsFound": "No transactions found",
+      "loadingTransactions": "Loading transactions...",
+      "confirmDelete": "Are you sure you want to delete this transaction?"
+    },
+    "budgets": {
+      "title": "Budget Management",
+      "description": "Track your spending limits and stay on budget",
+      "totalBudgets": "Total Budgets",
+      "activeBudgets": "Active Budgets",
+      "warnings": "Warnings",
+      "overBudget": "Over Budget",
+      "allBudgets": "All Budgets",
+      "monthly": "Monthly",
+      "weekly": "Weekly",
+      "yearly": "Yearly",
+      "noBudgetsYet": "No budgets yet",
+      "createFirstBudget": "Create your first budget to start tracking your spending limits",
+      "loadingBudgets": "Loading budgets...",
+      "failedToLoadBudgets": "Failed to load budgets"
+    },
+    "goals": {
+      "title": "My Goals",
+      "description": "Track your financial progress and stay motivated",
+      "allGoals": "All Goals",
+      "savings": "Savings",
+      "debtPayoff": "Debt Payoff",
+      "spendingLimits": "Spending Limits",
+      "noGoalsYet": "No goals yet",
+      "createFirstGoal": "Start by creating your first financial goal",
+      "totalGoals": "Total Goals",
+      "achieved": "Achieved",
+      "inProgress": "In Progress",
+      "dueSoon": "Due Soon"
+    },
+    "categories": {
+      "title": "Categories & Projects",
+      "description": "Organize expenses with advanced categorization and project tracking",
+      "totalCategories": "Total Categories",
+      "personal": "Personal",
+      "business": "Business",
+      "taxDeductible": "Tax Deductible",
+      "searchPlaceholder": "Search categories and projects...",
+      "allTypes": "All Types",
+      "personalOnly": "Personal Only",
+      "businessOnly": "Business Only",
+      "allCategories": "All Categories",
+      "noCategoriesFound": "No categories found",
+      "noProjectsYet": "No projects yet",
+      "addProject": "Add Project",
+      "addCategory": "Add Category"
+    },
+    "onboarding": {
+      "welcome": {
+        "title": "Welcome",
+        "content": "Let's get you started on your financial journey"
+      },
+      "learnBasics": {
+        "title": "Learn Basics",
+        "whatIsBudget": "What is a Budget?",
+        "budgetExplanation": "A budget helps you plan your spending and track where your money goes each month."
+      },
+      "setGoals": {
+        "title": "Set Goals",
+        "content": "Set your first financial goal to start tracking your progress"
+      },
+      "tryItOut": {
+        "title": "Try It Out",
+        "content": "Add your first transaction to see how the system works"
+      },
+      "getStarted": "Get Started",
+      "skipForNow": "Skip for now",
+      "completeSetup": "Complete Setup",
+      "next": "Next",
+      "previous": "Previous"
+    }
+  },
+  "modals": {
+    "addTransaction": "Add Transaction",
+    "editTransaction": "Edit Transaction",
+    "deleteTransaction": "Delete Transaction",
+    "addBudget": "Add Budget",
+    "editBudget": "Edit Budget",
+    "deleteBudget": "Delete Budget",
+    "addGoal": "Add Goal",
+    "editGoal": "Edit Goal",
+    "deleteGoal": "Delete Goal",
+    "addCategory": "Add Category",
+    "editCategory": "Edit Category",
+    "deleteCategory": "Delete Category",
+    "singleTransaction": "Single Transaction",
+    "bulkImport": "Bulk Import",
+    "confirmDelete": "Are you sure?",
+    "deleteWarning": "This action cannot be undone."
+  },
+  "financialHealth": {
+    "title": "Financial Health Score",
+    "status": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "warning": "Needs Attention",
+      "critical": "Critical"
+    },
+    "metrics": {
+      "savingsRate": "Savings Rate",
+      "budgetUsage": "Budget Usage",
+      "goalProgress": "Goal Progress",
+      "emergencyFund": "Emergency Fund"
+    },
+    "recommendations": {
+      "title": "Recommendations:",
+      "excellent": "Great job! Keep up the excellent financial habits.",
+      "increaseSavings": "Try to increase your savings rate to 20%+",
+      "buildEmergencyFund": "Build your emergency fund to 3-6 months of expenses",
+      "overspending": "You're overspending! Review your budget",
+      "reduceFocus": "Focus on reducing expenses to save more",
+      "reviewGoals": "Review your financial goals and create action plans",
+      "immediateAction": "Immediate action needed: Create a strict budget",
+      "additionalIncome": "Consider additional income sources",
+      "eliminateExpenses": "Eliminate non-essential expenses"
+    }
+  },
+  "goalProgress": {
+    "title": "Goal Progress",
+    "noGoals": "No goals set yet",
+    "createFirst": "Create Your First Goal",
+    "complete": "complete",
+    "achieved": "Achieved",
+    "inProgress": "In Progress",
+    "dueSoon": "Due Soon",
+    "priorityGoals": "Priority Goals",
+    "daysLeft": "days left",
+    "overdue": "Overdue",
+    "manageAll": "Manage All Goals"
+  },
+  "budgetOverview": {
+    "title": "Budget Overview",
+    "noBudgets": "No budgets set yet",
+    "createFirst": "Create Your First Budget",
+    "used": "used",
+    "left": "left",
+    "over": "over",
+    "onTrack": "On Track",
+    "warning": "Warning",
+    "exceeded": "Exceeded",
+    "budgetStatus": "Budget Status",
+    "manageAll": "Manage All Budgets"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "addTransaction": {
+      "title": "Add Transaction",
+      "description": "Record income or expense"
+    },
+    "createGoal": {
+      "title": "Create Goal",
+      "description": "Set a financial target"
+    },
+    "setBudget": {
+      "title": "Set Budget",
+      "description": "Control your spending"
+    },
+    "viewReports": {
+      "title": "View Reports",
+      "description": "Analyze your finances"
+    },
+    "quickInsights": "Quick Insights",
+    "monthlySavings": "Monthly Savings",
+    "vsLastMonth": "vs last month",
+    "topCategory": "Top Category",
+    "thisMonth": "this month",
+    "settings": "Settings",
+    "help": "Help"
   }
 }

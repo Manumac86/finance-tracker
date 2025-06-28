@@ -31,17 +31,24 @@
     "banking": "Banca",
     "family": "Familia",
     "settings": "Configuración",
-    "signOut": "Cerrar Sesión"
+    "signOut": "Cerrar Sesión",
+    "searchPlaceholder": "Buscar transacciones..."
   },
   "dashboard": {
     "title": "Resumen Financiero",
     "welcome": "¡Bienvenido de vuelta!",
+    "subtitle": "Su resumen financiero completo e información práctica",
     "totalBalance": "Balance Total",
+    "currentBalance": "Balance Actual",
+    "income": "Ingresos",
+    "expenses": "Gastos",
     "monthlyIncome": "Ingresos Mensuales",
     "monthlyExpenses": "Gastos Mensuales",
     "recentTransactions": "Transacciones Recientes",
+    "recentActivity": "Actividad Reciente",
     "budgetOverview": "Resumen de Presupuesto",
     "goalProgress": "Progreso de Metas",
+    "goalsProgress": "Progreso de Metas",
     "noRecentTransactions": "No hay transacciones recientes",
     "viewAllTransactions": "Ver todas las transacciones",
     "thisMonth": "Este Mes",
@@ -49,7 +56,13 @@
     "yearToDate": "Año en Curso",
     "thisWeek": "Esta Semana",
     "thisQuarter": "Este Trimestre",
-    "thisYear": "Este Año"
+    "thisYear": "Este Año",
+    "savingsRate": "tasa de ahorro",
+    "total": "total",
+    "goalsCompleted": "metas completadas",
+    "errorLoading": "Error al cargar datos del panel",
+    "loadingOverview": "Cargando su resumen financiero...",
+    "retry": "Reintentar"
   },
   "transactions": {
     "title": "Transacciones",
@@ -201,5 +214,321 @@
     "lastYear": "Año Pasado",
     "custom": "Personalizado",
     "to": "a"
+  },
+  "landing": {
+    "hero": {
+      "title": "Toma Control de tus Finanzas",
+      "subtitle": "Rastrea gastos, monitorea ingresos y alcanza tus metas financieras con nuestro rastreador intuitivo.",
+      "getStarted": "Comenzar",
+      "viewDemo": "Ver Demo"
+    },
+    "navigation": {
+      "pricing": "Precios",
+      "about": "Acerca de",
+      "signIn": "Iniciar Sesión",
+      "signUp": "Registrarse"
+    },
+    "features": {
+      "badge": "Características",
+      "title": "Todo lo que Necesitas",
+      "subtitle": "Nuestro rastreador financiero proporciona todas las herramientas que necesitas para gestionar tu dinero de manera efectiva.",
+      "expenseTracking": {
+        "title": "Seguimiento de Gastos",
+        "description": "Rastrea y categoriza fácilmente tus gastos para entender tus hábitos de consumo."
+      },
+      "financialInsights": {
+        "title": "Insights Financieros",
+        "description": "Obtén gráficos detallados y analíticas para visualizar tu progreso financiero a lo largo del tiempo."
+      },
+      "savingsGoals": {
+        "title": "Metas de Ahorro",
+        "description": "Establece y rastrea metas de ahorro para ayudarte a alcanzar tus objetivos financieros."
+      },
+      "incomeMonitoring": {
+        "title": "Monitoreo de Ingresos",
+        "description": "Rastrea múltiples fuentes de ingresos y entiende tus patrones de ganancias."
+      },
+      "secureData": {
+        "title": "Datos Seguros",
+        "description": "Tus datos financieros están encriptados y almacenados de forma segura para tu tranquilidad."
+      },
+      "budgetPlanning": {
+        "title": "Planificación de Presupuesto",
+        "description": "Crea y gestiona presupuestos para mantener tus gastos bajo control y alcanzar tus metas."
+      }
+    },
+    "testimonials": {
+      "badge": "Testimonios",
+      "title": "Lo que Dicen Nuestros Usuarios",
+      "subtitle": "Unete a miles de usuarios que han transformado sus vidas financieras con FinTrack.",
+      "testimonial1": {
+        "quote": "FinTrack ha cambiado completamente cómo gestiono mi dinero. Ahora puedo ver exactamente a dónde va mi dinero y tomar mejores decisiones financieras.",
+        "name": "Alex Johnson",
+        "role": "Desarrollador de Software"
+      },
+      "testimonial2": {
+        "quote": "He probado muchas aplicaciones financieras, pero FinTrack es por mucho la más intuitiva y completa. Los gráficos visuales facilitan entender mis finanzas.",
+        "name": "Sarah Miller",
+        "role": "Gerente de Marketing"
+      },
+      "testimonial3": {
+        "quote": "Desde que uso FinTrack, he podido ahorrar $400 extra al mes. Los insights que proporciona son invaluables para la planificación financiera.",
+        "name": "Michael Chen",
+        "role": "Dueño de Pequeño Negocio"
+      }
+    },
+    "cta": {
+      "title": "¿Listo para Transformar tus Finanzas?",
+      "subtitle": "Unete a miles de usuarios que han tomado control de su futuro financiero con FinTrack.",
+      "getStartedFree": "Comenzar Gratis",
+      "learnMore": "Saber Más"
+    },
+    "footer": {
+      "copyright": "FinTrack © 2024",
+      "terms": "Términos de Servicio",
+      "privacy": "Política de Privacidad",
+      "contact": "Contáctanos"
+    }
+  },
+  "forms": {
+    "transactionName": "Nombre de Transacción",
+    "transactionNamePlaceholder": "ej., Tienda de Comestibles, Salario",
+    "selectCategory": "Selecciona una categoría",
+    "transactionType": "Tipo de Transacción",
+    "amount": "Monto",
+    "amountPlaceholder": "0.00",
+    "date": "Fecha",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Agrega notas adicionales...",
+    "notes": "Notas (opcional)",
+    "category": "Categoría",
+    "type": "Tipo",
+    "name": "Nombre",
+    "targetAmount": "Monto Objetivo",
+    "currentAmount": "Monto Actual",
+    "targetDate": "Fecha Objetivo",
+    "monthlyLimit": "Límite Mensual",
+    "alertThreshold": "Umbral de Alerta (%)",
+    "enableAlerts": "Habilitar Alertas",
+    "goalName": "Nombre de la Meta",
+    "goalNamePlaceholder": "ej., Fondo de Emergencia",
+    "budgetLimit": "Límite del Presupuesto",
+    "income": "Ingresos",
+    "expense": "Gastos",
+    "voiceInput": "Iniciar entrada de voz",
+    "bulkImport": "Importación Masiva",
+    "csvUpload": "Subir CSV",
+    "manualEntry": "Entrada Manual",
+    "quickTextEntry": "Entrada Rápida de Texto"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "creating": "Creando...",
+    "updating": "Actualizando...",
+    "deleting": "Eliminando...",
+    "noDataFound": "No se encontraron datos",
+    "noResultsFound": "No se encontraron resultados",
+    "tryAgain": "Intentar de nuevo",
+    "tryAdjustingFilters": "Intenta ajustar tus filtros",
+    "loadingMore": "Cargando más...",
+    "allLoaded": "Todos los elementos cargados",
+    "errorOccurred": "Ocurrió un error",
+    "failedToLoad": "Error al cargar datos",
+    "redirecting": "Redirigiendo...",
+    "redirectingToSignIn": "Redirigiendo a inicio de sesión...",
+    "listeningVoice": "Escuchando... Habla ahora para agregar descripción"
+  },
+  "pages": {
+    "transactions": {
+      "title": "Transacciones",
+      "description": "Ve y gestiona todas tus transacciones financieras",
+      "totalIncome": "Ingresos Totales",
+      "totalExpenses": "Gastos Totales",
+      "netAmount": "Monto Neto",
+      "totalTransactions": "Transacciones Totales",
+      "searchPlaceholder": "Buscar transacciones...",
+      "allCategories": "Todas las Categorías",
+      "allTypes": "Todos los Tipos",
+      "sortBy": "Ordenar Por",
+      "sortNewest": "Fecha (Más Reciente)",
+      "sortOldest": "Fecha (Más Antigua)",
+      "sortAmountHigh": "Monto (Más Alto)",
+      "sortAmountLow": "Monto (Más Bajo)",
+      "clearFilters": "Limpiar Filtros",
+      "export": "Exportar",
+      "loadMoreTransactions": "Cargar Más Transacciones",
+      "noTransactionsFound": "No se encontraron transacciones",
+      "loadingTransactions": "Cargando transacciones...",
+      "confirmDelete": "¿Estás seguro de que quieres eliminar esta transacción?"
+    },
+    "budgets": {
+      "title": "Gestión de Presupuestos",
+      "description": "Rastrea tus límites de gasto y manténte dentro del presupuesto",
+      "totalBudgets": "Presupuestos Totales",
+      "activeBudgets": "Presupuestos Activos",
+      "warnings": "Advertencias",
+      "overBudget": "Sobre Presupuesto",
+      "allBudgets": "Todos los Presupuestos",
+      "monthly": "Mensual",
+      "weekly": "Semanal",
+      "yearly": "Anual",
+      "noBudgetsYet": "No hay presupuestos aún",
+      "createFirstBudget": "Crea tu primer presupuesto para comenzar a rastrear tus límites de gasto",
+      "loadingBudgets": "Cargando presupuestos...",
+      "failedToLoadBudgets": "Error al cargar presupuestos"
+    },
+    "goals": {
+      "title": "Mis Metas",
+      "description": "Rastrea tu progreso financiero y manténte motivado",
+      "allGoals": "Todas las Metas",
+      "savings": "Ahorros",
+      "debtPayoff": "Pago de Deudas",
+      "spendingLimits": "Límites de Gasto",
+      "noGoalsYet": "No hay metas aún",
+      "createFirstGoal": "Comienza creando tu primera meta financiera",
+      "totalGoals": "Metas Totales",
+      "achieved": "Alcanzadas",
+      "inProgress": "En Progreso",
+      "dueSoon": "Próximas a Vencer"
+    },
+    "categories": {
+      "title": "Categorías y Proyectos",
+      "description": "Organiza gastos con categorización avanzada y seguimiento de proyectos",
+      "totalCategories": "Categorías Totales",
+      "personal": "Personal",
+      "business": "Negocio",
+      "taxDeductible": "Deducible de Impuestos",
+      "searchPlaceholder": "Buscar categorías y proyectos...",
+      "allTypes": "Todos los Tipos",
+      "personalOnly": "Solo Personal",
+      "businessOnly": "Solo Negocio",
+      "allCategories": "Todas las Categorías",
+      "noCategoriesFound": "No se encontraron categorías",
+      "noProjectsYet": "No hay proyectos aún",
+      "addProject": "Agregar Proyecto",
+      "addCategory": "Agregar Categoría"
+    },
+    "onboarding": {
+      "welcome": {
+        "title": "Bienvenido",
+        "content": "Comencemos tu viaje financiero"
+      },
+      "learnBasics": {
+        "title": "Aprende lo Básico",
+        "whatIsBudget": "¿Qué es un Presupuesto?",
+        "budgetExplanation": "Un presupuesto te ayuda a planificar tus gastos y rastrear a dónde va tu dinero cada mes."
+      },
+      "setGoals": {
+        "title": "Establece Metas",
+        "content": "Establece tu primera meta financiera para comenzar a rastrear tu progreso"
+      },
+      "tryItOut": {
+        "title": "Pruébalo",
+        "content": "Agrega tu primera transacción para ver cómo funciona el sistema"
+      },
+      "getStarted": "Comenzar",
+      "skipForNow": "Omitir por ahora",
+      "completeSetup": "Completar Configuración",
+      "next": "Siguiente",
+      "previous": "Anterior"
+    }
+  },
+  "modals": {
+    "addTransaction": "Agregar Transacción",
+    "editTransaction": "Editar Transacción",
+    "deleteTransaction": "Eliminar Transacción",
+    "addBudget": "Agregar Presupuesto",
+    "editBudget": "Editar Presupuesto",
+    "deleteBudget": "Eliminar Presupuesto",
+    "addGoal": "Agregar Meta",
+    "editGoal": "Editar Meta",
+    "deleteGoal": "Eliminar Meta",
+    "addCategory": "Agregar Categoría",
+    "editCategory": "Editar Categoría",
+    "deleteCategory": "Eliminar Categoría",
+    "singleTransaction": "Transacción Individual",
+    "bulkImport": "Importación Masiva",
+    "confirmDelete": "¿Estás seguro?",
+    "deleteWarning": "Esta acción no se puede deshacer."
+  },
+  "financialHealth": {
+    "title": "Puntuación de Salud Financiera",
+    "status": {
+      "excellent": "Excelente",
+      "good": "Bueno",
+      "warning": "Necesita Atención",
+      "critical": "Crítico"
+    },
+    "metrics": {
+      "savingsRate": "Tasa de Ahorro",
+      "budgetUsage": "Uso del Presupuesto",
+      "goalProgress": "Progreso de Metas",
+      "emergencyFund": "Fondo de Emergencia"
+    },
+    "recommendations": {
+      "title": "Recomendaciones:",
+      "excellent": "¡Excelente trabajo! Continúa con estos hábitos financieros excelentes.",
+      "increaseSavings": "Trata de aumentar tu tasa de ahorro al 20%+",
+      "buildEmergencyFund": "Construye tu fondo de emergencia para 3-6 meses de gastos",
+      "overspending": "¡Estás gastando de más! Revisa tu presupuesto",
+      "reduceFocus": "Enfócate en reducir gastos para ahorrar más",
+      "reviewGoals": "Revisa tus metas financieras y crea planes de acción",
+      "immediateAction": "Acción inmediata necesaria: Crea un presupuesto estricto",
+      "additionalIncome": "Considera fuentes de ingresos adicionales",
+      "eliminateExpenses": "Elimina gastos no esenciales"
+    }
+  },
+  "goalProgress": {
+    "title": "Progreso de Metas",
+    "noGoals": "No hay metas establecidas aún",
+    "createFirst": "Crea Tu Primera Meta",
+    "complete": "completo",
+    "achieved": "Alcanzada",
+    "inProgress": "En Progreso",
+    "dueSoon": "Próxima a Vencer",
+    "priorityGoals": "Metas Prioritarias",
+    "daysLeft": "días restantes",
+    "overdue": "Vencida",
+    "manageAll": "Gestionar Todas las Metas"
+  },
+  "budgetOverview": {
+    "title": "Resumen de Presupuesto",
+    "noBudgets": "No hay presupuestos establecidos aún",
+    "createFirst": "Crea Tu Primer Presupuesto",
+    "used": "usado",
+    "left": "restante",
+    "over": "excedido",
+    "onTrack": "En Camino",
+    "warning": "Advertencia",
+    "exceeded": "Excedido",
+    "budgetStatus": "Estado del Presupuesto",
+    "manageAll": "Gestionar Todos los Presupuestos"
+  },
+  "quickActions": {
+    "title": "Acciones Rápidas",
+    "addTransaction": {
+      "title": "Agregar Transacción",
+      "description": "Registrar ingreso o gasto"
+    },
+    "createGoal": {
+      "title": "Crear Meta",
+      "description": "Establecer un objetivo financiero"
+    },
+    "setBudget": {
+      "title": "Establecer Presupuesto",
+      "description": "Controlar tus gastos"
+    },
+    "viewReports": {
+      "title": "Ver Informes",
+      "description": "Analizar tus finanzas"
+    },
+    "quickInsights": "Insights Rápidos",
+    "monthlySavings": "Ahorros Mensuales",
+    "vsLastMonth": "vs mes pasado",
+    "topCategory": "Categoría Principal",
+    "thisMonth": "este mes",
+    "settings": "Configuración",
+    "help": "Ayuda"
   }
 }

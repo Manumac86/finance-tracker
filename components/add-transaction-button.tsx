@@ -39,6 +39,7 @@ import { useTransactions } from "@/contexts/transactions";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
 import { suggestCategory, suggestMerchant, getQuickMerchantSuggestions } from "@/lib/utils/smart-suggestions";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface BulkTransaction {
   id: string;
@@ -54,6 +55,10 @@ export function AddTransactionButton() {
   const { data: categories } = useCategories();
   const { transactions, mutate } = useTransactions();
   const { checkBudgetAlerts } = useBudgetAlerts();
+  const tModals = useTranslations('modals');
+  const tForms = useTranslations('forms');
+  const tStatus = useTranslations('status');
+  const tCommon = useTranslations('common');
   const [open, setOpen] = useState(false);
   const [transactionType, setTransactionType] = useState("expense");
   const [amount, setAmount] = useState("");
@@ -459,11 +464,11 @@ export function AddTransactionButton() {
         <Button
           onClick={() => setOpen(true)}
           size="lg"
-          className="h-16 w-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-emerald-500/20"
+          className="h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           data-testid="floating-add-transaction-button"
         >
           <Plus className="h-6 w-6" />
-          <span className="sr-only">Add Transaction</span>
+          <span className="sr-only">{tModals('addTransaction')}</span>
         </Button>
       </div>
 
@@ -475,25 +480,25 @@ export function AddTransactionButton() {
           if (!isOpen) resetForm();
         }}
       >
-        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-800 text-gray-50">
+        <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add Transaction</DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogTitle>{tModals('addTransaction')}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
               Add single transactions or import multiple transactions at once.
             </DialogDescription>
           </DialogHeader>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="single">Single Transaction</TabsTrigger>
-              <TabsTrigger value="bulk">Bulk Import</TabsTrigger>
+              <TabsTrigger value="single">{tModals('singleTransaction')}</TabsTrigger>
+              <TabsTrigger value="bulk">{tModals('bulkImport')}</TabsTrigger>
             </TabsList>
             
             <TabsContent value="single" className="space-y-4">
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="transaction-type">Transaction Type</Label>
+                <Label htmlFor="transaction-type">{tForms('transactionType')}</Label>
                 <RadioGroup
                   id="transaction-type"
                   value={transactionType}
@@ -504,32 +509,32 @@ export function AddTransactionButton() {
                     <RadioGroupItem
                       value="expense"
                       id="expense"
-                      className="border-gray-700 text-rose-500"
+                      className="text-rose-500"
                     />
                     <Label htmlFor="expense" className="font-normal">
-                      Expense
+                      {tForms('expense')}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem
                       value="income"
                       id="income"
-                      className="border-gray-700 text-emerald-500"
+                      className="text-emerald-500"
                     />
                     <Label htmlFor="income" className="font-normal">
-                      Income
+                      {tForms('income')}
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div className="space-y-2 relative">
-                <Label htmlFor="name">Transaction Name</Label>
+                <Label htmlFor="name">{tForms('transactionName')}</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="e.g., Grocery Store, Salary"
-                  className="bg-gray-800 border-gray-700 text-gray-50"
+                  placeholder={tForms('transactionNamePlaceholder')}
+                  className=""
                   value={name}
                   onChange={(e) => handleNameChange(e.target.value)}
                   onFocus={() => {
@@ -546,11 +551,11 @@ export function AddTransactionButton() {
                 
                 {/* Merchant Suggestions Dropdown */}
                 {showSuggestions && merchantSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg">
+                  <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg">
                     {merchantSuggestions.map((suggestion, index) => (
                       <div
                         key={index}
-                        className="px-3 py-2 cursor-pointer hover:bg-gray-700 text-sm"
+                        className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
                         onClick={() => {
                           setName(suggestion);
                           setShowSuggestions(false);
@@ -572,15 +577,15 @@ export function AddTransactionButton() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount">{tForms('amount')}</Label>
                 <div className="relative flex items-center justify-center">
-                  <span className="absolute left-3 text-gray-500">$</span>
+                  <span className="absolute left-3 text-muted-foreground">$</span>
                   <Input
                     id="amount"
                     type="number"
                     step="0.01"
-                    placeholder="0.00"
-                    className="pl-8 bg-gray-800 border-gray-700 text-gray-50"
+                    placeholder={tForms('amountPlaceholder')}
+                    className="pl-8"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
@@ -589,15 +594,15 @@ export function AddTransactionButton() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{tForms('category')}</Label>
                 <Select value={category} onValueChange={handleCategoryChange} required>
                   <SelectTrigger
                     id="category"
-                    className="bg-gray-800 border-gray-700 text-gray-50"
+                    className=""
                   >
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder={tForms('selectCategory')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700 text-gray-50">
+                  <SelectContent>
                     {categories?.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id || cat.name}>
                         {cat.name}
@@ -608,39 +613,39 @@ export function AddTransactionButton() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
+                <Label htmlFor="date">{tForms('date')}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-50",
-                        !date && "text-gray-500"
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {date ? format(date, "PPP") : "Select a date"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
                       selected={date}
                       onSelect={setDate}
                       initialFocus
-                      className="bg-gray-800 text-gray-50"
+                      className=""
                     />
                   </PopoverContent>
                 </Popover>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description (Optional)</Label>
+                <Label htmlFor="description">{tForms('notes')}</Label>
                 <div className="relative">
                   <Textarea
                     id="description"
-                    placeholder="Add notes about this transaction"
-                    className="bg-gray-800 border-gray-700 text-gray-50 pr-12"
+                    placeholder={tForms('descriptionPlaceholder')}
+                    className="pr-12"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -652,7 +657,7 @@ export function AddTransactionButton() {
                       className={`absolute top-2 right-2 h-8 w-8 p-0 ${
                         isListening 
                           ? 'text-red-500 hover:text-red-600' 
-                          : 'text-gray-400 hover:text-gray-300'
+                          : 'text-muted-foreground hover:text-muted-foreground/80'
                       }`}
                       onClick={isListening ? stopListening : startListening}
                       disabled={isSubmitting}
@@ -663,14 +668,14 @@ export function AddTransactionButton() {
                         <Mic className="h-4 w-4" />
                       )}
                       <span className="sr-only">
-                        {isListening ? 'Stop voice input' : 'Start voice input'}
+                        {isListening ? 'Stop voice input' : tForms('voiceInput')}
                       </span>
                     </Button>
                   )}
                 </div>
                 {isListening && (
                   <p className="text-sm text-blue-400">
-                    🎤 Listening... Speak now to add description
+                    🎤 {tStatus('listeningVoice')}
                   </p>
                 )}
               </div>
@@ -680,21 +685,21 @@ export function AddTransactionButton() {
                     type="button"
                     variant="secondary"
                     onClick={() => setOpen(false)}
-                    className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
+                    className="hover:text-destructive"
                   >
-                    Cancel
+                    {tCommon('cancel')}
                   </Button>
                   <Button
                     type="submit"
                     disabled={isSubmitting}
                     className={cn(
-                      "text-white",
+                      "",
                       transactionType === "expense"
                         ? "bg-rose-600 hover:bg-rose-700"
                         : "bg-emerald-600 hover:bg-emerald-700"
                     )}
                   >
-                    {isSubmitting ? "Saving..." : "Save Transaction"}
+                    {isSubmitting ? tStatus('saving') : `${tCommon('save')} Transaction`}
                   </Button>
                 </DialogFooter>
               </form>
@@ -704,12 +709,12 @@ export function AddTransactionButton() {
               {/* Import Options */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>Quick Text Entry</Label>
+                  <Label>{tForms('quickTextEntry')}</Label>
                   <Textarea
                     placeholder="Grocery Store $45.50&#10;Salary $3000 income&#10;Gas Station $35"
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-gray-50 h-20"
+                    className="h-20"
                   />
                   <Button
                     type="button"
@@ -723,20 +728,20 @@ export function AddTransactionButton() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>CSV Upload</Label>
+                  <Label>{tForms('csvUpload')}</Label>
                   <div className="space-y-2">
                     <Input
                       type="file"
                       accept=".csv"
                       onChange={handleFileUpload}
-                      className="bg-gray-800 border-gray-700 text-gray-50"
+                      className=""
                     />
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
                       onClick={downloadTemplate}
-                      className="w-full border-gray-700"
+                      className="w-full"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       Template
@@ -749,7 +754,7 @@ export function AddTransactionButton() {
                   <Button
                     type="button"
                     onClick={addBulkTransaction}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    className="w-full"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Transaction
@@ -769,7 +774,7 @@ export function AddTransactionButton() {
                       size="sm"
                       variant="outline"
                       onClick={() => setBulkTransactions([])}
-                      className="border-gray-700"
+                      className=""
                     >
                       Clear All
                     </Button>
@@ -779,7 +784,7 @@ export function AddTransactionButton() {
                     {bulkTransactions.map((transaction) => (
                       <div
                         key={transaction.id}
-                        className="grid grid-cols-6 gap-2 p-3 bg-gray-800 rounded-lg"
+                        className="grid grid-cols-6 gap-2 p-3 bg-muted rounded-lg"
                       >
                         <Input
                           placeholder="Name"
@@ -791,7 +796,7 @@ export function AddTransactionButton() {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 border-gray-600 text-gray-50"
+                          className="bg-background"
                         />
                         <Input
                           type="number"
@@ -805,7 +810,7 @@ export function AddTransactionButton() {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 border-gray-600 text-gray-50"
+                          className="bg-background"
                         />
                         <select
                           value={transaction.transactionType}
@@ -816,7 +821,7 @@ export function AddTransactionButton() {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
+                          className="bg-background rounded-md px-3 py-2 text-sm"
                         >
                           <option value="expense">Expense</option>
                           <option value="income">Income</option>
@@ -830,7 +835,7 @@ export function AddTransactionButton() {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
+                          className="bg-background rounded-md px-3 py-2 text-sm"
                         >
                           <option value="">Select Category</option>
                           {categories?.map((cat) => (
@@ -852,7 +857,7 @@ export function AddTransactionButton() {
                               e.target.value
                             )
                           }
-                          className="bg-gray-700 border-gray-600 text-gray-50"
+                          className="bg-background"
                         />
                         <Button
                           type="button"
@@ -874,7 +879,7 @@ export function AddTransactionButton() {
                   type="button"
                   variant="secondary"
                   onClick={() => setOpen(false)}
-                  className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
+                  className="hover:text-destructive"
                 >
                   Cancel
                 </Button>
@@ -882,7 +887,7 @@ export function AddTransactionButton() {
                   type="button"
                   onClick={handleBulkSubmit}
                   disabled={isSubmitting || bulkTransactions.length === 0}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className=""
                 >
                   {isSubmitting
                     ? "Creating..."

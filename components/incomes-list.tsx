@@ -62,10 +62,10 @@ export function IncomesList() {
           <div className="flex items-center gap-2">
             <Progress
               value={income.percentage}
-              className="h-2 bg-gray-800"
+              className="h-2 bg-muted"
               indicatorClassName={income.color}
             />
-            <div className="text-xs text-gray-400">{income.percentage}%</div>
+            <div className="text-xs text-muted-foreground">{income.percentage}%</div>
           </div>
         </div>
       ))}

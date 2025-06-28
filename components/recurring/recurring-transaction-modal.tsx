@@ -174,14 +174,14 @@ export function RecurringTransactionModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl bg-gray-900 border-gray-800 max-h-[90vh] overflow-hidden">
-        <CardHeader className="border-b border-gray-800">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <CardHeader className="border-b border-border">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-xl">
                 {initialData ? "Edit" : "Create"} Recurring Transaction
               </CardTitle>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 Set up automatic transactions and bill reminders
               </p>
             </div>
@@ -201,7 +201,7 @@ export function RecurringTransactionModal({
             <div className="space-y-6">
               {/* Basic Info */}
               <div className="space-y-4">
-                <h3 className="text-sm font-medium text-gray-300">
+                <h3 className="text-sm font-medium text-muted-foreground">
                   Basic Information
                 </h3>
 
@@ -214,7 +214,7 @@ export function RecurringTransactionModal({
                         updateFormData("transactionType", value)
                       }
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -251,7 +251,7 @@ export function RecurringTransactionModal({
                         ? "e.g., Netflix Subscription"
                         : "e.g., Monthly Salary"
                     }
-                    className={`bg-gray-800 border-gray-700 ${
+                    className={`${
                       errors.name ? "border-red-500" : ""
                     }`}
                   />
@@ -264,7 +264,7 @@ export function RecurringTransactionModal({
                   <div className="space-y-2">
                     <Label htmlFor="amount">Amount *</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="amount"
                         type="number"
@@ -283,7 +283,7 @@ export function RecurringTransactionModal({
                           }
                         }}
                         placeholder="0.00"
-                        className={`pl-10 bg-gray-800 border-gray-700 ${
+                        className={`pl-10 ${
                           errors.amount ? "border-red-500" : ""
                         }`}
                       />
@@ -303,7 +303,7 @@ export function RecurringTransactionModal({
                       }
                     >
                       <SelectTrigger
-                        className={`bg-gray-800 border-gray-700 ${
+                        className={`${
                           errors.categoryId ? "border-red-500" : ""
                         }`}
                       >
@@ -344,7 +344,7 @@ export function RecurringTransactionModal({
                       updateFormData("description", e.target.value)
                     }
                     placeholder="Optional notes about this recurring transaction"
-                    className="bg-gray-800 border-gray-700"
+                    className=""
                     rows={2}
                   />
                 </div>
@@ -366,7 +366,7 @@ export function RecurringTransactionModal({
                         updateFormData("frequency", value)
                       }
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -389,7 +389,7 @@ export function RecurringTransactionModal({
                       onChange={(e) =>
                         updateFormData("startDate", e.target.value)
                       }
-                      className={`bg-gray-800 border-gray-700 ${
+                      className={`${
                         errors.startDate ? "border-red-500" : ""
                       }`}
                     />
@@ -408,24 +408,24 @@ export function RecurringTransactionModal({
                     onChange={(e) =>
                       updateFormData("endDate", e.target.value)
                     }
-                    className="bg-gray-800 border-gray-700"
+                    className=""
                   />
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     Leave empty for recurring indefinitely
                   </p>
                 </div>
 
                 {/* Preview upcoming dates */}
                 {showPreview && upcomingDates.length > 0 && (
-                  <div className="p-4 bg-gray-800/50 rounded-lg space-y-2">
-                    <div className="text-sm font-medium text-gray-300">
+                  <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                    <div className="text-sm font-medium text-muted-foreground">
                       Upcoming Occurrences:
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {upcomingDates.map((date, index) => (
                         <div
                           key={index}
-                          className="text-xs bg-gray-700 px-2 py-1 rounded"
+                          className="text-xs bg-muted px-2 py-1 rounded"
                         >
                           {new Date(date).toLocaleDateString("en-US", {
                             month: "short",
@@ -443,7 +443,7 @@ export function RecurringTransactionModal({
                   variant="outline"
                   size="sm"
                   onClick={() => setShowPreview(!showPreview)}
-                  className="border-gray-700"
+                  className=""
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   {showPreview ? "Hide" : "Show"} Preview
@@ -453,7 +453,7 @@ export function RecurringTransactionModal({
               {/* Bill Settings */}
               {formData.isBill && (
                 <div className="space-y-4">
-                  <h3 className="text-sm font-medium text-gray-300">
+                  <h3 className="text-sm font-medium text-muted-foreground">
                     Bill Settings
                   </h3>
 
@@ -467,7 +467,7 @@ export function RecurringTransactionModal({
                         updateFormData("reminderDaysBefore", parseInt(value))
                       }
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -497,7 +497,7 @@ export function RecurringTransactionModal({
             </div>
           </CardContent>
 
-          <div className="border-t border-gray-800 p-6 flex justify-end gap-2">
+          <div className="border-t border-border p-6 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>

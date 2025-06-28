@@ -55,7 +55,7 @@ export function QuickActionsCard() {
   ];
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
@@ -82,12 +82,12 @@ export function QuickActionsCard() {
 
         {/* Quick Insights */}
         <div className="space-y-3">
-          <div className="text-sm font-medium text-gray-300">Quick Insights</div>
+          <div className="text-sm font-medium text-muted-foreground">Quick Insights</div>
           {insights.map((insight, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div>
                 <div className="font-medium text-sm">{insight.title}</div>
-                <div className="text-xs text-gray-400">{insight.description}</div>
+                <div className="text-xs text-muted-foreground">{insight.description}</div>
               </div>
               <div className="text-right">
                 <div className="font-medium text-sm">{insight.value}</div>
@@ -105,15 +105,15 @@ export function QuickActionsCard() {
         </div>
 
         {/* Additional Actions */}
-        <div className="border-t border-gray-800 pt-4">
+        <div className="border-t border-border pt-4">
           <div className="grid grid-cols-2 gap-2">
             <Link href="/settings">
-              <Button variant="outline" size="sm" className="w-full border-gray-700">
+              <Button variant="outline" size="sm" className="w-full">
                 Settings
               </Button>
             </Link>
             <Link href="/help">
-              <Button variant="outline" size="sm" className="w-full border-gray-700">
+              <Button variant="outline" size="sm" className="w-full">
                 Help
               </Button>
             </Link>

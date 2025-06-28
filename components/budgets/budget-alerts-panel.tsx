@@ -13,10 +13,12 @@ import {
 } from "@/components/ui/popover";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
 import { BudgetAlert } from "@/lib/services/budget-alerts";
+import { useTranslations } from "next-intl";
 
 export function BudgetAlertsPanel() {
   const { alerts, isEnabled, setIsEnabled, dismissAlert, clearAllAlerts } = useBudgetAlerts();
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("budgets.alerts");
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const formatCurrency = (amount: number) => {
@@ -43,7 +45,7 @@ export function BudgetAlertsPanel() {
       case 'info':
         return <Info className="h-4 w-4 text-blue-400" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-400" />;
+        return <Bell className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -56,7 +58,7 @@ export function BudgetAlertsPanel() {
       case 'info':
         return 'bg-blue-500/10 border-blue-500/20 text-blue-400';
       default:
-        return 'bg-gray-500/10 border-gray-500/20 text-gray-400';
+        return 'bg-muted/10 border-muted/20 text-muted-foreground';
     }
   };
 
@@ -68,14 +70,14 @@ export function BudgetAlertsPanel() {
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium">{alert.message}</div>
             {alert.recommendation && (
-              <div className="text-xs text-gray-400 mt-1">{alert.recommendation}</div>
+              <div className="text-xs text-muted-foreground mt-1">{alert.recommendation}</div>
             )}
             <div className="flex items-center gap-2 mt-2 text-xs">
-              <span className="text-gray-500">{formatTime(alert.timestamp)}</span>
+              <span className="text-muted-foreground">{formatTime(alert.timestamp)}</span>
               <Badge variant="outline" className="text-xs">
                 {alert.budget.name}
               </Badge>
-              <span className="text-gray-400">
+              <span className="text-muted-foreground">
                 {alert.percentageUsed.toFixed(1)}% used
               </span>
             </div>
@@ -85,7 +87,7 @@ export function BudgetAlertsPanel() {
           variant="ghost"
           size="sm"
           onClick={() => dismissAlert(alert.id)}
-          className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
         >
           <X className="h-3 w-3" />
         </Button>
@@ -104,7 +106,7 @@ export function BudgetAlertsPanel() {
           variant="ghost"
           size="sm"
           className={`relative h-8 w-8 p-0 ${
-            hasAlerts && isEnabled ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-400'
+            hasAlerts && isEnabled ? 'text-yellow-400 hover:text-yellow-300' : 'text-muted-foreground'
           }`}
         >
           <Bell className="h-4 w-4" />
@@ -115,13 +117,13 @@ export function BudgetAlertsPanel() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 bg-gray-900 border-gray-800" align="end">
+      <PopoverContent className="w-80 bg-popover border" align="end">
         <Card className="border-0 bg-transparent">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
                 <Bell className="h-4 w-4" />
-                Budget Alerts
+                {t("title")}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Button
@@ -135,8 +137,8 @@ export function BudgetAlertsPanel() {
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <span>Alerts enabled</span>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>Alertas habilitadas</span>
                 <Switch
                   checked={isEnabled}
                   onCheckedChange={setIsEnabled}
@@ -148,25 +150,25 @@ export function BudgetAlertsPanel() {
                   variant="ghost"
                   size="sm"
                   onClick={clearAllAlerts}
-                  className="text-xs text-gray-400 hover:text-white h-6"
+                  className="text-xs text-muted-foreground hover:text-foreground h-6"
                 >
-                  Clear all
+                  Limpiar todo
                 </Button>
               )}
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {!isEnabled ? (
-              <div className="text-center py-4 text-gray-400">
+              <div className="text-center py-4 text-muted-foreground">
                 <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">Budget alerts are disabled</p>
-                <p className="text-xs">Enable alerts to get notified about spending limits</p>
+                <p className="text-sm">Las alertas de presupuesto están deshabilitadas</p>
+                <p className="text-xs">Habilita las alertas para ser notificado sobre límites de gastos</p>
               </div>
             ) : alerts.length === 0 ? (
-              <div className="text-center py-4 text-gray-400">
+              <div className="text-center py-4 text-muted-foreground">
                 <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No active alerts</p>
-                <p className="text-xs">You&apos;ll be notified when you approach budget limits</p>
+                <p className="text-sm">{t("noAlerts")}</p>
+                <p className="text-xs">Serás notificado cuando te acerques a los límites del presupuesto</p>
               </div>
             ) : (
               <>
@@ -175,12 +177,12 @@ export function BudgetAlertsPanel() {
                   <div className="flex gap-2 text-xs">
                     {criticalAlerts > 0 && (
                       <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                        {criticalAlerts} Critical
+                        {criticalAlerts} Críticas
                       </Badge>
                     )}
                     {warningAlerts > 0 && (
                       <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
-                        {warningAlerts} Warning
+                        {warningAlerts} Advertencias
                       </Badge>
                     )}
                   </div>

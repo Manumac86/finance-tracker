@@ -39,7 +39,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
       case "custom":
         return "bg-orange-600";
       default:
-        return "bg-gray-600";
+        return "bg-muted";
     }
   };
 
@@ -65,7 +65,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
       case "on_track":
         return "text-emerald-400 bg-emerald-900/20";
       default:
-        return "text-gray-400 bg-gray-900/20";
+        return "text-muted-foreground bg-muted/20";
     }
   };
 
@@ -92,7 +92,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
       case "on_track":
         return "bg-emerald-600";
       default:
-        return "bg-gray-600";
+        return "bg-muted";
     }
   };
 
@@ -112,7 +112,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors">
+    <Card className="bg-card hover:border-border/80 transition-colors">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -135,7 +135,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
             </div>
             <h3 className="font-semibold text-lg">{budget.name}</h3>
             {budget.description && (
-              <p className="text-sm text-gray-400 mt-1">{budget.description}</p>
+              <p className="text-sm text-muted-foreground mt-1">{budget.description}</p>
             )}
           </div>
           <div className="flex gap-1 ml-2">
@@ -163,7 +163,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Progress */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-400">Progress</span>
+            <span className="text-sm text-muted-foreground">Progress</span>
             <span className="text-sm font-medium">{budget.percentageUsed || 0}%</span>
           </div>
           <Progress 
@@ -175,15 +175,15 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Amount Display */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">Spent</span>
+            <span className="text-sm text-muted-foreground">Spent</span>
             <span className="font-medium">{formatCurrency(budget.currentSpent)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-400">Budget</span>
+            <span className="text-sm text-muted-foreground">Budget</span>
             <span className="font-medium">{formatCurrency(budget.amount)}</span>
           </div>
-          <div className="flex justify-between items-center border-t border-gray-800 pt-2">
-            <span className="text-sm text-gray-400">Remaining</span>
+          <div className="flex justify-between items-center border-t border-border pt-2">
+            <span className="text-sm text-muted-foreground">Remaining</span>
             <span className={`font-medium ${
               (budget.remaining || 0) < 0 ? 'text-red-400' : 'text-emerald-400'
             }`}>
@@ -193,7 +193,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         </div>
 
         {/* Period Info */}
-        <div className="flex justify-between items-center text-sm text-gray-400 border-t border-gray-800 pt-4">
+        <div className="flex justify-between items-center text-sm text-muted-foreground border-t border-border pt-4">
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-1" />
             <span>Starts: {formatDate(budget.startDate)}</span>
@@ -208,7 +208,7 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
 
         {/* Alert Settings */}
         {budget.alertEnabled && (
-          <div className="text-xs text-gray-500 border-t border-gray-800 pt-2">
+          <div className="text-xs text-muted-foreground border-t border-border pt-2">
             Alert at {budget.alertThresholdPercentage}% • 
             {budget.overspendAlertEnabled ? " Overspend alerts on" : " Overspend alerts off"}
           </div>

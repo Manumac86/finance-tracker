@@ -11,59 +11,69 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { locales } from "@/i18n/config";
+import { routing } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
 export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+  return routing.locales.map((locale) => ({ locale }));
 }
 
-export default async function LandingPage() {
-  const t = await getTranslations("navigation");
+export default async function LandingPage({ params }: Props) {
+  const { locale } = await params;
+  const tNav = await getTranslations("navigation");
+  const tLanding = await getTranslations("landing");
+  const tCommon = await getTranslations("common");
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-gray-950 text-gray-50 ">
-      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950/95 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+    <div className="flex min-h-screen w-full flex-col">
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
+        <Link
+          href={`/${locale}`}
+          className="flex items-center gap-2 font-semibold"
+        >
           <DollarSign className="h-6 w-6 text-emerald-500" />
-          <span>FinTrack</span>
+          <span>{tCommon("appName")}</span>
         </Link>
         <nav className="ml-auto hidden gap-4 sm:flex">
           <Link
-            href="/features"
-            className="text-sm font-medium text-gray-400 hover:text-gray-50"
+            href={`/${locale}/dashboard`}
+            className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            {t("dashboard")}
+            {tNav("dashboard")}
           </Link>
           <Link
-            href="/pricing"
-            className="text-sm font-medium text-gray-400 hover:text-gray-50"
+            href="#"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            Pricing
+            {tLanding("navigation.pricing")}
           </Link>
           <Link
-            href="/about"
-            className="text-sm font-medium text-gray-400 hover:text-gray-50"
+            href="#"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            About
+            {tLanding("navigation.about")}
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-4 sm:ml-0">
-          <Link href="/signin">
+          <Link href={`/${locale}/signin`}>
             <Button
               variant="outline"
               size="sm"
-              className="border-gray-800 bg-gray-950 text-gray-50 hover:bg-gray-900 hover:text-gray-50"
+              className="border-border bg-background text-foreground hover:bg-accent hover:text-foreground"
             >
-              Sign In
+              {tLanding("navigation.signIn")}
             </Button>
           </Link>
-          <Link href="/signup">
+          <Link href={`/${locale}/signup`}>
             <Button
               size="sm"
               className="bg-emerald-600 text-white hover:bg-emerald-700"
             >
-              Sign Up
+              {tLanding("navigation.signUp")}
             </Button>
           </Link>
         </div>
@@ -76,40 +86,40 @@ export default async function LandingPage() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                    Take Control of Your Finances
+                    {tLanding("hero.title")}
                   </h1>
-                  <p className="max-w-[600px] text-gray-400 md:text-xl">
-                    Track expenses, monitor income, and achieve your financial
-                    goals with our intuitive finance tracker.
+                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                    {tLanding("hero.subtitle")}
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Link href="/signup">
+                  <Link href={`/${locale}/signup`}>
                     <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
-                      Get Started
+                      {tLanding("hero.getStarted")}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href="/dashboard">
+                  <Link href={`/${locale}/dashboard`}>
                     <Button
                       variant="outline"
-                      className="border-gray-800 hover:bg-gray-900"
+                      className="border-border hover:bg-accent"
                     >
-                      View Demo
+                      {tLanding("hero.viewDemo")}
                     </Button>
                   </Link>
                 </div>
               </div>
               <div className="flex items-center justify-center">
-                <div className="relative h-[350px] w-full overflow-hidden rounded-xl border border-gray-800 bg-gray-900 p-2 shadow-xl">
+                <div className="relative h-[350px] w-full overflow-hidden rounded-xl border bg-card p-2 shadow-xl">
                   <Image
                     src="/dashboard-preview.png"
                     alt="Dashboard Preview"
                     width={800}
                     height={600}
                     className="h-full w-full rounded-lg object-cover"
+                    priority
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-60"></div>
                 </div>
               </div>
             </div>
@@ -117,81 +127,86 @@ export default async function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section className="w-full bg-gray-900 py-12 md:py-24 lg:py-32 flex justify-center">
+        <section className="w-full bg-secondary py-12 md:py-24 lg:py-32 flex justify-center">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-emerald-500/20 px-3 py-1 text-sm text-emerald-500">
-                  Features
+                  {tLanding("features.badge")}
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  Everything You Need
+                  {tLanding("features.title")}
                 </h2>
-                <p className="max-w-[900px] text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our finance tracker provides all the tools you need to manage
-                  your money effectively.
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  {tLanding("features.subtitle")}
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <BarChart3 className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Expense Tracking</h3>
-                <p className="text-sm text-gray-400">
-                  Easily track and categorize your expenses to understand your
-                  spending habits.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.expenseTracking.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.expenseTracking.description")}
                 </p>
               </div>
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <LineChart className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Financial Insights</h3>
-                <p className="text-sm text-gray-400">
-                  Get detailed charts and analytics to visualize your financial
-                  progress over time.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.financialInsights.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.financialInsights.description")}
                 </p>
               </div>
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <PiggyBank className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Savings Goals</h3>
-                <p className="text-sm text-gray-400">
-                  Set and track savings goals to help you achieve your financial
-                  objectives.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.savingsGoals.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.savingsGoals.description")}
                 </p>
               </div>
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <TrendingUp className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Income Monitoring</h3>
-                <p className="text-sm text-gray-400">
-                  Track multiple income sources and understand your earning
-                  patterns.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.incomeMonitoring.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.incomeMonitoring.description")}
                 </p>
               </div>
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <Shield className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Secure Data</h3>
-                <p className="text-sm text-gray-400">
-                  Your financial data is encrypted and securely stored for your
-                  peace of mind.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.secureData.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.secureData.description")}
                 </p>
               </div>
-              <div className="flex flex-col items-center space-y-2 rounded-lg border border-gray-800 bg-gray-950 p-6 text-center">
+              <div className="flex flex-col items-center space-y-2 rounded-lg border bg-card p-6 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
                   <DollarSign className="h-6 w-6 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold">Budget Planning</h3>
-                <p className="text-sm text-gray-400">
-                  Create and manage budgets to keep your spending in check and
-                  reach your goals.
+                <h3 className="text-xl font-bold">
+                  {tLanding("features.budgetPlanning.title")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {tLanding("features.budgetPlanning.description")}
                 </p>
               </div>
             </div>
@@ -204,19 +219,18 @@ export default async function LandingPage() {
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-emerald-500/20 px-3 py-1 text-sm text-emerald-500">
-                  Testimonials
+                  {tLanding("testimonials.badge")}
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  What Our Users Say
+                  {tLanding("testimonials.title")}
                 </h2>
-                <p className="max-w-[900px] text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Join thousands of users who have transformed their financial
-                  lives with FinTrack.
+                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                  {tLanding("testimonials.subtitle")}
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 py-12 md:grid-cols-2 lg:grid-cols-3">
-              <div className="flex flex-col justify-between space-y-4 rounded-lg border border-gray-800 bg-gray-950 p-6">
+              <div className="flex flex-col justify-between space-y-4 rounded-lg border bg-card p-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(5)].map((_, i) => (
@@ -237,21 +251,23 @@ export default async function LandingPage() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm text-gray-400">
-                    &quot;FinTrack has completely changed how I manage my money.
-                    I can now see exactly where my money goes and make better
-                    financial decisions.&quot;
+                  <p className="text-sm text-muted-foreground">
+                    &quot;{tLanding("testimonials.testimonial1.quote")}&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gray-800"></div>
+                  <div className="h-10 w-10 rounded-full bg-muted"></div>
                   <div>
-                    <p className="text-sm font-medium">Alex Johnson</p>
-                    <p className="text-xs text-gray-400">Software Developer</p>
+                    <p className="text-sm font-medium">
+                      {tLanding("testimonials.testimonial1.name")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {tLanding("testimonials.testimonial1.role")}
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col justify-between space-y-4 rounded-lg border border-gray-800 bg-gray-950 p-6">
+              <div className="flex flex-col justify-between space-y-4 rounded-lg border bg-card p-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(5)].map((_, i) => (
@@ -272,21 +288,23 @@ export default async function LandingPage() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm text-gray-400">
-                    &quot;I&apos;ve tried many finance apps, but FinTrack is by
-                    far the most intuitive and comprehensive. The visual charts
-                    make it easy to understand my finances.&quot;
+                  <p className="text-sm text-muted-foreground">
+                    &quot;{tLanding("testimonials.testimonial2.quote")}&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gray-800"></div>
+                  <div className="h-10 w-10 rounded-full bg-muted"></div>
                   <div>
-                    <p className="text-sm font-medium">Sarah Miller</p>
-                    <p className="text-xs text-gray-400">Marketing Manager</p>
+                    <p className="text-sm font-medium">
+                      {tLanding("testimonials.testimonial2.name")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {tLanding("testimonials.testimonial2.role")}
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col justify-between space-y-4 rounded-lg border border-gray-800 bg-gray-950 p-6">
+              <div className="flex flex-col justify-between space-y-4 rounded-lg border bg-card p-6">
                 <div className="space-y-2">
                   <div className="flex items-center gap-1 text-amber-500">
                     {[...Array(5)].map((_, i) => (
@@ -307,18 +325,18 @@ export default async function LandingPage() {
                       </svg>
                     ))}
                   </div>
-                  <p className="text-sm text-gray-400">
-                    &quot;Since using FinTrack, I&apos;ve been able to save an
-                    extra $400 per month. The insights it provides are
-                    invaluable for financial planning.&quot;
+                  <p className="text-sm text-muted-foreground">
+                    &quot;{tLanding("testimonials.testimonial3.quote")}&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-full bg-gray-800"></div>
+                  <div className="h-10 w-10 rounded-full bg-muted"></div>
                   <div>
-                    <p className="text-sm font-medium">Michael Chen</p>
-                    <p className="text-xs text-gray-400">
-                      Small Business Owner
+                    <p className="text-sm font-medium">
+                      {tLanding("testimonials.testimonial3.name")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {tLanding("testimonials.testimonial3.role")}
                     </p>
                   </div>
                 </div>
@@ -328,60 +346,52 @@ export default async function LandingPage() {
         </section>
 
         {/* CTA Section */}
-        <section className="w-full bg-gray-900 py-12 md:py-24 lg:py-32 flex justify-center">
+        <section className="w-full bg-secondary py-12 md:py-24 lg:py-32 flex justify-center">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                Ready to Transform Your Finances?
+                {tLanding("cta.title")}
               </h2>
-              <p className="mx-auto max-w-[600px] text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Join thousands of users who have taken control of their
-                financial future with FinTrack.
+              <p className="mx-auto max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                {tLanding("cta.subtitle")}
               </p>
             </div>
             <div className="mx-auto flex flex-col gap-2 min-[400px]:flex-row">
-              <Link href="/signup">
+              <Link href={`/${locale}/signup`}>
                 <Button className="bg-emerald-600 text-white hover:bg-emerald-700">
-                  Get Started for Free
+                  {tLanding("cta.getStartedFree")}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/features">
+              <Link href="#">
                 <Button
                   variant="outline"
-                  className="border-gray-800 hover:bg-gray-900"
+                  className="border-border hover:bg-accent"
                 >
-                  Learn More
+                  {tLanding("cta.learnMore")}
                 </Button>
               </Link>
             </div>
           </div>
         </section>
       </main>
-      <footer className="border-t border-gray-800 bg-gray-950 py-6 md:py-8 w-full flex justify-center">
+      <footer className="border-t bg-background py-6 md:py-8 w-full flex justify-center">
         <div className="w-full flex flex-col items-center justify-between gap-4 px-4 md:flex-row md:px-6">
           <div className="flex items-center gap-2">
             <DollarSign className="h-5 w-5 text-emerald-500" />
-            <p className="text-sm font-medium">FinTrack © 2024</p>
+            <p className="text-sm font-medium">
+              {tLanding("footer.copyright")}
+            </p>
           </div>
           <nav className="flex gap-4 sm:gap-6">
-            <Link
-              href="/terms"
-              className="text-xs text-gray-400 hover:underline"
-            >
-              Terms of Service
+            <Link href="#" className="text-xs text-muted-foreground hover:underline">
+              {tLanding("footer.terms")}
             </Link>
-            <Link
-              href="/privacy"
-              className="text-xs text-gray-400 hover:underline"
-            >
-              Privacy Policy
+            <Link href="#" className="text-xs text-muted-foreground hover:underline">
+              {tLanding("footer.privacy")}
             </Link>
-            <Link
-              href="/contact"
-              className="text-xs text-gray-400 hover:underline"
-            >
-              Contact Us
+            <Link href="#" className="text-xs text-muted-foreground hover:underline">
+              {tLanding("footer.contact")}
             </Link>
           </nav>
         </div>

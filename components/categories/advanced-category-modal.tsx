@@ -47,8 +47,16 @@ export interface CategoryFormData {
 // Category icons now use Lucide React icons from the utility
 
 const CATEGORY_COLORS = [
-  "#EF4444", "#F97316", "#F59E0B", "#10B981", "#059669", 
-  "#0891B2", "#3B82F6", "#6366F1", "#8B5CF6", "#EC4899"
+  "#EF4444",
+  "#F97316",
+  "#F59E0B",
+  "#10B981",
+  "#059669",
+  "#0891B2",
+  "#3B82F6",
+  "#6366F1",
+  "#8B5CF6",
+  "#EC4899",
 ];
 
 const BUSINESS_EXPENSE_TYPES = [
@@ -65,16 +73,44 @@ const BUSINESS_EXPENSE_TYPES = [
 ];
 
 const TAX_CATEGORIES = [
-  { code: "OFFICE", label: "Office Expenses", description: "General office supplies and equipment" },
-  { code: "TRAVEL", label: "Travel Expenses", description: "Business travel and transportation" },
-  { code: "MEALS", label: "Meals & Entertainment", description: "Business meals (50% deductible)" },
-  { code: "AUTO", label: "Vehicle Expenses", description: "Business use of vehicle" },
+  {
+    code: "OFFICE",
+    label: "Office Expenses",
+    description: "General office supplies and equipment",
+  },
+  {
+    code: "TRAVEL",
+    label: "Travel Expenses",
+    description: "Business travel and transportation",
+  },
+  {
+    code: "MEALS",
+    label: "Meals & Entertainment",
+    description: "Business meals (50% deductible)",
+  },
+  {
+    code: "AUTO",
+    label: "Vehicle Expenses",
+    description: "Business use of vehicle",
+  },
   { code: "HOME", label: "Home Office", description: "Home office expenses" },
-  { code: "PROF", label: "Professional Services", description: "Legal, accounting, consulting" },
-  { code: "MKTG", label: "Marketing", description: "Advertising and marketing expenses" },
+  {
+    code: "PROF",
+    label: "Professional Services",
+    description: "Legal, accounting, consulting",
+  },
+  {
+    code: "MKTG",
+    label: "Marketing",
+    description: "Advertising and marketing expenses",
+  },
   { code: "UTILS", label: "Utilities", description: "Business utilities" },
   { code: "RENT", label: "Rent", description: "Office or facility rent" },
-  { code: "TECH", label: "Technology", description: "Software, hardware, tech services" },
+  {
+    code: "TECH",
+    label: "Technology",
+    description: "Software, hardware, tech services",
+  },
 ];
 
 export function AdvancedCategoryModal({
@@ -106,7 +142,7 @@ export function AdvancedCategoryModal({
 
   useEffect(() => {
     if (initialData) {
-      setFormData(prev => ({ ...prev, ...initialData }));
+      setFormData((prev) => ({ ...prev, ...initialData }));
     }
   }, [initialData]);
 
@@ -126,8 +162,13 @@ export function AdvancedCategoryModal({
       newErrors.icon = "Please select an icon";
     }
 
-    if (formData.categoryType === "business" && formData.isTaxDeductible && !formData.taxCategoryCode) {
-      newErrors.taxCategoryCode = "Tax category is required for tax-deductible business expenses";
+    if (
+      formData.categoryType === "business" &&
+      formData.isTaxDeductible &&
+      !formData.taxCategoryCode
+    ) {
+      newErrors.taxCategoryCode =
+        "Tax category is required for tax-deductible business expenses";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -159,7 +200,10 @@ export function AdvancedCategoryModal({
     onClose();
   };
 
-  const updateFormData = (field: keyof CategoryFormData, value: string | boolean | string[]) => {
+  const updateFormData = (
+    field: keyof CategoryFormData,
+    value: string | boolean | string[]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
@@ -174,14 +218,17 @@ export function AdvancedCategoryModal({
   };
 
   const removeTag = (tagToRemove: string) => {
-    updateFormData("tags", formData.tags.filter(tag => tag !== tagToRemove));
+    updateFormData(
+      "tags",
+      formData.tags.filter((tag) => tag !== tagToRemove)
+    );
   };
 
   const parentCategories = categories.filter(
-    cat => !cat.parentCategoryId && cat.categoryType === formData.categoryType
+    (cat) => !cat.parentCategoryId && cat.categoryType === formData.categoryType
   );
 
-  const activeProjects = projects.filter(project => project.isActive);
+  const activeProjects = projects.filter((project) => project.isActive);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -241,7 +288,9 @@ export function AdvancedCategoryModal({
                       <Textarea
                         id="description"
                         value={formData.description}
-                        onChange={(e) => updateFormData("description", e.target.value)}
+                        onChange={(e) =>
+                          updateFormData("description", e.target.value)
+                        }
                         placeholder="Brief description of this category"
                         className="bg-gray-800 border-gray-700"
                         rows={3}
@@ -289,7 +338,7 @@ export function AdvancedCategoryModal({
                             className={`p-3 rounded border-2 transition-colors flex items-center justify-center ${
                               formData.icon === iconName
                                 ? "border-emerald-500 bg-emerald-900/20"
-                                : "border-gray-700 hover:border-gray-600"
+                                : "border-border hover:border-border"
                             }`}
                           >
                             {getCategoryIcon(iconName, "h-5 w-5")}
@@ -330,7 +379,9 @@ export function AdvancedCategoryModal({
                       <Label>Business Expense Type</Label>
                       <Select
                         value={formData.businessExpenseType}
-                        onValueChange={(value) => updateFormData("businessExpenseType", value)}
+                        onValueChange={(value) =>
+                          updateFormData("businessExpenseType", value)
+                        }
                       >
                         <SelectTrigger className="bg-gray-800 border-gray-700">
                           <SelectValue placeholder="Select expense type" />
@@ -349,7 +400,9 @@ export function AdvancedCategoryModal({
                       <Label>Project Association</Label>
                       <Select
                         value={formData.projectId}
-                        onValueChange={(value) => updateFormData("projectId", value)}
+                        onValueChange={(value) =>
+                          updateFormData("projectId", value)
+                        }
                       >
                         <SelectTrigger className="bg-gray-800 border-gray-700">
                           <SelectValue placeholder="Optional: Link to project" />
@@ -372,9 +425,12 @@ export function AdvancedCategoryModal({
                 ) : (
                   <div className="text-center py-8">
                     <Building className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Business Features</h3>
+                    <h3 className="text-lg font-medium mb-2">
+                      Business Features
+                    </h3>
                     <p className="text-gray-400">
-                      Change category type to &quot;Business&quot; to access business-specific features
+                      Change category type to &quot;Business&quot; to access
+                      business-specific features
                     </p>
                   </div>
                 )}
@@ -400,11 +456,15 @@ export function AdvancedCategoryModal({
                       <Label>Tax Category</Label>
                       <Select
                         value={formData.taxCategoryCode}
-                        onValueChange={(value) => updateFormData("taxCategoryCode", value)}
+                        onValueChange={(value) =>
+                          updateFormData("taxCategoryCode", value)
+                        }
                       >
-                        <SelectTrigger className={`bg-gray-800 border-gray-700 ${
-                          errors.taxCategoryCode ? "border-red-500" : ""
-                        }`}>
+                        <SelectTrigger
+                          className={`bg-gray-800 border-gray-700 ${
+                            errors.taxCategoryCode ? "border-red-500" : ""
+                          }`}
+                        >
                           <SelectValue placeholder="Select tax category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -412,14 +472,18 @@ export function AdvancedCategoryModal({
                             <SelectItem key={cat.code} value={cat.code}>
                               <div>
                                 <div className="font-medium">{cat.label}</div>
-                                <div className="text-xs text-gray-500">{cat.description}</div>
+                                <div className="text-xs text-gray-500">
+                                  {cat.description}
+                                </div>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       {errors.taxCategoryCode && (
-                        <p className="text-sm text-red-500">{errors.taxCategoryCode}</p>
+                        <p className="text-sm text-red-500">
+                          {errors.taxCategoryCode}
+                        </p>
                       )}
                       <p className="text-xs text-gray-500">
                         This helps with tax preparation and deduction tracking
@@ -433,8 +497,9 @@ export function AdvancedCategoryModal({
                       Tax Information
                     </h4>
                     <p className="text-sm text-blue-200">
-                      Marking expenses as tax-deductible helps you track potential deductions.
-                      Always consult with a tax professional for specific guidance.
+                      Marking expenses as tax-deductible helps you track
+                      potential deductions. Always consult with a tax
+                      professional for specific guidance.
                     </p>
                   </div>
                 </div>
@@ -446,7 +511,9 @@ export function AdvancedCategoryModal({
                     <Label>Parent Category</Label>
                     <Select
                       value={formData.parentCategoryId}
-                      onValueChange={(value) => updateFormData("parentCategoryId", value)}
+                      onValueChange={(value) =>
+                        updateFormData("parentCategoryId", value)
+                      }
                     >
                       <SelectTrigger className="bg-gray-800 border-gray-700">
                         <SelectValue placeholder="Optional: Select parent category" />
@@ -473,7 +540,9 @@ export function AdvancedCategoryModal({
                         onChange={(e) => setNewTag(e.target.value)}
                         placeholder="Add a tag"
                         className="bg-gray-800 border-gray-700"
-                        onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && (e.preventDefault(), addTag())
+                        }
                       />
                       <Button
                         type="button"
@@ -484,7 +553,7 @@ export function AdvancedCategoryModal({
                         <Plus className="w-4 h-4" />
                       </Button>
                     </div>
-                    
+
                     {formData.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-3">
                         {formData.tags.map((tag) => (
@@ -501,9 +570,10 @@ export function AdvancedCategoryModal({
                         ))}
                       </div>
                     )}
-                    
+
                     <p className="text-xs text-gray-500">
-                      Tags help you organize and filter categories more effectively
+                      Tags help you organize and filter categories more
+                      effectively
                     </p>
                   </div>
                 </div>
@@ -541,14 +611,14 @@ export function AdvancedCategoryModal({
                       setActiveTab(tabs[currentIndex + 1]);
                     }
                   }}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-green-600 hover:bg-green-700"
                 >
                   Next
                 </Button>
               ) : (
                 <Button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-green-600 hover:bg-green-700"
                 >
                   {initialData ? "Update" : "Create"} Category
                 </Button>
