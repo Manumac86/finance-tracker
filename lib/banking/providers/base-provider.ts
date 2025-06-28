@@ -236,8 +236,10 @@ export abstract class BaseBankingProvider {
     throw lastError!;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected isNonRetryableError(_error?: unknown): boolean {
     // Override in specific providers to define non-retryable errors
+    // The error parameter is available for subclasses to use
     return false;
   }
 
