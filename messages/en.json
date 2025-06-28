@@ -44,7 +44,10 @@
     "goalProgress": "Goal Progress",
     "noRecentTransactions": "No recent transactions",
     "viewAllTransactions": "View all transactions",
+    "thisWeek": "This Week",
     "thisMonth": "This Month",
+    "thisQuarter": "This Quarter",
+    "thisYear": "This Year",
     "lastMonth": "Last Month",
     "yearToDate": "Year to Date"
   },

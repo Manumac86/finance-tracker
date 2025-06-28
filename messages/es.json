@@ -46,7 +46,10 @@
     "viewAllTransactions": "Ver todas las transacciones",
     "thisMonth": "Este Mes",
     "lastMonth": "Mes Pasado",
-    "yearToDate": "Año en Curso"
+    "yearToDate": "Año en Curso",
+    "thisWeek": "Esta Semana",
+    "thisQuarter": "Este Trimestre",
+    "thisYear": "Este Año"
   },
   "transactions": {
     "title": "Transacciones",

@@ -23,7 +23,7 @@ import { BankConnectionPrompt } from "../banking/bank-connection-prompt";
 import { UIGoal } from "@/lib/db/schemas/goal";
 import { UIBudget } from "@/lib/db/schemas/budget";
 import { UITransaction } from "@/lib/db/schemas/transaction";
-
+import { useTranslations } from "next-intl";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // interface DashboardData {
@@ -43,21 +43,19 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 export function EnhancedDashboard() {
   const [timeFilter, setTimeFilter] = useState("month");
 
-  // Fetch all dashboard data
+  const t = useTranslations("dashboard");
   const { data: goalsData, error: goalsError } = useSWR<{ goals: UIGoal[] }>(
     "/api/goals",
     fetcher
   );
 
-  const { data: budgetsData, error: budgetsError } = useSWR<{ budgets: UIBudget[] }>(
-    "/api/budgets",
-    fetcher
-  );
+  const { data: budgetsData, error: budgetsError } = useSWR<{
+    budgets: UIBudget[];
+  }>("/api/budgets", fetcher);
 
-  const { data: transactionsData, error: transactionsError } = useSWR<{ transactions: UITransaction[] }>(
-    `/api/transactions?period=${timeFilter}&limit=50`,
-    fetcher
-  );
+  const { data: transactionsData, error: transactionsError } = useSWR<{
+    transactions: UITransaction[];
+  }>(`/api/transactions?period=${timeFilter}&limit=50`, fetcher);
 
   const goals = goalsData?.goals || [];
   const budgets = budgetsData?.budgets || [];
@@ -66,30 +64,39 @@ export function EnhancedDashboard() {
   // Calculate summary data
   const summary = {
     totalIncome: transactions
-      .filter(t => t.transactionType === 'income')
+      .filter((t) => t.transactionType === "income")
       .reduce((sum, t) => sum + t.amount, 0),
     totalExpenses: transactions
-      .filter(t => t.transactionType === 'expense')
+      .filter((t) => t.transactionType === "expense")
       .reduce((sum, t) => sum + t.amount, 0),
     currentBalance: 0, // This would typically come from account balances
     monthlyIncome: 0,
     monthlyExpenses: 0,
-    savingsRate: 0
+    savingsRate: 0,
   };
 
   summary.currentBalance = summary.totalIncome - summary.totalExpenses;
-  summary.savingsRate = summary.totalIncome > 0 ? 
-    ((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) * 100 : 0;
+  summary.savingsRate =
+    summary.totalIncome > 0
+      ? ((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) *
+        100
+      : 0;
 
   // Calculate financial health data
   const healthData = {
     totalIncome: summary.totalIncome,
     totalExpenses: summary.totalExpenses,
-    budgetUtilization: budgets.length > 0 ? 
-      (summary.totalExpenses / budgets.reduce((sum, b) => sum + b.amount, 0)) * 100 : 0,
-    goalProgress: goals.length > 0 ?
-      goals.reduce((sum, g) => sum + (g.progress ?? 0), 0) / goals.length : 0,
-    emergencyFundRatio: 2.5 // This would be calculated based on actual emergency fund
+    budgetUtilization:
+      budgets.length > 0
+        ? (summary.totalExpenses /
+            budgets.reduce((sum, b) => sum + b.amount, 0)) *
+          100
+        : 0,
+    goalProgress:
+      goals.length > 0
+        ? goals.reduce((sum, g) => sum + (g.progress ?? 0), 0) / goals.length
+        : 0,
+    emergencyFundRatio: 2.5, // This would be calculated based on actual emergency fund
   };
 
   const formatCurrency = (amount: number) => {
@@ -109,9 +116,7 @@ export function EnhancedDashboard() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <p className="text-red-500 mb-4">Error loading dashboard data</p>
-          <Button onClick={() => window.location.reload()}>
-            Retry
-          </Button>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
       </div>
     );
@@ -131,9 +136,12 @@ export function EnhancedDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-testid="dashboard-header">
+      <div
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        data-testid="dashboard-header"
+      >
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Financial Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-gray-400">
             Your complete financial overview and actionable insights
           </p>
@@ -144,10 +152,10 @@ export function EnhancedDashboard() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="quarter">This Quarter</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
+              <SelectItem value="week">{t("thisWeek")}</SelectItem>
+              <SelectItem value="month">{t("thisMonth")}</SelectItem>
+              <SelectItem value="quarter">{t("thisQuarter")}</SelectItem>
+              <SelectItem value="year">{t("thisYear")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -168,7 +176,8 @@ export function EnhancedDashboard() {
             </div>
             <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
               <TrendingUp className="w-3 h-3" />
-              {summary.savingsRate > 0 ? '+' : ''}{summary.savingsRate.toFixed(1)}% savings rate
+              {summary.savingsRate > 0 ? "+" : ""}
+              {summary.savingsRate.toFixed(1)}% savings rate
             </div>
           </CardContent>
         </Card>
@@ -184,9 +193,7 @@ export function EnhancedDashboard() {
             <div className="text-2xl font-bold text-green-500">
               {formatCurrency(summary.totalIncome)}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {timeFilter} total
-            </div>
+            <div className="text-xs text-gray-400 mt-1">{timeFilter} total</div>
           </CardContent>
         </Card>
 
@@ -201,9 +208,7 @@ export function EnhancedDashboard() {
             <div className="text-2xl font-bold text-red-500">
               {formatCurrency(summary.totalExpenses)}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {timeFilter} total
-            </div>
+            <div className="text-xs text-gray-400 mt-1">{timeFilter} total</div>
           </CardContent>
         </Card>
 
@@ -216,11 +221,9 @@ export function EnhancedDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-500">
-              {goals.filter(g => g.isAchieved).length}/{goals.length}
+              {goals.filter((g) => g.isAchieved).length}/{goals.length}
             </div>
-            <div className="text-xs text-gray-400 mt-1">
-              goals completed
-            </div>
+            <div className="text-xs text-gray-400 mt-1">goals completed</div>
           </CardContent>
         </Card>
       </div>
@@ -230,7 +233,7 @@ export function EnhancedDashboard() {
         {/* Financial Health - Full Width on Mobile, 2 cols on Desktop */}
         <div className="lg:col-span-2 space-y-6">
           <FinancialHealthIndicator data={healthData} />
-          
+
           {/* Budget and Goals Row */}
           <div className="grid gap-6 md:grid-cols-2">
             <GoalProgressCard goals={goals} />
@@ -241,10 +244,10 @@ export function EnhancedDashboard() {
         {/* Sidebar */}
         <div className="space-y-6">
           <QuickActionsCard />
-          
+
           {/* Bank Connection Prompt */}
           <BankConnectionPrompt />
-          
+
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

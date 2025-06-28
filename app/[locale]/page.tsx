@@ -11,13 +11,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { locales } from "@/lib/i18n/config";
+import { locales } from "@/i18n/config";
+import { getTranslations } from "next-intl/server";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
 }
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const t = await getTranslations("navigation");
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-gray-950 text-gray-50 ">
       <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-gray-800 bg-gray-950/95 px-4 backdrop-blur-sm sm:px-6 lg:px-8">
@@ -30,7 +33,7 @@ export default function LandingPage() {
             href="/features"
             className="text-sm font-medium text-gray-400 hover:text-gray-50"
           >
-            Features
+            {t("dashboard")}
           </Link>
           <Link
             href="/pricing"
@@ -235,8 +238,8 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    &quot;FinTrack has completely changed how I manage my money. I
-                    can now see exactly where my money goes and make better
+                    &quot;FinTrack has completely changed how I manage my money.
+                    I can now see exactly where my money goes and make better
                     financial decisions.&quot;
                   </p>
                 </div>
@@ -270,9 +273,9 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    &quot;I&apos;ve tried many finance apps, but FinTrack is by far the
-                    most intuitive and comprehensive. The visual charts make it
-                    easy to understand my finances.&quot;
+                    &quot;I&apos;ve tried many finance apps, but FinTrack is by
+                    far the most intuitive and comprehensive. The visual charts
+                    make it easy to understand my finances.&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -305,9 +308,9 @@ export default function LandingPage() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-400">
-                    &quot;Since using FinTrack, I&apos;ve been able to save an extra $400
-                    per month. The insights it provides are invaluable for
-                    financial planning.&quot;
+                    &quot;Since using FinTrack, I&apos;ve been able to save an
+                    extra $400 per month. The insights it provides are
+                    invaluable for financial planning.&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
