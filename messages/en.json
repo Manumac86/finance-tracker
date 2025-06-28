@@ -1,0 +1,202 @@
+{
+  "common": {
+    "appName": "FinTrack",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "noData": "No data available",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "budgets": "Budgets",
+    "goals": "Goals",
+    "recurring": "Recurring",
+    "manage": "Manage",
+    "reports": "Reports",
+    "banking": "Banking",
+    "family": "Family",
+    "settings": "Settings",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Financial Overview",
+    "welcome": "Welcome back!",
+    "totalBalance": "Total Balance",
+    "monthlyIncome": "Monthly Income",
+    "monthlyExpenses": "Monthly Expenses",
+    "recentTransactions": "Recent Transactions",
+    "budgetOverview": "Budget Overview",
+    "goalProgress": "Goal Progress",
+    "noRecentTransactions": "No recent transactions",
+    "viewAllTransactions": "View all transactions",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "yearToDate": "Year to Date"
+  },
+  "transactions": {
+    "title": "Transactions",
+    "addTransaction": "Add Transaction",
+    "editTransaction": "Edit Transaction",
+    "deleteTransaction": "Delete Transaction",
+    "searchPlaceholder": "Search transactions...",
+    "noTransactions": "No transactions found",
+    "loadingTransactions": "Loading transactions...",
+    "filters": {
+      "all": "All",
+      "income": "Income",
+      "expense": "Expense",
+      "category": "Category",
+      "dateRange": "Date Range",
+      "sortBy": "Sort by",
+      "dateDesc": "Date (Newest)",
+      "dateAsc": "Date (Oldest)",
+      "amountDesc": "Amount (Highest)",
+      "amountAsc": "Amount (Lowest)"
+    },
+    "form": {
+      "description": "Description",
+      "descriptionPlaceholder": "Enter transaction description",
+      "amount": "Amount",
+      "amountPlaceholder": "0.00",
+      "category": "Category",
+      "selectCategory": "Select a category",
+      "date": "Date",
+      "type": "Type",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Add any additional notes..."
+    },
+    "confirmDelete": "Are you sure you want to delete this transaction?",
+    "deleteSuccess": "Transaction deleted successfully",
+    "createSuccess": "Transaction created successfully",
+    "updateSuccess": "Transaction updated successfully"
+  },
+  "budgets": {
+    "title": "Budgets",
+    "createBudget": "Create Budget",
+    "editBudget": "Edit Budget",
+    "deleteBudget": "Delete Budget",
+    "monthlyBudget": "Monthly Budget",
+    "spent": "Spent",
+    "remaining": "Remaining",
+    "overspent": "Overspent",
+    "budgetLimit": "Budget Limit",
+    "noBudgets": "No budgets created yet",
+    "createFirstBudget": "Create your first budget",
+    "alerts": {
+      "title": "Budget Alerts",
+      "noAlerts": "No budget alerts",
+      "warning": "You've used {percentage}% of your {category} budget",
+      "exceeded": "You've exceeded your {category} budget by {amount}",
+      "approaching": "Approaching budget limit for {category}"
+    },
+    "form": {
+      "category": "Category",
+      "selectCategory": "Select a category",
+      "monthlyLimit": "Monthly Limit",
+      "alertThreshold": "Alert Threshold (%)",
+      "enableAlerts": "Enable Alerts"
+    }
+  },
+  "goals": {
+    "title": "Goals",
+    "createGoal": "Create Goal",
+    "editGoal": "Edit Goal",
+    "deleteGoal": "Delete Goal",
+    "activeGoals": "Active Goals",
+    "completedGoals": "Completed Goals",
+    "noGoals": "No goals created yet",
+    "createFirstGoal": "Create your first financial goal",
+    "progress": "{current} of {target}",
+    "daysRemaining": "{days} days remaining",
+    "goalAchieved": "Goal Achieved! 🎉",
+    "form": {
+      "name": "Goal Name",
+      "namePlaceholder": "e.g., Emergency Fund",
+      "targetAmount": "Target Amount",
+      "currentAmount": "Current Amount",
+      "targetDate": "Target Date",
+      "category": "Category",
+      "description": "Description (optional)"
+    },
+    "types": {
+      "savings": "Savings",
+      "debt": "Debt Payoff",
+      "investment": "Investment",
+      "purchase": "Purchase",
+      "other": "Other"
+    }
+  },
+  "categories": {
+    "income": {
+      "salary": "Salary",
+      "freelance": "Freelance",
+      "business": "Business",
+      "investments": "Investments",
+      "rental": "Rental Income",
+      "other": "Other Income"
+    },
+    "expense": {
+      "food": "Food & Dining",
+      "transport": "Transportation",
+      "shopping": "Shopping",
+      "entertainment": "Entertainment",
+      "bills": "Bills & Utilities",
+      "healthcare": "Healthcare",
+      "education": "Education",
+      "housing": "Housing",
+      "insurance": "Insurance",
+      "savings": "Savings",
+      "other": "Other Expenses"
+    }
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "continueWith": "Continue with {provider}",
+    "or": "or"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "minLength": "Must be at least {min} characters",
+    "maxLength": "Must be at most {max} characters",
+    "invalidAmount": "Invalid amount",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Please try again",
+    "networkError": "Network error. Please check your connection."
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "thisYear": "This Year",
+    "lastYear": "Last Year",
+    "custom": "Custom",
+    "to": "to"
+  }
+}

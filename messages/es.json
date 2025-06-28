@@ -1,0 +1,202 @@
+{
+  "common": {
+    "appName": "FinTrack",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Agregar",
+    "update": "Actualizar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "noData": "No hay datos disponibles",
+    "confirm": "Confirmar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "submit": "Enviar"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "transactions": "Transacciones",
+    "budgets": "Presupuestos",
+    "goals": "Metas",
+    "recurring": "Recurrentes",
+    "manage": "Administrar",
+    "reports": "Informes",
+    "banking": "Banca",
+    "family": "Familia",
+    "settings": "Configuración",
+    "signOut": "Cerrar Sesión"
+  },
+  "dashboard": {
+    "title": "Resumen Financiero",
+    "welcome": "¡Bienvenido de vuelta!",
+    "totalBalance": "Balance Total",
+    "monthlyIncome": "Ingresos Mensuales",
+    "monthlyExpenses": "Gastos Mensuales",
+    "recentTransactions": "Transacciones Recientes",
+    "budgetOverview": "Resumen de Presupuesto",
+    "goalProgress": "Progreso de Metas",
+    "noRecentTransactions": "No hay transacciones recientes",
+    "viewAllTransactions": "Ver todas las transacciones",
+    "thisMonth": "Este Mes",
+    "lastMonth": "Mes Pasado",
+    "yearToDate": "Año en Curso"
+  },
+  "transactions": {
+    "title": "Transacciones",
+    "addTransaction": "Agregar Transacción",
+    "editTransaction": "Editar Transacción",
+    "deleteTransaction": "Eliminar Transacción",
+    "searchPlaceholder": "Buscar transacciones...",
+    "noTransactions": "No se encontraron transacciones",
+    "loadingTransactions": "Cargando transacciones...",
+    "filters": {
+      "all": "Todas",
+      "income": "Ingresos",
+      "expense": "Gastos",
+      "category": "Categoría",
+      "dateRange": "Rango de Fechas",
+      "sortBy": "Ordenar por",
+      "dateDesc": "Fecha (Más reciente)",
+      "dateAsc": "Fecha (Más antigua)",
+      "amountDesc": "Monto (Mayor)",
+      "amountAsc": "Monto (Menor)"
+    },
+    "form": {
+      "description": "Descripción",
+      "descriptionPlaceholder": "Ingrese la descripción de la transacción",
+      "amount": "Monto",
+      "amountPlaceholder": "0.00",
+      "category": "Categoría",
+      "selectCategory": "Seleccione una categoría",
+      "date": "Fecha",
+      "type": "Tipo",
+      "notes": "Notas (opcional)",
+      "notesPlaceholder": "Agregue notas adicionales..."
+    },
+    "confirmDelete": "¿Está seguro de que desea eliminar esta transacción?",
+    "deleteSuccess": "Transacción eliminada con éxito",
+    "createSuccess": "Transacción creada con éxito",
+    "updateSuccess": "Transacción actualizada con éxito"
+  },
+  "budgets": {
+    "title": "Presupuestos",
+    "createBudget": "Crear Presupuesto",
+    "editBudget": "Editar Presupuesto",
+    "deleteBudget": "Eliminar Presupuesto",
+    "monthlyBudget": "Presupuesto Mensual",
+    "spent": "Gastado",
+    "remaining": "Restante",
+    "overspent": "Excedido",
+    "budgetLimit": "Límite del Presupuesto",
+    "noBudgets": "No hay presupuestos creados aún",
+    "createFirstBudget": "Cree su primer presupuesto",
+    "alerts": {
+      "title": "Alertas de Presupuesto",
+      "noAlerts": "No hay alertas de presupuesto",
+      "warning": "Ha usado el {percentage}% de su presupuesto de {category}",
+      "exceeded": "Ha excedido su presupuesto de {category} por {amount}",
+      "approaching": "Acercándose al límite de presupuesto para {category}"
+    },
+    "form": {
+      "category": "Categoría",
+      "selectCategory": "Seleccione una categoría",
+      "monthlyLimit": "Límite Mensual",
+      "alertThreshold": "Umbral de Alerta (%)",
+      "enableAlerts": "Habilitar Alertas"
+    }
+  },
+  "goals": {
+    "title": "Metas",
+    "createGoal": "Crear Meta",
+    "editGoal": "Editar Meta",
+    "deleteGoal": "Eliminar Meta",
+    "activeGoals": "Metas Activas",
+    "completedGoals": "Metas Completadas",
+    "noGoals": "No hay metas creadas aún",
+    "createFirstGoal": "Cree su primera meta financiera",
+    "progress": "{current} de {target}",
+    "daysRemaining": "{days} días restantes",
+    "goalAchieved": "¡Meta Alcanzada! 🎉",
+    "form": {
+      "name": "Nombre de la Meta",
+      "namePlaceholder": "ej., Fondo de Emergencia",
+      "targetAmount": "Monto Objetivo",
+      "currentAmount": "Monto Actual",
+      "targetDate": "Fecha Objetivo",
+      "category": "Categoría",
+      "description": "Descripción (opcional)"
+    },
+    "types": {
+      "savings": "Ahorros",
+      "debt": "Pago de Deuda",
+      "investment": "Inversión",
+      "purchase": "Compra",
+      "other": "Otro"
+    }
+  },
+  "categories": {
+    "income": {
+      "salary": "Salario",
+      "freelance": "Trabajo Independiente",
+      "business": "Negocio",
+      "investments": "Inversiones",
+      "rental": "Ingresos por Alquiler",
+      "other": "Otros Ingresos"
+    },
+    "expense": {
+      "food": "Alimentación",
+      "transport": "Transporte",
+      "shopping": "Compras",
+      "entertainment": "Entretenimiento",
+      "bills": "Facturas y Servicios",
+      "healthcare": "Salud",
+      "education": "Educación",
+      "housing": "Vivienda",
+      "insurance": "Seguros",
+      "savings": "Ahorros",
+      "other": "Otros Gastos"
+    }
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar Sesión",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "noAccount": "¿No tiene una cuenta?",
+    "haveAccount": "¿Ya tiene una cuenta?",
+    "continueWith": "Continuar con {provider}",
+    "or": "o"
+  },
+  "errors": {
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Correo electrónico inválido",
+    "minLength": "Debe tener al menos {min} caracteres",
+    "maxLength": "Debe tener como máximo {max} caracteres",
+    "invalidAmount": "Monto inválido",
+    "somethingWentWrong": "Algo salió mal",
+    "tryAgain": "Por favor, inténtelo de nuevo",
+    "networkError": "Error de red. Por favor, verifique su conexión."
+  },
+  "dates": {
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana",
+    "thisWeek": "Esta Semana",
+    "lastWeek": "Semana Pasada",
+    "thisMonth": "Este Mes",
+    "lastMonth": "Mes Pasado",
+    "thisYear": "Este Año",
+    "lastYear": "Año Pasado",
+    "custom": "Personalizado",
+    "to": "a"
+  }
+}
