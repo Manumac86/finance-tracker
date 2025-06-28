@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Calendar, DollarSign, Bell, Repeat, Edit, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Calendar,
+  DollarSign,
+  Bell,
+  Repeat,
+  Edit,
+  Trash2,
+} from "lucide-react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -164,7 +172,7 @@ export default function RecurringTransactionsPage() {
           <h1 className="text-3xl font-bold tracking-tight">
             Recurring Transactions
           </h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Manage your bills and recurring payments
           </p>
         </div>
@@ -182,10 +190,10 @@ export default function RecurringTransactionsPage() {
 
       {/* Overview Cards */}
       <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardHeader className="pb-1 px-3 pt-3 sm:px-6 sm:pt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Monthly Bills</p>
+              <p className="text-sm text-muted-foreground">Monthly Bills</p>
               <DollarSign className="w-4 h-4 text-emerald-500" />
             </div>
           </CardHeader>
@@ -193,42 +201,50 @@ export default function RecurringTransactionsPage() {
             <div className="text-xl sm:text-2xl font-bold">
               {formatCurrency(totalMonthlyBills)}
             </div>
-            <p className="text-xs text-gray-400 mt-0.5 sm:mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
               {bills.length} active bills
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardHeader className="pb-1 px-3 pt-3 sm:px-6 sm:pt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Upcoming</p>
+              <p className="text-sm text-muted-foreground">Upcoming</p>
               <Bell className="w-4 h-4 text-yellow-500" />
             </div>
           </CardHeader>
           <CardContent className="px-3 pb-3 sm:px-6 sm:pb-6">
-            <div className="text-xl sm:text-2xl font-bold">{upcomingBills.length}</div>
-            <p className="text-xs text-gray-400 mt-0.5 sm:mt-1">bills due soon</p>
+            <div className="text-xl sm:text-2xl font-bold">
+              {upcomingBills.length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+              bills due soon
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardHeader className="pb-1 px-3 pt-3 sm:px-6 sm:pt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Subscriptions</p>
+              <p className="text-sm text-muted-foreground">Subscriptions</p>
               <Repeat className="w-4 h-4 text-blue-500" />
             </div>
           </CardHeader>
           <CardContent className="px-3 pb-3 sm:px-6 sm:pb-6">
-            <div className="text-xl sm:text-2xl font-bold">{subscriptions.length}</div>
-            <p className="text-xs text-gray-400 mt-0.5 sm:mt-1">active subscriptions</p>
+            <div className="text-xl sm:text-2xl font-bold">
+              {subscriptions.length}
+            </div>
+            <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+              active subscriptions
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card>
           <CardHeader className="pb-1 px-3 pt-3 sm:px-6 sm:pt-6">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-400">Total Active</p>
+              <p className="text-sm text-muted-foreground">Total Active</p>
               <Calendar className="w-4 h-4 text-emerald-500" />
             </div>
           </CardHeader>
@@ -236,7 +252,9 @@ export default function RecurringTransactionsPage() {
             <div className="text-xl sm:text-2xl font-bold">
               {recurringTransactions.length}
             </div>
-            <p className="text-xs text-gray-400 mt-0.5 sm:mt-1">recurring items</p>
+            <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
+              recurring items
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -254,13 +272,13 @@ export default function RecurringTransactionsPage() {
 
             <TabsContent value="all" className="space-y-2 sm:space-y-4">
               {recurringTransactions.length === 0 ? (
-                <Card className="bg-gray-900 border-gray-800">
+                <Card>
                   <CardContent className="text-center py-12">
-                    <Repeat className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                    <Repeat className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold mb-2">
                       No recurring transactions
                     </h3>
-                    <p className="text-gray-400 mb-6">
+                    <p className="text-muted-foreground mb-6">
                       Add bills and subscriptions to track them automatically
                     </p>
                     <Button
@@ -305,7 +323,10 @@ export default function RecurringTransactionsPage() {
               )}
             </TabsContent>
 
-            <TabsContent value="subscriptions" className="space-y-2 sm:space-y-4">
+            <TabsContent
+              value="subscriptions"
+              className="space-y-2 sm:space-y-4"
+            >
               {subscriptions.length === 0 ? (
                 <EmptyState
                   type="subscriptions"
@@ -333,7 +354,7 @@ export default function RecurringTransactionsPage() {
           <BillCalendar recurringTransactions={recurringTransactions} />
 
           {/* Upcoming Reminders */}
-          <Card className="bg-gray-900 border-gray-800">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="w-5 h-5" />
@@ -342,19 +363,21 @@ export default function RecurringTransactionsPage() {
             </CardHeader>
             <CardContent className="px-3 pb-3 sm:px-6 sm:pb-6">
               {upcomingBills.length === 0 ? (
-                <p className="text-gray-400 text-sm">No upcoming bills</p>
+                <p className="text-muted-foreground text-sm">
+                  No upcoming bills
+                </p>
               ) : (
                 <div className="space-y-3">
                   {upcomingBills.map((reminder) => (
                     <div
                       key={reminder.id}
-                      className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                     >
                       <div>
                         <div className="font-medium text-sm">
                           {reminder.name}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-muted-foreground">
                           {formatDueDate(reminder.dueDate)}
                         </div>
                       </div>
@@ -432,15 +455,31 @@ function TransactionCard({
   const isDueSoon = daysUntil >= 0 && daysUntil <= 3;
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardContent className="p-3 sm:p-4">
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-0.5">
               <h4 className="font-medium">{transaction.name}</h4>
-              {transaction.isBill && (
-                <Badge variant="secondary" className="text-xs">
+              {transaction.isBill ? (
+                <Badge
+                  className="text-xs"
+                  style={{
+                    backgroundColor: "var(--bill)",
+                    color: "var(--bill-foreground)",
+                  }}
+                >
                   Bill
+                </Badge>
+              ) : (
+                <Badge
+                  className="text-xs"
+                  style={{
+                    backgroundColor: "var(--subscription)",
+                    color: "var(--subscription-foreground)",
+                  }}
+                >
+                  Subscription
                 </Badge>
               )}
               {isOverdue && (
@@ -450,20 +489,23 @@ function TransactionCard({
               )}
               {isDueSoon && !isOverdue && (
                 <Badge
-                  variant="secondary"
-                  className="text-xs bg-yellow-900/20 text-yellow-300"
+                  className="text-xs"
+                  style={{
+                    backgroundColor: "oklch(0.95 0.04 85)",
+                    color: "oklch(0.45 0.15 85)",
+                  }}
                 >
                   Due Soon
                 </Badge>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-400">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-muted-foreground">
               <span>{formatCurrency(transaction.amount)}</span>
               <span>{getFrequencyLabel(transaction.frequency)}</span>
               <span>Next: {formatDueDate(transaction.nextDueDate)}</span>
             </div>
             {transaction.description && (
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-muted-foreground mt-0.5">
                 {transaction.description}
               </p>
             )}
@@ -497,9 +539,9 @@ function TransactionCard({
 // Empty State Component
 function EmptyState({ type, onAdd }: { type: string; onAdd: () => void }) {
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card>
       <CardContent className="text-center py-12">
-        <div className="text-gray-400 mb-4">
+        <div className="text-muted-foreground mb-4">
           {type === "bills"
             ? "No bills added yet"
             : "No subscriptions added yet"}

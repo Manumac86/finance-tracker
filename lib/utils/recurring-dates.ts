@@ -1,4 +1,10 @@
-export type Frequency = "daily" | "weekly" | "biweekly" | "monthly" | "quarterly" | "yearly";
+export type Frequency =
+  | "daily"
+  | "weekly"
+  | "biweekly"
+  | "monthly"
+  | "quarterly"
+  | "yearly";
 
 export function calculateNextDueDate(
   startDate: string | Date,
@@ -7,14 +13,14 @@ export function calculateNextDueDate(
 ): string {
   const start = new Date(startDate);
   const from = fromDate ? new Date(fromDate) : new Date();
-  
+
   // If start date is in the future, return it as the next due date
   if (start > from) {
-    return start.toISOString().split('T')[0];
+    return start.toISOString().split("T")[0];
   }
 
   const next = new Date(start);
-  
+
   // Calculate the next occurrence after 'from' date
   while (next <= from) {
     switch (frequency) {
@@ -39,7 +45,7 @@ export function calculateNextDueDate(
     }
   }
 
-  return next.toISOString().split('T')[0];
+  return next.toISOString().split("T")[0];
 }
 
 export function getFrequencyLabel(frequency: Frequency): string {
@@ -59,27 +65,28 @@ export function getDaysUntilDue(dueDate: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   due.setHours(0, 0, 0, 0);
-  
+
   const diffTime = due.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return diffDays;
 }
 
 export function formatDueDate(dueDate: string): string {
   const days = getDaysUntilDue(dueDate);
-  
+
   if (days === 0) return "Due today";
   if (days === 1) return "Due tomorrow";
   if (days === -1) return "Due yesterday";
   if (days < -1) return `${Math.abs(days)} days overdue`;
   if (days < 7) return `Due in ${days} days`;
-  
+
   const date = new Date(dueDate);
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+    year:
+      date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
   });
 }
 
@@ -91,13 +98,16 @@ export function getUpcomingDates(
   const dates: string[] = [];
   const start = new Date(startDate);
   const today = new Date();
-  
+
   // If start date is in the future, use it as the first occurrence
-  const currentDate = start > today ? new Date(start) : new Date(calculateNextDueDate(startDate, frequency));
-  
+  const currentDate =
+    start > today
+      ? new Date(start)
+      : new Date(calculateNextDueDate(startDate, frequency));
+
   for (let i = 0; i < count; i++) {
-    dates.push(currentDate.toISOString().split('T')[0]);
-    
+    dates.push(currentDate.toISOString().split("T")[0]);
+
     // Calculate next occurrence
     switch (frequency) {
       case "daily":
@@ -120,6 +130,6 @@ export function getUpcomingDates(
         break;
     }
   }
-  
+
   return dates;
 }

@@ -25,24 +25,24 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
     switch (goal.type) {
       case "savings":
         return [
-          "Create a new savings goal",
-          "Increase your target amount",
-          "Start an investment goal",
+          "Crear una nueva meta de ahorro",
+          "Aumentar tu monto objetivo",
+          "Comenzar una meta de inversión",
         ];
       case "debt_payoff":
         return [
-          "Celebrate being debt-free!",
-          "Build an emergency fund",
-          "Start saving for your next goal",
+          "¡Celebra estar libre de deudas!",
+          "Construir un fondo de emergencia",
+          "Comenzar a ahorrar para tu próxima meta",
         ];
       case "spending_limit":
         return [
-          "Set a new spending target",
-          "Try a different category",
-          "Focus on another financial goal",
+          "Establecer un nuevo objetivo de gasto",
+          "Probar una categoría diferente",
+          "Enfocarse en otra meta financiera",
         ];
       default:
-        return ["Set your next financial goal"];
+        return ["Establece tu próxima meta financiera"];
     }
   };
 
@@ -60,10 +60,10 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
             <Trophy className="w-16 h-16 text-yellow-400 mx-auto relative z-10" />
           </div>
           <CardTitle className="text-2xl text-white">
-            Congratulations!
+            ¡Felicitaciones!
           </CardTitle>
           <p className="text-emerald-200">
-            You achieved your {goal.name.toLowerCase()} goal!
+            ¡Lograste tu meta de {goal.name.toLowerCase()}!
           </p>
         </CardHeader>
         
@@ -74,7 +74,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
               {formatCurrency(goal.targetAmount)}
             </div>
             <div className="text-emerald-200">
-              {goal.type === "debt_payoff" ? "Debt Paid Off" : "Goal Achieved"}
+              {goal.type === "debt_payoff" ? "Deuda Pagada" : "Meta Alcanzada"}
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
           <div className="text-left">
             <h4 className="font-semibold text-white mb-3 flex items-center">
               <Target className="w-4 h-4 mr-2" />
-              What&apos;s next?
+              ¿Qué sigue?
             </h4>
             <ul className="space-y-2">
               {getNextSteps().map((step, index) => (
@@ -112,7 +112,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
               onClick={onClose}
               className="flex-1 border-emerald-400 text-emerald-400 hover:bg-emerald-400 hover:text-emerald-900"
             >
-              Close
+              Cerrar
             </Button>
             <Button
               onClick={() => {
@@ -121,7 +121,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
               }}
               className="flex-1 bg-emerald-600 hover:bg-emerald-700"
             >
-              Create New Goal
+              Crear Nueva Meta
             </Button>
           </div>
         </CardContent>

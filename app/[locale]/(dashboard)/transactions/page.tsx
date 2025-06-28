@@ -20,11 +20,13 @@ import { AddTransactionButton } from "@/components/add-transaction-button";
 import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
 import { UITransaction } from "@/lib/db/schemas/transaction";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 function TransactionsPageContent() {
   const { transactions, isLoading, error, mutate } = useTransactions();
   const { data: categories } = useCategories();
   const searchParams = useSearchParams();
+  const tPages = useTranslations('pages.transactions');
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -206,7 +208,7 @@ function TransactionsPageContent() {
   };
 
   const handleDelete = async (transactionId: string) => {
-    if (!confirm("Are you sure you want to delete this transaction?")) {
+    if (!confirm(tPages('confirmDelete'))) {
       return;
     }
 
@@ -248,9 +250,9 @@ function TransactionsPageContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
-          <p className="text-gray-400">
-            View and manage all your financial transactions
+          <h1 className="text-3xl font-bold tracking-tight">{tPages('title')}</h1>
+          <p className="text-muted-foreground">
+            {tPages('description')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -263,9 +265,9 @@ function TransactionsPageContent() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               <TrendingUp className="h-4 w-4 mr-2" />
               Total Income
             </CardTitle>
@@ -277,9 +279,9 @@ function TransactionsPageContent() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400 flex items-center">
+            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               <TrendingDown className="h-4 w-4 mr-2" />
               Total Expenses
             </CardTitle>
@@ -291,9 +293,9 @@ function TransactionsPageContent() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Net Amount</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Net Amount</CardTitle>
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${
@@ -304,9 +306,9 @@ function TransactionsPageContent() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gray-900 border-gray-800">
+        <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Transactions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.transactionCount}</div>
@@ -315,7 +317,7 @@ function TransactionsPageContent() {
       </div>
 
       {/* Filters */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center">
             <Filter className="h-5 w-5 mr-2" />
@@ -328,10 +330,10 @@ function TransactionsPageContent() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Search</label>
               <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search transactions..."
-                  className="pl-10 bg-gray-800 border-gray-700"
+                  className="pl-10 bg-background border"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -342,7 +344,7 @@ function TransactionsPageContent() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Category</label>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="bg-background border">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
                 <SelectContent>
@@ -360,7 +362,7 @@ function TransactionsPageContent() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Type</label>
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="bg-background border">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -375,7 +377,7 @@ function TransactionsPageContent() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Sort By</label>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger className="bg-background border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -394,7 +396,7 @@ function TransactionsPageContent() {
               variant="outline"
               size="sm"
               onClick={clearFilters}
-              className="border-gray-700"
+              className="border"
             >
               Clear Filters
             </Button>
@@ -407,30 +409,30 @@ function TransactionsPageContent() {
         {isLoading ? (
           <div className="grid gap-4">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="bg-gray-900 border-gray-800">
+              <Card key={i} className="bg-card border">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 bg-gray-800 rounded-full animate-pulse" />
+                      <div className="h-12 w-12 bg-muted rounded-full animate-pulse" />
                       <div className="space-y-2">
-                        <div className="h-4 w-32 bg-gray-800 rounded animate-pulse" />
-                        <div className="h-3 w-24 bg-gray-800 rounded animate-pulse" />
+                        <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+                        <div className="h-3 w-24 bg-muted rounded animate-pulse" />
                       </div>
                     </div>
-                    <div className="h-6 w-20 bg-gray-800 rounded animate-pulse" />
+                    <div className="h-6 w-20 bg-muted rounded animate-pulse" />
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : displayedTransactions.length === 0 ? (
-          <Card className="bg-gray-900 border-gray-800">
+          <Card className="bg-card border">
             <CardContent className="text-center py-12">
-              <div className="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                <Plus className="h-8 w-8 text-gray-500" />
+              <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <Plus className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold mb-2">No transactions found</h3>
-              <p className="text-gray-400 mb-6">
+              <p className="text-muted-foreground mb-6">
                 {searchTerm || selectedCategory !== "all" || selectedType !== "all" 
                   ? "Try adjusting your filters or search terms"
                   : "Start by adding your first transaction"
@@ -440,7 +442,7 @@ function TransactionsPageContent() {
                 <Button
                   variant="outline"
                   onClick={clearFilters}
-                  className="border-gray-700"
+                  className="border"
                 >
                   Clear Filters
                 </Button>
@@ -472,7 +474,7 @@ function TransactionsPageContent() {
             {/* Loading More Indicator */}
             {isLoadingMore && (
               <div className="flex justify-center py-8">
-                <div className="flex items-center gap-2 text-gray-400">
+                <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span>Loading more transactions...</span>
                 </div>
@@ -488,7 +490,7 @@ function TransactionsPageContent() {
                 <Button
                   variant="outline"
                   onClick={loadMoreTransactions}
-                  className="border-gray-700 hover:border-gray-600"
+                  className="border hover:border-accent"
                 >
                   Load More Transactions
                 </Button>
@@ -497,7 +499,7 @@ function TransactionsPageContent() {
 
             {/* End of List Indicator */}
             {displayedTransactions.length >= filteredTransactions.length && filteredTransactions.length > 0 && (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-muted-foreground">
                 <p className="text-sm">You&apos;ve reached the end of the list</p>
                 <p className="text-xs mt-1">
                   Showing {displayedTransactions.length} of {filteredTransactions.length} transactions
@@ -532,7 +534,7 @@ function TransactionsPageLoading() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             View and manage all your financial transactions
           </p>
         </div>
@@ -540,21 +542,21 @@ function TransactionsPageLoading() {
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} className="bg-gray-900 border-gray-800">
+          <Card key={i} className="bg-card border">
             <CardContent className="p-6">
-              <div className="h-6 w-20 bg-gray-800 rounded animate-pulse mb-2" />
-              <div className="h-8 w-24 bg-gray-800 rounded animate-pulse" />
+              <div className="h-6 w-20 bg-muted rounded animate-pulse mb-2" />
+              <div className="h-8 w-24 bg-muted rounded animate-pulse" />
             </CardContent>
           </Card>
         ))}
       </div>
       
-      <Card className="bg-gray-900 border-gray-800">
+      <Card className="bg-card border">
         <CardContent className="p-6">
-          <div className="h-6 w-16 bg-gray-800 rounded animate-pulse mb-4" />
+          <div className="h-6 w-16 bg-muted rounded animate-pulse mb-4" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-10 bg-gray-800 rounded animate-pulse" />
+              <div key={i} className="h-10 bg-muted rounded animate-pulse" />
             ))}
           </div>
         </CardContent>
