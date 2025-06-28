@@ -10,20 +10,34 @@ export function setupClerkEnvironment() {
   let domain: string;
   let environment: string;
   
-  // New format: pk_test_xxxxx or pk_live_xxxxx (no domain in key)
-  if (publishableKey.match(/^pk_(test|live)_[A-Za-z0-9]+$/)) {
-    // For new format, we need to get the domain from other env vars or use default
+  // New format: pk_test_xxxxx or pk_live_xxxxx (possibly base64 encoded domain)
+  if (publishableKey.match(/^pk_(test|live)_[A-Za-z0-9+/=]+$/)) {
+    // For new format, try to decode base64 to find domain
     environment = publishableKey.includes('pk_test_') ? 'test' : 'live';
     
-    // Try to get domain from other environment variables
-    if (process.env.CLERK_FRONTEND_API) {
-      domain = process.env.CLERK_FRONTEND_API.replace('https://', '');
-    } else if (process.env.NEXT_PUBLIC_CLERK_FRONTEND_API) {
-      domain = process.env.NEXT_PUBLIC_CLERK_FRONTEND_API.replace('https://', '');
-    } else {
-      // Use a fallback - this might need to be adjusted based on your Clerk instance
-      console.warn('⚠️  Could not determine Clerk domain from environment. Using default.');
-      domain = 'clerk.local'; // This will need to be updated with your actual Clerk domain
+    // Try to decode the key part after pk_test_ or pk_live_
+    const keyPart = publishableKey.replace(/^pk_(test|live)_/, '');
+    try {
+      // Attempt to decode - the domain might be embedded in base64
+      const decoded = Buffer.from(keyPart, 'base64').toString('utf-8');
+      const domainMatch = decoded.match(/([a-z0-9-]+\.clerk\.accounts\.dev?)/);
+      if (domainMatch) {
+        domain = domainMatch[1];
+        console.log(`✅ Extracted Clerk domain from key: ${domain}`);
+      } else {
+        throw new Error('Domain not found in decoded key');
+      }
+    } catch (e) {
+      // If decoding fails, try environment variables
+      if (process.env.CLERK_FRONTEND_API) {
+        domain = process.env.CLERK_FRONTEND_API.replace('https://', '');
+      } else if (process.env.NEXT_PUBLIC_CLERK_FRONTEND_API) {
+        domain = process.env.NEXT_PUBLIC_CLERK_FRONTEND_API.replace('https://', '');
+      } else {
+        // For this specific app, we know the domain
+        domain = 'immense-pony-52.clerk.accounts.dev';
+        console.log('⚠️  Using hardcoded Clerk domain:', domain);
+      }
     }
   } 
   // Old format: pk_test_[subdomain].clerk.accounts.dev

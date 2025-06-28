@@ -3,11 +3,19 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
 test.describe('Authenticated User Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Setup Clerk testing token for each test
-    await setupClerkTestingToken({ page });
+    // Setup Clerk testing token with explicit configuration
+    await setupClerkTestingToken({ 
+      page,
+      options: {
+        frontendApiUrl: 'https://immense-pony-52.clerk.accounts.dev'
+      }
+    });
     
-    // Navigate to dashboard - should already be authenticated
+    // Navigate to dashboard - should be authenticated
     await page.goto('/dashboard');
+    
+    // Wait a bit for auth to settle
+    await page.waitForTimeout(2000);
   });
 
   test('should access dashboard after authentication', async ({ page }) => {
@@ -21,7 +29,7 @@ test.describe('Authenticated User Flow', () => {
     await page.goto('/transactions');
     
     // Click add transaction button
-    const addButton = page.locator('button').filter({ hasText: '+' });
+    const addButton = page.getByTestId('floating-add-transaction-button');
     await addButton.click();
     
     // Wait for modal
@@ -87,8 +95,8 @@ test.describe('Authenticated User Flow', () => {
     // Navigate to budgets page
     await page.goto('/budgets');
     
-    // Click add budget button
-    const addBudgetButton = page.getByRole('button', { name: /add.*budget|new.*budget|create.*budget/i });
+    // Click add budget button - use specific test-id to avoid ambiguity
+    const addBudgetButton = page.getByTestId('create-budget-header-button');
     await addBudgetButton.click();
     
     // Wait for budget form/modal

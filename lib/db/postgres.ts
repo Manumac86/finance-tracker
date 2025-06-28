@@ -632,3 +632,261 @@ export async function updateBillReminderStatus(id: string, userId: string, statu
 
   return data;
 }
+
+// Bank accounts operations
+export async function selectBankAccounts(userId: string) {
+  const { data, error } = await supabase
+    .from("bank_accounts")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch bank accounts: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function selectBankAccountById(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("bank_accounts")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch bank account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function insertBankAccount(bankAccountData: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("bank_accounts")
+    .insert(bankAccountData)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create bank account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateBankAccount(
+  accountId: string,
+  userId: string,
+  updateData: Record<string, unknown>
+) {
+  const { data, error } = await supabase
+    .from("bank_accounts")
+    .update(updateData)
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update bank account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteBankAccount(accountId: string, userId: string) {
+  const { error } = await supabase
+    .from("bank_accounts")
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .eq("is_active", true);
+
+  if (error) {
+    throw new Error(`Failed to delete bank account: ${error.message}`);
+  }
+
+  return true;
+}
+
+export async function updateBankAccountSyncStatus(
+  accountId: string,
+  userId: string,
+  syncStatus: string,
+  lastError?: string
+) {
+  const updateData: Record<string, unknown> = {
+    sync_status: syncStatus,
+    last_synced_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+
+  if (lastError) {
+    updateData.last_error = lastError;
+  } else {
+    updateData.last_error = null;
+  }
+
+  const { data, error } = await supabase
+    .from("bank_accounts")
+    .update(updateData)
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update bank account sync status: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Bank transactions operations
+export async function selectBankTransactions(userId: string, accountId?: string, limit: number = 50) {
+  let query = supabase
+    .from("bank_transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("transaction_date", { ascending: false })
+    .limit(limit);
+
+  if (accountId) {
+    query = query.eq("bank_account_id", accountId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch bank transactions: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function insertBankTransaction(transactionData: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("bank_transactions")
+    .insert(transactionData)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create bank transaction: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateBankTransactionSyncStatus(
+  transactionId: string,
+  userId: string,
+  syncStatus: string,
+  isSynced: boolean = true
+) {
+  const { data, error } = await supabase
+    .from("bank_transactions")
+    .update({
+      sync_status: syncStatus,
+      is_synced: isSynced,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", transactionId)
+    .eq("user_id", userId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update bank transaction sync status: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Transaction duplicate detection operations
+export async function insertTransactionDuplicate(duplicateData: Record<string, unknown>) {
+  const { data, error } = await supabase
+    .from("transaction_duplicates")
+    .insert(duplicateData)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create transaction duplicate record: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function selectPendingDuplicates(userId: string) {
+  const { data, error } = await supabase
+    .from("transaction_duplicates")
+    .select(`
+      *,
+      transaction:transactions!transaction_id(id, name, amount, transaction_date),
+      duplicate:transactions!potential_duplicate_id(id, name, amount, transaction_date)
+    `)
+    .eq("status", "pending")
+    .eq("transaction.user_id", userId)
+    .order("similarity_score", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch pending duplicates: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function updateDuplicateStatus(
+  duplicateId: string,
+  status: 'confirmed' | 'dismissed'
+) {
+  const { data, error } = await supabase
+    .from("transaction_duplicates")
+    .update({ status })
+    .eq("id", duplicateId)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update duplicate status: ${error.message}`);
+  }
+
+  return data;
+}
+
+// Regional bank configurations
+export async function selectRegionalBankConfigs() {
+  const { data, error } = await supabase
+    .from("regional_bank_configs")
+    .select("*")
+    .eq("is_enabled", true)
+    .order("region", { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch regional bank configs: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function selectRegionalBankConfigByRegion(region: string) {
+  const { data, error } = await supabase
+    .from("regional_bank_configs")
+    .select("*")
+    .eq("region", region)
+    .eq("is_enabled", true)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch regional bank config: ${error.message}`);
+  }
+
+  return data;
+}

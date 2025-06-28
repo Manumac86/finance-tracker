@@ -18,6 +18,7 @@ import { GoalProgressCard } from "./goal-progress-card";
 import { BudgetOverviewCard } from "./budget-overview-card";
 import { QuickActionsCard } from "./quick-actions-card";
 import { RecentTransactions } from "@/components/recent-transactions";
+import { BankConnectionPrompt } from "../banking/bank-connection-prompt";
 
 import { UIGoal } from "@/lib/db/schemas/goal";
 import { UIBudget } from "@/lib/db/schemas/budget";
@@ -130,7 +131,7 @@ export function EnhancedDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" data-testid="dashboard-header">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Financial Dashboard</h1>
           <p className="text-gray-400">
@@ -240,6 +241,9 @@ export function EnhancedDashboard() {
         {/* Sidebar */}
         <div className="space-y-6">
           <QuickActionsCard />
+          
+          {/* Bank Connection Prompt */}
+          <BankConnectionPrompt />
           
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader>

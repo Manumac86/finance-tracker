@@ -40,8 +40,18 @@ async function globalSetup(config: FullConfig) {
     console.log(`✅ Clerk Frontend API URL: ${clerkEnv.frontendApi}`);
     console.log(`✅ Clerk Environment: ${clerkEnv.environment}`);
     
-    // Call clerkSetup to initialize Clerk testing
-    await clerkSetup();
+    // Ensure testing token is available
+    if (!process.env.CLERK_TESTING_TOKEN) {
+      console.warn('⚠️  CLERK_TESTING_TOKEN not found in environment');
+      console.warn('   Authenticated tests may fail without testing token');
+    } else {
+      console.log('✅ Clerk testing token found');
+    }
+    
+    // Call clerkSetup to initialize Clerk testing with explicit config
+    await clerkSetup({
+      frontendApiUrl: clerkEnv.frontendApi
+    });
     console.log('✅ Clerk testing environment initialized');
     
   } catch (error) {

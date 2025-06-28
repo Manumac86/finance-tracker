@@ -411,11 +411,13 @@ This document outlines the user-centered development plan for the Finance Tracke
   - **I want to** connect my bank accounts for automatic transaction import
   - **So that** I don't have to manually enter every transaction
   - **Acceptance Criteria:**
-    - Bank account connection via secure API
+    - Multi-region bank account connection (US, Spain, Argentina)
     - Automatic transaction synchronization
     - Transaction categorization assistance
     - Duplicate detection and prevention
     - Bank balance reconciliation
+    - PSD2 compliance for European banks
+    - Latin American banking integration
 
 - [ ] **US-019: AI-Powered Financial Insights**
 

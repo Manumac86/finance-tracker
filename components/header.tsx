@@ -15,6 +15,7 @@ import {
   X,
   BarChart3,
   Users,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
@@ -133,6 +134,16 @@ export function Header() {
           >
             <FileDown className="h-4 w-4" />
             Reports
+          </Button>
+        </Link>
+        <Link href="/banking">
+          <Button
+            variant={isHydrated && pathname === "/banking" ? "default" : "ghost"}
+            size="sm"
+            className="gap-2"
+          >
+            <Building2 className="h-4 w-4" />
+            Banking
           </Button>
         </Link>
         <Link href="/family">
@@ -331,6 +342,18 @@ export function Header() {
               >
                 <FileDown className="h-4 w-4" />
                 Reports
+              </Button>
+            </Link>
+            <Link href="/banking" onClick={() => setMobileMenuOpen(false)}>
+              <Button
+                variant={
+                  isHydrated && pathname === "/banking" ? "default" : "ghost"
+                }
+                size="sm"
+                className="w-full justify-start gap-2"
+              >
+                <Building2 className="h-4 w-4" />
+                Banking
               </Button>
             </Link>
             <Link href="/family" onClick={() => setMobileMenuOpen(false)}>

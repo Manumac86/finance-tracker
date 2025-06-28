@@ -460,6 +460,7 @@ export function AddTransactionButton() {
           onClick={() => setOpen(true)}
           size="lg"
           className="h-16 w-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-emerald-500/20"
+          data-testid="floating-add-transaction-button"
         >
           <Plus className="h-6 w-6" />
           <span className="sr-only">Add Transaction</span>

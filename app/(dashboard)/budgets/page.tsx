@@ -184,6 +184,7 @@ export default function BudgetsPage() {
         <Button
           onClick={() => setIsCreateModalOpen(true)}
           className="bg-emerald-600 hover:bg-emerald-700"
+          data-testid="create-budget-header-button"
         >
           <Plus className="h-4 w-4 mr-2" />
           Create Budget
@@ -297,6 +298,7 @@ export default function BudgetsPage() {
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-emerald-600 hover:bg-emerald-700"
+                data-testid="create-first-budget-button"
               >
                 Create Your First Budget
               </Button>
