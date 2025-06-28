@@ -40,7 +40,26 @@ const shouldNotLocalize = createRouteMatcher([
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const pathname = req.nextUrl.pathname
 
-  // Skip localization for API routes and static files
+  // Handle API routes - apply auth but skip localization
+  if (pathname.startsWith('/api/')) {
+    // Protect API routes that need authentication
+    if (pathname.startsWith('/api/transactions') || 
+        pathname.startsWith('/api/categories') ||
+        pathname.startsWith('/api/budgets') ||
+        pathname.startsWith('/api/goals') ||
+        pathname.startsWith('/api/family') ||
+        pathname.startsWith('/api/banking') ||
+        pathname.startsWith('/api/projects') ||
+        pathname.startsWith('/api/recurring-transactions') ||
+        pathname.startsWith('/api/budget-alerts') ||
+        pathname.startsWith('/api/bill-reminders') ||
+        pathname.startsWith('/api/export')) {
+      await auth.protect()
+    }
+    return
+  }
+
+  // Skip localization for static files
   if (shouldNotLocalize(req)) {
     return
   }
@@ -51,9 +70,6 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   )
 
   if (pathnameHasLocale) {
-    // Extract locale from pathname
-    const locale = pathname.split('/')[1]
-    
     // Handle authentication for protected routes
     if (isProtectedRoute(req) && !isPublicRoute(req)) {
       await auth.protect()
