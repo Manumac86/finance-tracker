@@ -129,7 +129,7 @@ export function FamilyMembersPanel({ familyGroup }: FamilyMembersPanelProps) {
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-400">
           {members.length}{" "}
-          {members.length === 1 ? t("../member") : t("../members")}
+          {members.length === 1 ? t("../member") : t("../membersLabel")}
         </p>
         {canManageMembers && (
           <Button size="sm" className="gap-2">

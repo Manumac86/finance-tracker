@@ -570,7 +570,7 @@
     "noFamilyGroupDescription": "You're currently managing your finances individually. Create a family group to start collaborating.",
     "askAdminToInvite": "or ask a family admin to invite you to their group",
     "financialManagement": "Family financial management",
-    "members": "members",
+    "membersLabel": "members",
     "member": "member",
     "createModal": {
       "title": "Create Family Group",

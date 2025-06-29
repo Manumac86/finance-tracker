@@ -142,7 +142,7 @@ export default function FamilyPage() {
             </h1>
             <p className="text-gray-400 mt-2">
               {t("financialManagement")} • {familyGroup.memberCount}{" "}
-              {familyGroup.memberCount === 1 ? t("member") : t("members")}
+              {familyGroup.memberCount === 1 ? t("member") : t("membersLabel")}
             </p>
           </div>
           <div className="flex items-center gap-2">

@@ -570,7 +570,7 @@
     "noFamilyGroupDescription": "Actualmente estás gestionando tus finanzas individualmente. Crea un grupo familiar para comenzar a colaborar.",
     "askAdminToInvite": "o pide a un administrador familiar que te invite a su grupo",
     "financialManagement": "Gestión financiera familiar",
-    "members": "miembros",
+    "membersLabel": "miembros",
     "member": "miembro",
     "createModal": {
       "title": "Crear Grupo Familiar",
