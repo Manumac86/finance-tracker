@@ -1,11 +1,19 @@
 "use client";
 
-import { Edit, Trash2, AlertTriangle, TrendingUp, Calendar, Target } from "lucide-react";
+import {
+  Edit,
+  Trash2,
+  AlertTriangle,
+  TrendingUp,
+  Calendar,
+  Target,
+} from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { UIBudget } from "@/lib/db/schemas/budget";
+import { useTranslations } from "next-intl";
 
 interface BudgetCardProps {
   budget: UIBudget;
@@ -14,6 +22,8 @@ interface BudgetCardProps {
 }
 
 export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
+  const t = useTranslations("budgetCard");
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -46,11 +56,11 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   const getBudgetTypeLabel = (type: string) => {
     switch (type) {
       case "category":
-        return "Category Budget";
+        return t("categoryBudget");
       case "total":
-        return "Total Budget";
+        return t("totalBudget");
       case "custom":
-        return "Custom Budget";
+        return t("customBudget");
       default:
         return type;
     }
@@ -99,15 +109,28 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
   const getPeriodDisplay = (period: string) => {
     switch (period) {
       case "weekly":
-        return "Weekly";
+        return t("weekly");
       case "monthly":
-        return "Monthly";
+        return t("monthly");
       case "quarterly":
-        return "Quarterly";
+        return t("quarterly");
       case "yearly":
-        return "Yearly";
+        return t("yearly");
       default:
         return period;
+    }
+  };
+
+  const getStatusLabel = (status?: string) => {
+    switch (status) {
+      case "on_track":
+        return t("onTrack");
+      case "warning":
+        return t("warning");
+      case "overspent":
+        return t("overBudget");
+      default:
+        return status;
     }
   };
 
@@ -117,25 +140,26 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Badge className={`text-xs ${getBudgetTypeColor(budget.budgetType)}`}>
+              <Badge
+                className={`text-xs ${getBudgetTypeColor(budget.budgetType)}`}
+              >
                 {getBudgetTypeLabel(budget.budgetType)}
               </Badge>
               <Badge className={`text-xs ${getPeriodDisplay(budget.period)}`}>
                 {getPeriodDisplay(budget.period)}
               </Badge>
               {budget.status && (
-                <Badge 
-                  className={`text-xs ${getStatusColor(budget.status)}`}
-                >
+                <Badge className={`text-xs ${getStatusColor(budget.status)}`}>
                   {getStatusIcon(budget.status)}
-                  {budget.status === "on_track" ? "On Track" : 
-                   budget.status === "warning" ? "Warning" : "Over Budget"}
+                  {getStatusLabel(budget.status)}
                 </Badge>
               )}
             </div>
             <h3 className="font-semibold text-lg">{budget.name}</h3>
             {budget.description && (
-              <p className="text-sm text-muted-foreground mt-1">{budget.description}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {budget.description}
+              </p>
             )}
           </div>
           <div className="flex gap-1 ml-2">
@@ -163,11 +187,15 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Progress */}
         <div>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-muted-foreground">Progress</span>
-            <span className="text-sm font-medium">{budget.percentageUsed || 0}%</span>
+            <span className="text-sm text-muted-foreground">
+              {t("progress")}
+            </span>
+            <span className="text-sm font-medium">
+              {budget.percentageUsed || 0}%
+            </span>
           </div>
-          <Progress 
-            value={Math.min(budget.percentageUsed || 0, 100)} 
+          <Progress
+            value={Math.min(budget.percentageUsed || 0, 100)}
             className="h-2"
           />
         </div>
@@ -175,18 +203,26 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Amount Display */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Spent</span>
-            <span className="font-medium">{formatCurrency(budget.currentSpent)}</span>
+            <span className="text-sm text-muted-foreground">{t("spent")}</span>
+            <span className="font-medium">
+              {formatCurrency(budget.currentSpent)}
+            </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Budget</span>
+            <span className="text-sm text-muted-foreground">{t("budget")}</span>
             <span className="font-medium">{formatCurrency(budget.amount)}</span>
           </div>
           <div className="flex justify-between items-center border-t border-border pt-2">
-            <span className="text-sm text-muted-foreground">Remaining</span>
-            <span className={`font-medium ${
-              (budget.remaining || 0) < 0 ? 'text-red-400' : 'text-emerald-400'
-            }`}>
+            <span className="text-sm text-muted-foreground">
+              {t("remaining")}
+            </span>
+            <span
+              className={`font-medium ${
+                (budget.remaining || 0) < 0
+                  ? "text-red-400"
+                  : "text-emerald-400"
+              }`}
+            >
               {formatCurrency(budget.remaining || 0)}
             </span>
           </div>
@@ -196,12 +232,14 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         <div className="flex justify-between items-center text-sm text-muted-foreground border-t border-border pt-4">
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-1" />
-            <span>Starts: {formatDate(budget.startDate)}</span>
+            <span>
+              {t("starts")}: {formatDate(budget.startDate)}
+            </span>
           </div>
           {budget.daysRemaining !== undefined && (
             <div className="flex items-center">
               <Target className="h-4 w-4 mr-1" />
-              <span>{budget.daysRemaining} days left</span>
+              <span>{t("daysLeft", { days: budget.daysRemaining })}</span>
             </div>
           )}
         </div>
@@ -209,8 +247,10 @@ export function BudgetCard({ budget, onEdit, onDelete }: BudgetCardProps) {
         {/* Alert Settings */}
         {budget.alertEnabled && (
           <div className="text-xs text-muted-foreground border-t border-border pt-2">
-            Alert at {budget.alertThresholdPercentage}% • 
-            {budget.overspendAlertEnabled ? " Overspend alerts on" : " Overspend alerts off"}
+            {t("alertAt", { percent: budget.alertThresholdPercentage })} •
+            {budget.overspendAlertEnabled
+              ? ` ${t("overspendAlertsOn")}`
+              : ` ${t("overspendAlertsOff")}`}
           </div>
         )}
       </CardContent>

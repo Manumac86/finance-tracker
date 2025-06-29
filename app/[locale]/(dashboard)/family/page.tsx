@@ -15,12 +15,15 @@ import { CreateFamilyModal } from "@/components/family/create-family-modal";
 import { FamilyMembersPanel } from "@/components/family/family-members-panel";
 import { FamilySettingsModal } from "@/components/family/family-settings-modal";
 import { useFamilyGroup } from "@/hooks/use-family-group";
+import { useTranslations } from "next-intl";
 
 export default function FamilyPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
 
   const { familyGroup, isLoading, error } = useFamilyGroup();
+  const t = useTranslations("family");
+  const tCommon = useTranslations("common");
 
   if (isLoading) {
     return (
@@ -36,7 +39,7 @@ export default function FamilyPage() {
         <Card className="max-w-md">
           <CardContent className="pt-6">
             <p className="text-center text-red-500">
-              Failed to load family data
+              {t("errors.failedToLoadData")}
             </p>
             <p className="text-center text-sm text-gray-500 mt-2">
               {error.message}
@@ -63,17 +66,17 @@ export default function FamilyPage() {
       case "org:admin":
         return (
           <Badge variant="default" className="bg-yellow-500/10 text-yellow-400">
-            Admin
+            {t("members.roles.admin")}
           </Badge>
         );
       case "org:member":
         return (
           <Badge variant="secondary" className="bg-blue-500/10 text-blue-400">
-            Member
+            {t("members.roles.member")}
           </Badge>
         );
       default:
-        return <Badge variant="outline">Viewer</Badge>;
+        return <Badge variant="outline">{t("members.roles.viewer")}</Badge>;
     }
   };
 
@@ -83,17 +86,12 @@ export default function FamilyPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Family Management
-            </h1>
-            <p className="text-muted-foreground">
-              Create or join a family group to share budgets, goals, and track
-              expenses together.
-            </p>
+            <h1 className="text-3xl font-bold text-foreground">{t("title")}</h1>
+            <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
           <Button onClick={() => setShowCreateModal(true)} className="gap-2">
             <UserPlus className="h-4 w-4" />
-            Create Family
+            {t("createFamily")}
           </Button>
         </div>
         <Card>
@@ -101,21 +99,20 @@ export default function FamilyPage() {
             <div className="text-center py-12">
               <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2 text-foreground">
-                No Family Group
+                {t("noFamilyGroup")}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                You&apos;re currently managing your finances individually.
-                Create a family group to start collaborating.
+                {t("noFamilyGroupDescription")}
               </p>
               <Button
                 onClick={() => setShowCreateModal(true)}
                 className="gap-2"
               >
                 <UserPlus className="h-4 w-4" />
-                Create Family
+                {t("createFamily")}
               </Button>
               <p className="text-sm text-muted-foreground mt-4">
-                or ask a family admin to invite you to their group
+                {t("askAdminToInvite")}
               </p>
             </div>
           </CardContent>
@@ -144,7 +141,8 @@ export default function FamilyPage() {
               {familyGroup.name}
             </h1>
             <p className="text-gray-400 mt-2">
-              Family financial management • {familyGroup.memberCount} members
+              {t("financialManagement")} • {familyGroup.memberCount}{" "}
+              {familyGroup.memberCount === 1 ? t("member") : t("members")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -158,7 +156,7 @@ export default function FamilyPage() {
                 className="gap-2"
               >
                 <Settings className="h-4 w-4" />
-                Settings
+                {tCommon("settings")}
               </Button>
             )}
           </div>
@@ -170,7 +168,9 @@ export default function FamilyPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Monthly Spending</p>
+                  <p className="text-sm text-gray-400">
+                    {t("stats.monthlySpending")}
+                  </p>
                   <p className="text-xl font-bold text-white">
                     ${familyGroup.totalMonthlySpending.toFixed(2)}
                   </p>
@@ -186,7 +186,9 @@ export default function FamilyPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Monthly Income</p>
+                  <p className="text-sm text-gray-400">
+                    {t("stats.monthlyIncome")}
+                  </p>
                   <p className="text-xl font-bold text-white">
                     ${familyGroup.totalMonthlyIncome.toFixed(2)}
                   </p>
@@ -202,7 +204,9 @@ export default function FamilyPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Budget Usage</p>
+                  <p className="text-sm text-gray-400">
+                    {t("stats.budgetUsage")}
+                  </p>
                   <p className="text-xl font-bold text-white">
                     {familyGroup.budgetUtilization}%
                   </p>
@@ -218,7 +222,9 @@ export default function FamilyPage() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Shared Goals</p>
+                  <p className="text-sm text-gray-400">
+                    {t("stats.sharedGoals")}
+                  </p>
                   <p className="text-xl font-bold text-white">
                     {familyGroup.sharedGoalsCount}
                   </p>
@@ -234,10 +240,8 @@ export default function FamilyPage() {
         {/* Family Members */}
         <Card className="border-gray-800 bg-gray-900/50">
           <CardHeader>
-            <CardTitle>Family Members</CardTitle>
-            <CardDescription>
-              Manage family members and their permissions
-            </CardDescription>
+            <CardTitle>{t("members.title")}</CardTitle>
+            <CardDescription>{t("members.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent>
             <FamilyMembersPanel familyGroup={familyGroup} />
@@ -247,17 +251,17 @@ export default function FamilyPage() {
         {/* Family Settings */}
         <Card className="border-gray-800 bg-gray-900/50">
           <CardHeader>
-            <CardTitle>Family Settings</CardTitle>
-            <CardDescription>
-              Configure permissions and family-wide preferences
-            </CardDescription>
+            <CardTitle>{t("settings.title")}</CardTitle>
+            <CardDescription>{t("settings.subtitle")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <p className="font-medium">Shared Currency</p>
+                    <p className="font-medium">
+                      {t("settings.sharedCurrency")}
+                    </p>
                     <p className="text-sm text-gray-400">
                       {familyGroup.settings.sharedCurrency}
                     </p>
@@ -265,11 +269,11 @@ export default function FamilyPage() {
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
-                    <p className="font-medium">Monthly Budget</p>
+                    <p className="font-medium">{t("settings.monthlyBudget")}</p>
                     <p className="text-sm text-gray-400">
                       {familyGroup.settings.monthlyFamilyBudget
                         ? `$${familyGroup.settings.monthlyFamilyBudget}`
-                        : "Not set"}
+                        : t("settings.notSet")}
                     </p>
                   </div>
                 </div>
@@ -278,7 +282,7 @@ export default function FamilyPage() {
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
                     <p className="font-medium">
-                      Members can view all transactions
+                      {t("permissions.membersCanViewAllTransactions")}
                     </p>
                   </div>
                   <Badge
@@ -291,14 +295,14 @@ export default function FamilyPage() {
                   >
                     {familyGroup.settings.permissions
                       .membersCanViewAllTransactions
-                      ? "Enabled"
-                      : "Disabled"}
+                      ? t("settings.enabled")
+                      : t("settings.disabled")}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                   <div>
                     <p className="font-medium">
-                      Members can edit shared budgets
+                      {t("permissions.membersCanEditSharedBudgets")}
                     </p>
                   </div>
                   <Badge
@@ -311,8 +315,8 @@ export default function FamilyPage() {
                   >
                     {familyGroup.settings.permissions
                       .membersCanEditSharedBudgets
-                      ? "Enabled"
-                      : "Disabled"}
+                      ? t("settings.enabled")
+                      : t("settings.disabled")}
                   </Badge>
                 </div>
               </div>

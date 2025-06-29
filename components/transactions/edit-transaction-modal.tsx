@@ -30,10 +30,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useCategories } from "@/contexts/categories";
+
 import { useTransactions } from "@/contexts/transactions";
 import { UITransaction } from "@/lib/db/schemas/transaction";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
+import { useTranslatedCategories } from "@/hooks/use-translated-categories";
 
 interface EditTransactionModalProps {
   transaction: UITransaction | null;
@@ -48,10 +50,14 @@ export function EditTransactionModal({
   onOpenChange,
   onSuccess,
 }: EditTransactionModalProps) {
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: translatedCategories, isLoading: categoriesLoading } =
+    useTranslatedCategories();
   const { mutate } = useTransactions();
-  
-  const [transactionType, setTransactionType] = useState<"income" | "expense">("expense");
+  const t = useTranslations("editTransactionModal");
+
+  const [transactionType, setTransactionType] = useState<"income" | "expense">(
+    "expense"
+  );
   const [amount, setAmount] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
@@ -73,33 +79,33 @@ export function EditTransactionModal({
 
   // Debug log to check categories
   useEffect(() => {
-    if (open && categories) {
-      console.log("Available categories:", categories);
+    if (open && translatedCategories) {
+      console.log("Available categories:", translatedCategories);
       console.log("Transaction category ID:", transaction?.categoryId);
       console.log("Selected category:", category);
     }
-  }, [open, categories, transaction, category]);
+  }, [open, translatedCategories, transaction, category]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!transaction?.id) {
-      toast.error("Transaction ID is missing");
+      toast.error(t("errors.missingId"));
       return;
     }
 
     if (!name.trim()) {
-      toast.error("Transaction name is required");
+      toast.error(t("errors.nameRequired"));
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
-      toast.error("Amount must be greater than 0");
+      toast.error(t("errors.amountRequired"));
       return;
     }
 
     if (!category) {
-      toast.error("Please select a category");
+      toast.error(t("errors.categoryRequired"));
       return;
     }
 
@@ -125,14 +131,14 @@ export function EditTransactionModal({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update transaction");
+        throw new Error(errorData.error || t("errors.updateFailed"));
       }
 
       // Refresh the transactions list
       mutate();
 
       // Show success message
-      toast.success("Transaction updated successfully!");
+      toast.success(t("success.transactionUpdated"));
 
       // Call onSuccess callback if provided
       if (onSuccess) {
@@ -143,7 +149,9 @@ export function EditTransactionModal({
       onOpenChange(false);
     } catch (error) {
       console.error("Error updating transaction:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update transaction");
+      toast.error(
+        error instanceof Error ? error.message : t("errors.updateFailed")
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -159,19 +167,23 @@ export function EditTransactionModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-gray-50">
         <DialogHeader>
-          <DialogTitle>Edit Transaction</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Update the details of your transaction below.
+            {t("subtitle")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-transaction-type">Transaction Type</Label>
+              <Label htmlFor="edit-transaction-type">
+                {t("transactionType")}
+              </Label>
               <RadioGroup
                 id="edit-transaction-type"
                 value={transactionType}
-                onValueChange={(value) => setTransactionType(value as "income" | "expense")}
+                onValueChange={(value) =>
+                  setTransactionType(value as "income" | "expense")
+                }
                 className="flex space-x-2"
               >
                 <div className="flex items-center space-x-2">
@@ -181,7 +193,7 @@ export function EditTransactionModal({
                     className="border-gray-700 text-rose-500"
                   />
                   <Label htmlFor="edit-expense" className="font-normal">
-                    Expense
+                    {t("expense")}
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -191,18 +203,18 @@ export function EditTransactionModal({
                     className="border-gray-700 text-emerald-500"
                   />
                   <Label htmlFor="edit-income" className="font-normal">
-                    Income
+                    {t("income")}
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Transaction Name</Label>
+              <Label htmlFor="edit-name">{t("transactionName")}</Label>
               <Input
                 id="edit-name"
                 type="text"
-                placeholder="e.g., Grocery Store, Salary"
+                placeholder={t("transactionNamePlaceholder")}
                 className="bg-gray-800 border-gray-700 text-gray-50"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -211,7 +223,7 @@ export function EditTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-amount">Amount</Label>
+              <Label htmlFor="edit-amount">{t("amount")}</Label>
               <div className="relative flex items-center justify-center">
                 <span className="absolute left-3 text-gray-500">$</span>
                 <Input
@@ -228,10 +240,10 @@ export function EditTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-category">Category</Label>
-              <Select 
-                value={category} 
-                onValueChange={setCategory} 
+              <Label htmlFor="edit-category">{t("category")}</Label>
+              <Select
+                value={category}
+                onValueChange={setCategory}
                 required
                 disabled={categoriesLoading}
               >
@@ -239,12 +251,18 @@ export function EditTransactionModal({
                   id="edit-category"
                   className="bg-gray-800 border-gray-700 text-gray-50"
                 >
-                  <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select a category"} />
+                  <SelectValue
+                    placeholder={
+                      categoriesLoading
+                        ? t("loadingCategories")
+                        : t("selectCategory")
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700 text-gray-50">
-                  {categories?.map((cat) => (
+                  {translatedCategories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id!}>
-                      {cat.name}
+                      {cat.translatedName}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -252,7 +270,7 @@ export function EditTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-date">Date</Label>
+              <Label htmlFor="edit-date">{t("date")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -263,7 +281,7 @@ export function EditTransactionModal({
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : "Select a date"}
+                    {date ? format(date, "PPP") : t("selectDate")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
@@ -279,10 +297,10 @@ export function EditTransactionModal({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description (Optional)</Label>
+              <Label htmlFor="edit-description">{t("description")}</Label>
               <Textarea
                 id="edit-description"
-                placeholder="Add notes about this transaction"
+                placeholder={t("descriptionPlaceholder")}
                 className="bg-gray-800 border-gray-700 text-gray-50"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -297,7 +315,7 @@ export function EditTransactionModal({
               disabled={isSubmitting}
               className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
@@ -309,7 +327,7 @@ export function EditTransactionModal({
                   : "bg-emerald-600 hover:bg-emerald-700"
               )}
             >
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? t("saving") : t("saveChanges")}
             </Button>
           </DialogFooter>
         </form>

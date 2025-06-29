@@ -673,12 +673,12 @@ export default function TransactionManagePage() {
           {duplicates.map((duplicateGroup, index) => (
             <Card key={index} className="bg-background border-border">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-yellow-400">
+                <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
                   Duplicate Group {index + 1}
                   <Badge
                     variant="secondary"
-                    className="bg-yellow-900/20 text-yellow-300 bg-background"
+                    className="text-yellow-300 bg-background"
                   >
                     {Math.round(duplicateGroup.similarity * 100)}% similar
                   </Badge>

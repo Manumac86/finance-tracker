@@ -13,6 +13,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UITransaction } from "@/lib/db/schemas/transaction";
 import { getCategoryIcon } from "@/lib/utils/icons";
+import { useTranslations } from "next-intl";
+import {
+  useTranslatedCategories,
+  getTranslatedCategoryName,
+} from "@/hooks/use-translated-categories";
 
 interface TransactionCardProps {
   transaction: UITransaction;
@@ -20,18 +25,29 @@ interface TransactionCardProps {
   onDelete?: (transactionId: string) => void;
 }
 
-export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCardProps) {
+export function TransactionCard({
+  transaction,
+  onEdit,
+  onDelete,
+}: TransactionCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations("transactionCard");
+  const { data: translatedCategories } = useTranslatedCategories();
+
+  // Get translated category name
+  const categoryName = translatedCategories
+    ? getTranslatedCategoryName(translatedCategories, transaction.categoryId)
+    : transaction.categoryName;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
+
+    if (diffDays === 0) return t("today");
+    if (diffDays === 1) return t("yesterday");
+    if (diffDays < 7) return t("daysAgo", { days: diffDays });
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -39,14 +55,17 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
     });
   };
 
-  const formatCurrency = (amount: number, transactionType: 'income' | 'expense') => {
+  const formatCurrency = (
+    amount: number,
+    transactionType: "income" | "expense"
+  ) => {
     const absAmount = Math.abs(amount);
     const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(absAmount);
-    
-    return transactionType === 'income' ? `+${formatted}` : `-${formatted}`;
+
+    return transactionType === "income" ? `+${formatted}` : `-${formatted}`;
   };
 
   const formatTime = (dateString: string) => {
@@ -58,9 +77,9 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
   };
 
   return (
-    <Card 
+    <Card
       className={`group bg-card border transition-all duration-200 hover:border-accent hover:shadow-lg ${
-        isHovered ? 'transform hover:scale-102' : ''
+        isHovered ? "transform hover:scale-102" : ""
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -71,7 +90,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             {/* Category Icon */}
             <div
               className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
-                transaction.transactionType === 'income'
+                transaction.transactionType === "income"
                   ? "bg-emerald-500/20 text-emerald-500"
                   : "bg-rose-500/20 text-rose-500"
               }`}
@@ -82,29 +101,29 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             {/* Transaction Details */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold truncate">
-                  {transaction.name}
-                </h3>
+                <h3 className="font-semibold truncate">{transaction.name}</h3>
                 <Badge
                   variant="outline"
                   className={`text-xs ${
-                    transaction.transactionType === 'income'
-                      ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-                      : 'border-rose-500/30 text-rose-400 bg-rose-500/10'
+                    transaction.transactionType === "income"
+                      ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                      : "border-rose-500/30 text-rose-400 bg-rose-500/10"
                   }`}
                 >
-                  {transaction.transactionType === 'income' ? 'Income' : 'Expense'}
+                  {transaction.transactionType === "income"
+                    ? t("income")
+                    : t("expense")}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{transaction.categoryName}</span>
+                <span>{categoryName}</span>
                 <span>•</span>
                 <span>{formatDate(transaction.transactionDate)}</span>
                 <span>•</span>
                 <span>{formatTime(transaction.transactionDate)}</span>
               </div>
-              
+
               {transaction.description && (
                 <p className="text-sm text-muted-foreground mt-1 truncate">
                   {transaction.description}
@@ -118,10 +137,15 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
             <div className="text-right">
               <div
                 className={`text-xl font-bold ${
-                  transaction.transactionType === 'income' ? "text-emerald-500" : "text-rose-500"
+                  transaction.transactionType === "income"
+                    ? "text-emerald-500"
+                    : "text-rose-500"
                 }`}
               >
-                {formatCurrency(transaction.amount, transaction.transactionType)}
+                {formatCurrency(
+                  transaction.amount,
+                  transaction.transactionType
+                )}
               </div>
             </div>
 
@@ -144,7 +168,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                       className="text-foreground hover:text-foreground hover:bg-accent"
                     >
                       <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                      {t("edit")}
                     </DropdownMenuItem>
                   )}
                   {onDelete && (
@@ -153,7 +177,7 @@ export function TransactionCard({ transaction, onEdit, onDelete }: TransactionCa
                       className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      {t("delete")}
                     </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>

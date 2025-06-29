@@ -1,7 +1,22 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback, Suspense } from "react";
-import { Filter, Search, TrendingUp, TrendingDown, Download, Plus, Loader2 } from "lucide-react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+  Suspense,
+} from "react";
+import {
+  Filter,
+  Search,
+  TrendingUp,
+  TrendingDown,
+  Download,
+  Plus,
+  Loader2,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useTransactions } from "@/contexts/transactions";
-import { useCategories } from "@/contexts/categories";
+import { useTranslatedCategories } from "@/hooks/use-translated-categories";
 import { TransactionCard } from "@/components/transactions/transaction-card";
 import { AddTransactionButton } from "@/components/add-transaction-button";
 import { EditTransactionModal } from "@/components/transactions/edit-transaction-modal";
@@ -24,10 +39,10 @@ import { useTranslations } from "next-intl";
 
 function TransactionsPageContent() {
   const { transactions, isLoading, error, mutate } = useTransactions();
-  const { data: categories } = useCategories();
+  const { data: translatedCategories } = useTranslatedCategories();
   const searchParams = useSearchParams();
-  const tPages = useTranslations('pages.transactions');
-  
+  const t = useTranslations("pages.transactions");
+
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -37,13 +52,16 @@ function TransactionsPageContent() {
     to: Date | undefined;
   }>({ from: undefined, to: undefined });
   const [sortBy, setSortBy] = useState<string>("date-desc");
-  
+
   // Edit modal state
-  const [editingTransaction, setEditingTransaction] = useState<UITransaction | null>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<UITransaction | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Infinite scroll states
-  const [displayedTransactions, setDisplayedTransactions] = useState<typeof transactions>([]);
+  const [displayedTransactions, setDisplayedTransactions] = useState<
+    typeof transactions
+  >([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const ITEMS_PER_PAGE = 10;
@@ -53,19 +71,32 @@ function TransactionsPageContent() {
   const filteredTransactions = useMemo(() => {
     const filtered = transactions.filter((transaction) => {
       // Search filter
-      if (searchTerm && !transaction.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !transaction.description?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !transaction.categoryName.toLowerCase().includes(searchTerm.toLowerCase())) {
+      if (
+        searchTerm &&
+        !transaction.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        !transaction.description
+          ?.toLowerCase()
+          .includes(searchTerm.toLowerCase()) &&
+        !transaction.categoryName
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      ) {
         return false;
       }
 
       // Category filter
-      if (selectedCategory !== "all" && transaction.categoryId !== selectedCategory) {
+      if (
+        selectedCategory !== "all" &&
+        transaction.categoryId !== selectedCategory
+      ) {
         return false;
       }
 
       // Type filter
-      if (selectedType !== "all" && transaction.transactionType !== selectedType) {
+      if (
+        selectedType !== "all" &&
+        transaction.transactionType !== selectedType
+      ) {
         return false;
       }
 
@@ -82,10 +113,18 @@ function TransactionsPageContent() {
     // Sort transactions
     switch (sortBy) {
       case "date-desc":
-        filtered.sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime());
+        filtered.sort(
+          (a, b) =>
+            new Date(b.transactionDate).getTime() -
+            new Date(a.transactionDate).getTime()
+        );
         break;
       case "date-asc":
-        filtered.sort((a, b) => new Date(a.transactionDate).getTime() - new Date(b.transactionDate).getTime());
+        filtered.sort(
+          (a, b) =>
+            new Date(a.transactionDate).getTime() -
+            new Date(b.transactionDate).getTime()
+        );
         break;
       case "amount-desc":
         filtered.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
@@ -101,23 +140,30 @@ function TransactionsPageContent() {
     }
 
     return filtered;
-  }, [transactions, searchTerm, selectedCategory, selectedType, dateRange, sortBy]);
+  }, [
+    transactions,
+    searchTerm,
+    selectedCategory,
+    selectedType,
+    dateRange,
+    sortBy,
+  ]);
 
   // Load more transactions function
   const loadMoreTransactions = useCallback(() => {
     setIsLoadingMore(true);
-    
+
     // Simulate loading delay for better UX
     setTimeout(() => {
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
       const endIndex = startIndex + ITEMS_PER_PAGE;
       const newTransactions = filteredTransactions.slice(startIndex, endIndex);
-      
+
       if (newTransactions.length > 0) {
-        setDisplayedTransactions(prev => [...prev, ...newTransactions]);
-        setCurrentPage(prev => prev + 1);
+        setDisplayedTransactions((prev) => [...prev, ...newTransactions]);
+        setCurrentPage((prev) => prev + 1);
       }
-      
+
       setIsLoadingMore(false);
     }, 500);
   }, [currentPage, filteredTransactions]);
@@ -146,7 +192,8 @@ function TransactionsPageContent() {
       (entries) => {
         const target = entries[0];
         if (target.isIntersecting && !isLoadingMore && !isLoading) {
-          const hasMore = displayedTransactions.length < filteredTransactions.length;
+          const hasMore =
+            displayedTransactions.length < filteredTransactions.length;
           if (hasMore) {
             loadMoreTransactions();
           }
@@ -165,25 +212,31 @@ function TransactionsPageContent() {
         observer.unobserve(currentObserverRef);
       }
     };
-  }, [displayedTransactions.length, filteredTransactions.length, isLoadingMore, isLoading, loadMoreTransactions]);
+  }, [
+    displayedTransactions.length,
+    filteredTransactions.length,
+    isLoadingMore,
+    isLoading,
+    loadMoreTransactions,
+  ]);
 
   // Statistics
   const stats = useMemo(() => {
     const totalIncome = filteredTransactions
-      .filter(t => t.transactionType === 'income')
+      .filter((t) => t.transactionType === "income")
       .reduce((sum, t) => sum + t.amount, 0);
-    
+
     const totalExpenses = filteredTransactions
-      .filter(t => t.transactionType === 'expense')
+      .filter((t) => t.transactionType === "expense")
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
+
     const netAmount = totalIncome - totalExpenses;
-    
+
     return {
       totalIncome,
       totalExpenses,
       netAmount,
-      transactionCount: filteredTransactions.length
+      transactionCount: filteredTransactions.length,
     };
   }, [filteredTransactions]);
 
@@ -208,7 +261,7 @@ function TransactionsPageContent() {
   };
 
   const handleDelete = async (transactionId: string) => {
-    if (!confirm(tPages('confirmDelete'))) {
+    if (!confirm(t("confirmDelete"))) {
       return;
     }
 
@@ -219,16 +272,18 @@ function TransactionsPageContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete transaction");
+        throw new Error(errorData.error || t("errors.deleteFailed"));
       }
 
       // Refresh the transactions list
       mutate();
-      
-      toast.success("Transaction deleted successfully!");
+
+      toast.success(t("success.transactionDeleted"));
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to delete transaction");
+      toast.error(
+        error instanceof Error ? error.message : t("errors.deleteFailed")
+      );
     }
   };
 
@@ -236,9 +291,13 @@ function TransactionsPageContent() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center text-red-400">
-          <p>Failed to load transactions</p>
-          <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-            Try Again
+          <p>{t("errors.failedToLoad")}</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => window.location.reload()}
+          >
+            {t("errors.tryAgain")}
           </Button>
         </div>
       </div>
@@ -250,15 +309,13 @@ function TransactionsPageContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{tPages('title')}</h1>
-          <p className="text-muted-foreground">
-            {tPages('description')}
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
-            Export
+            {t("export")}
           </Button>
         </div>
       </div>
@@ -269,7 +326,7 @@ function TransactionsPageContent() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               <TrendingUp className="h-4 w-4 mr-2" />
-              Total Income
+              {t("stats.totalIncome")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -283,7 +340,7 @@ function TransactionsPageContent() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               <TrendingDown className="h-4 w-4 mr-2" />
-              Total Expenses
+              {t("stats.totalExpenses")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -295,12 +352,16 @@ function TransactionsPageContent() {
 
         <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Net Amount</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t("stats.netAmount")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${
-              stats.netAmount >= 0 ? 'text-emerald-500' : 'text-rose-500'
-            }`}>
+            <div
+              className={`text-2xl font-bold ${
+                stats.netAmount >= 0 ? "text-emerald-500" : "text-rose-500"
+              }`}
+            >
               {formatCurrency(stats.netAmount)}
             </div>
           </CardContent>
@@ -308,7 +369,9 @@ function TransactionsPageContent() {
 
         <Card className="bg-card border">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t("stats.totalTransactions")}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.transactionCount}</div>
@@ -321,18 +384,20 @@ function TransactionsPageContent() {
         <CardHeader>
           <CardTitle className="text-lg flex items-center">
             <Filter className="h-5 w-5 mr-2" />
-            Filters
+            {t("filters.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Search */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Search</label>
+              <label className="text-sm font-medium">
+                {t("filters.search")}
+              </label>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search transactions..."
+                  placeholder={t("filters.searchPlaceholder")}
                   className="pl-10 bg-background border"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -342,16 +407,23 @@ function TransactionsPageContent() {
 
             {/* Category Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Category</label>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <label className="text-sm font-medium">
+                {t("filters.category")}
+              </label>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="bg-background border">
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder={t("filters.allCategories")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories?.map((category) => (
+                  <SelectItem value="all">
+                    {t("filters.allCategories")}
+                  </SelectItem>
+                  {translatedCategories?.map((category) => (
                     <SelectItem key={category.id} value={category.id!}>
-                      {category.name}
+                      {category.translatedName}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -360,32 +432,46 @@ function TransactionsPageContent() {
 
             {/* Type Filter */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Type</label>
+              <label className="text-sm font-medium">{t("filters.type")}</label>
               <Select value={selectedType} onValueChange={setSelectedType}>
                 <SelectTrigger className="bg-background border">
-                  <SelectValue placeholder="All Types" />
+                  <SelectValue placeholder={t("filters.allTypes")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="income">Income</SelectItem>
-                  <SelectItem value="expense">Expense</SelectItem>
+                  <SelectItem value="all">{t("filters.allTypes")}</SelectItem>
+                  <SelectItem value="income">{t("filters.income")}</SelectItem>
+                  <SelectItem value="expense">
+                    {t("filters.expense")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Sort */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Sort By</label>
+              <label className="text-sm font-medium">
+                {t("filters.sortBy")}
+              </label>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="bg-background border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date-desc">Date (Newest First)</SelectItem>
-                  <SelectItem value="date-asc">Date (Oldest First)</SelectItem>
-                  <SelectItem value="amount-desc">Amount (Highest First)</SelectItem>
-                  <SelectItem value="amount-asc">Amount (Lowest First)</SelectItem>
-                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="date-desc">
+                    {t("filters.dateNewest")}
+                  </SelectItem>
+                  <SelectItem value="date-asc">
+                    {t("filters.dateOldest")}
+                  </SelectItem>
+                  <SelectItem value="amount-desc">
+                    {t("filters.amountHighest")}
+                  </SelectItem>
+                  <SelectItem value="amount-asc">
+                    {t("filters.amountLowest")}
+                  </SelectItem>
+                  <SelectItem value="name-asc">
+                    {t("filters.nameAZ")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -398,7 +484,7 @@ function TransactionsPageContent() {
               onClick={clearFilters}
               className="border"
             >
-              Clear Filters
+              {t("filters.clearFilters")}
             </Button>
           </div>
         </CardContent>
@@ -431,20 +517,25 @@ function TransactionsPageContent() {
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <Plus className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">No transactions found</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {t("emptyState.noTransactions")}
+              </h3>
               <p className="text-muted-foreground mb-6">
-                {searchTerm || selectedCategory !== "all" || selectedType !== "all" 
-                  ? "Try adjusting your filters or search terms"
-                  : "Start by adding your first transaction"
-                }
+                {searchTerm ||
+                selectedCategory !== "all" ||
+                selectedType !== "all"
+                  ? t("emptyState.tryAdjusting")
+                  : t("emptyState.startAdding")}
               </p>
-              {(searchTerm || selectedCategory !== "all" || selectedType !== "all") && (
+              {(searchTerm ||
+                selectedCategory !== "all" ||
+                selectedType !== "all") && (
                 <Button
                   variant="outline"
                   onClick={clearFilters}
                   className="border"
                 >
-                  Clear Filters
+                  {t("filters.clearFilters")}
                 </Button>
               )}
             </CardContent>
@@ -456,14 +547,14 @@ function TransactionsPageContent() {
                 <div
                   key={transaction.id}
                   className={`transform transition-all duration-300 ease-in-out ${
-                    index < 10 ? 'animate-in slide-in-from-bottom-4' : ''
+                    index < 10 ? "animate-in slide-in-from-bottom-4" : ""
                   }`}
                   style={{
-                    animationDelay: index < 10 ? `${index * 100}ms` : '0ms',
+                    animationDelay: index < 10 ? `${index * 100}ms` : "0ms",
                   }}
                 >
-                  <TransactionCard 
-                    transaction={transaction} 
+                  <TransactionCard
+                    transaction={transaction}
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                   />
@@ -476,36 +567,38 @@ function TransactionsPageContent() {
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Loading more transactions...</span>
+                  <span>{t("loading.loadingMore")}</span>
                 </div>
               </div>
             )}
 
             {/* Load More Trigger */}
-            <div
-              ref={observerRef}
-              className="h-4 w-full flex justify-center"
-            >
-              {displayedTransactions.length < filteredTransactions.length && !isLoadingMore && (
-                <Button
-                  variant="outline"
-                  onClick={loadMoreTransactions}
-                  className="border hover:border-accent"
-                >
-                  Load More Transactions
-                </Button>
-              )}
+            <div ref={observerRef} className="h-4 w-full flex justify-center">
+              {displayedTransactions.length < filteredTransactions.length &&
+                !isLoadingMore && (
+                  <Button
+                    variant="outline"
+                    onClick={loadMoreTransactions}
+                    className="border hover:border-accent"
+                  >
+                    {t("loading.loadMore")}
+                  </Button>
+                )}
             </div>
 
             {/* End of List Indicator */}
-            {displayedTransactions.length >= filteredTransactions.length && filteredTransactions.length > 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <p className="text-sm">You&apos;ve reached the end of the list</p>
-                <p className="text-xs mt-1">
-                  Showing {displayedTransactions.length} of {filteredTransactions.length} transactions
-                </p>
-              </div>
-            )}
+            {displayedTransactions.length >= filteredTransactions.length &&
+              filteredTransactions.length > 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p className="text-sm">{t("loading.endOfList")}</p>
+                  <p className="text-xs mt-1">
+                    {t("loading.showing", {
+                      displayed: displayedTransactions.length,
+                      total: filteredTransactions.length,
+                    })}
+                  </p>
+                </div>
+              )}
           </div>
         )}
       </div>
@@ -529,17 +622,17 @@ function TransactionsPageContent() {
 
 // Loading component for Suspense fallback
 function TransactionsPageLoading() {
+  const t = useTranslations("pages.transactions");
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
-          <p className="text-muted-foreground">
-            View and manage all your financial transactions
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("description")}</p>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
           <Card key={i} className="bg-card border">
@@ -550,7 +643,7 @@ function TransactionsPageLoading() {
           </Card>
         ))}
       </div>
-      
+
       <Card className="bg-card border">
         <CardContent className="p-6">
           <div className="h-6 w-16 bg-muted rounded animate-pulse mb-4" />

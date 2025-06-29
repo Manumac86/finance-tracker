@@ -1,15 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Users, Settings, DollarSign } from "lucide-react";
 import { UIFamilyGroup } from "@/lib/db/schemas/family-clerk";
 import { useFamilyGroup } from "@/hooks/use-family-group";
+import { useTranslations } from "next-intl";
 
 interface CreateFamilyModalProps {
   open: boolean;
@@ -17,7 +30,11 @@ interface CreateFamilyModalProps {
   onSuccess: (family: UIFamilyGroup) => void;
 }
 
-export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModalProps) {
+export function CreateFamilyModal({
+  open,
+  onClose,
+  onSuccess,
+}: CreateFamilyModalProps) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -38,16 +55,19 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
   });
 
   const { createFamily, isCreating } = useFamilyGroup();
+  const t = useTranslations("family.createModal");
+  const tPermissions = useTranslations("family.permissions");
+  const tCommon = useTranslations("common");
 
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
       setStep(1);
       setFormData({
-        name: '',
-        slug: '',
+        name: "",
+        slug: "",
         familySettings: {
-          shared_currency: 'USD',
+          shared_currency: "USD",
           monthly_family_budget: undefined,
           permissions: {
             members_can_view_all_transactions: true,
@@ -57,8 +77,8 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
             large_expense_threshold: 100,
             allow_individual_budgets: true,
             spending_notifications_enabled: true,
-          }
-        }
+          },
+        },
       });
     }
   }, [open]);
@@ -99,17 +119,17 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
         },
       });
     } catch (error) {
-      console.error('Failed to create family:', error);
+      console.error("Failed to create family:", error);
     }
   };
 
   const handleClose = () => {
     setStep(1);
     setFormData({
-      name: '',
-      slug: '',
+      name: "",
+      slug: "",
       familySettings: {
-        shared_currency: 'USD',
+        shared_currency: "USD",
         monthly_family_budget: undefined,
         permissions: {
           members_can_view_all_transactions: true,
@@ -119,8 +139,8 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
           large_expense_threshold: 100,
           allow_individual_budgets: true,
           spending_notifications_enabled: true,
-        }
-      }
+        },
+      },
     });
     onClose();
   };
@@ -131,11 +151,9 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-emerald-500" />
-            Create Family Group
+            {t("title")}
           </DialogTitle>
-          <DialogDescription>
-            Set up a family group to share budgets, goals, and track expenses together.
-          </DialogDescription>
+          <DialogDescription>{t("subtitle")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -145,9 +163,7 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
               <div
                 key={stepNumber}
                 className={`h-2 w-8 rounded-full ${
-                  stepNumber <= step
-                    ? "bg-emerald-500"
-                    : "bg-gray-700"
+                  stepNumber <= step ? "bg-emerald-500" : "bg-gray-700"
                 }`}
               />
             ))}
@@ -156,32 +172,32 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
           {step === 1 && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Basic Information</CardTitle>
-                <CardDescription>
-                  Choose a name and identifier for your family group
-                </CardDescription>
+                <CardTitle className="text-lg">{t("step1.title")}</CardTitle>
+                <CardDescription>{t("step1.subtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Family Group Name</Label>
+                  <Label htmlFor="name">{t("step1.familyName")}</Label>
                   <Input
                     id="name"
-                    placeholder="e.g., The Smith Family"
+                    placeholder={t("step1.familyNamePlaceholder")}
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="slug">URL Identifier (optional)</Label>
+                  <Label htmlFor="slug">{t("step1.urlIdentifier")}</Label>
                   <Input
                     id="slug"
-                    placeholder="e.g., smith-family"
+                    placeholder={t("step1.urlIdentifierPlaceholder")}
                     value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
                   />
-                  <p className="text-xs text-gray-500">
-                    This will be used in sharing links. Leave empty for auto-generation.
-                  </p>
+                  <p className="text-xs text-gray-500">{t("step1.urlHelp")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -192,26 +208,26 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
-                  Financial Settings
+                  {t("step2.title")}
                 </CardTitle>
-                <CardDescription>
-                  Configure currency and budget settings
-                </CardDescription>
+                <CardDescription>{t("step2.subtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="currency">Shared Currency</Label>
+                  <Label htmlFor="currency">{t("step2.sharedCurrency")}</Label>
                   <select
                     id="currency"
                     className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white"
                     value={formData.familySettings.shared_currency}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      familySettings: {
-                        ...formData.familySettings,
-                        shared_currency: e.target.value,
-                      },
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        familySettings: {
+                          ...formData.familySettings,
+                          shared_currency: e.target.value,
+                        },
+                      })
+                    }
                   >
                     <option value="USD">USD ($)</option>
                     <option value="EUR">EUR (€)</option>
@@ -222,19 +238,23 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="budget">Monthly Family Budget (optional)</Label>
+                  <Label htmlFor="budget">{t("step2.monthlyBudget")}</Label>
                   <Input
                     id="budget"
                     type="number"
-                    placeholder="e.g., 5000"
+                    placeholder={t("step2.monthlyBudgetPlaceholder")}
                     value={formData.familySettings.monthly_family_budget || ""}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      familySettings: {
-                        ...formData.familySettings,
-                        monthly_family_budget: e.target.value ? parseFloat(e.target.value) : undefined,
-                      },
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        familySettings: {
+                          ...formData.familySettings,
+                          monthly_family_budget: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        },
+                      })
+                    }
                   />
                 </div>
               </CardContent>
@@ -246,121 +266,152 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  Permissions & Preferences
+                  {t("step3.title")}
                 </CardTitle>
-                <CardDescription>
-                  Configure what family members can do
-                </CardDescription>
+                <CardDescription>{t("step3.subtitle")}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Members can view all transactions</Label>
+                      <Label>
+                        {tPermissions("membersCanViewAllTransactions")}
+                      </Label>
                       <p className="text-xs text-gray-500">
-                        Allow all family members to see each other&apos;s transactions
+                        {tPermissions("membersCanViewAllTransactionsDesc")}
                       </p>
                     </div>
                     <Switch
-                      checked={formData.familySettings.permissions.members_can_view_all_transactions}
-                      onCheckedChange={(checked) => setFormData({
-                        ...formData,
-                        familySettings: {
-                          ...formData.familySettings,
-                          permissions: {
-                            ...formData.familySettings.permissions,
-                            members_can_view_all_transactions: checked,
+                      checked={
+                        formData.familySettings.permissions
+                          .members_can_view_all_transactions
+                      }
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          familySettings: {
+                            ...formData.familySettings,
+                            permissions: {
+                              ...formData.familySettings.permissions,
+                              members_can_view_all_transactions: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Members can edit shared budgets</Label>
+                      <Label>
+                        {tPermissions("membersCanEditSharedBudgets")}
+                      </Label>
                       <p className="text-xs text-gray-500">
-                        Allow members to modify family budgets (admins can always edit)
+                        {tPermissions("membersCanEditSharedBudgetsDesc")}
                       </p>
                     </div>
                     <Switch
-                      checked={formData.familySettings.permissions.members_can_edit_shared_budgets}
-                      onCheckedChange={(checked) => setFormData({
-                        ...formData,
-                        familySettings: {
-                          ...formData.familySettings,
-                          permissions: {
-                            ...formData.familySettings.permissions,
-                            members_can_edit_shared_budgets: checked,
+                      checked={
+                        formData.familySettings.permissions
+                          .members_can_edit_shared_budgets
+                      }
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          familySettings: {
+                            ...formData.familySettings,
+                            permissions: {
+                              ...formData.familySettings.permissions,
+                              members_can_edit_shared_budgets: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Members can create shared goals</Label>
+                      <Label>
+                        {tPermissions("membersCanCreateSharedGoals")}
+                      </Label>
                       <p className="text-xs text-gray-500">
-                        Allow members to create goals that affect the whole family
+                        {tPermissions("membersCanCreateSharedGoalsDesc")}
                       </p>
                     </div>
                     <Switch
-                      checked={formData.familySettings.permissions.members_can_create_shared_goals}
-                      onCheckedChange={(checked) => setFormData({
-                        ...formData,
-                        familySettings: {
-                          ...formData.familySettings,
-                          permissions: {
-                            ...formData.familySettings.permissions,
-                            members_can_create_shared_goals: checked,
+                      checked={
+                        formData.familySettings.permissions
+                          .members_can_create_shared_goals
+                      }
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          familySettings: {
+                            ...formData.familySettings,
+                            permissions: {
+                              ...formData.familySettings.permissions,
+                              members_can_create_shared_goals: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Allow individual budgets</Label>
+                      <Label>{tPermissions("allowIndividualBudgets")}</Label>
                       <p className="text-xs text-gray-500">
-                        Members can create personal budgets in addition to shared ones
+                        {tPermissions("allowIndividualBudgetsDesc")}
                       </p>
                     </div>
                     <Switch
-                      checked={formData.familySettings.permissions.allow_individual_budgets}
-                      onCheckedChange={(checked) => setFormData({
-                        ...formData,
-                        familySettings: {
-                          ...formData.familySettings,
-                          permissions: {
-                            ...formData.familySettings.permissions,
-                            allow_individual_budgets: checked,
+                      checked={
+                        formData.familySettings.permissions
+                          .allow_individual_budgets
+                      }
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          familySettings: {
+                            ...formData.familySettings,
+                            permissions: {
+                              ...formData.familySettings.permissions,
+                              allow_individual_budgets: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Enable spending notifications</Label>
+                      <Label>
+                        {tPermissions("enableSpendingNotifications")}
+                      </Label>
                       <p className="text-xs text-gray-500">
-                        Send notifications for budget limits and large expenses
+                        {tPermissions("enableSpendingNotificationsDesc")}
                       </p>
                     </div>
                     <Switch
-                      checked={formData.familySettings.permissions.spending_notifications_enabled}
-                      onCheckedChange={(checked) => setFormData({
-                        ...formData,
-                        familySettings: {
-                          ...formData.familySettings,
-                          permissions: {
-                            ...formData.familySettings.permissions,
-                            spending_notifications_enabled: checked,
+                      checked={
+                        formData.familySettings.permissions
+                          .spending_notifications_enabled
+                      }
+                      onCheckedChange={(checked) =>
+                        setFormData({
+                          ...formData,
+                          familySettings: {
+                            ...formData.familySettings,
+                            permissions: {
+                              ...formData.familySettings.permissions,
+                              spending_notifications_enabled: checked,
+                            },
                           },
-                        },
-                      })}
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -370,18 +421,22 @@ export function CreateFamilyModal({ open, onClose, onSuccess }: CreateFamilyModa
 
           {/* Navigation buttons */}
           <div className="flex justify-between">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={step === 1 ? handleClose : handleBack}
               disabled={isCreating}
             >
-              {step === 1 ? "Cancel" : "Back"}
+              {step === 1 ? tCommon("cancel") : tCommon("back")}
             </Button>
-            <Button 
+            <Button
               onClick={step === 3 ? handleSubmit : handleNext}
               disabled={isCreating || (step === 1 && !formData.name.trim())}
             >
-              {isCreating ? "Creating..." : step === 3 ? "Create Family Group" : "Next"}
+              {isCreating
+                ? t("creating")
+                : step === 3
+                ? t("createFamilyGroup")
+                : tCommon("next")}
             </Button>
           </div>
         </div>

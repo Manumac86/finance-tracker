@@ -17,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { UIGoal } from "@/lib/db/schemas/goal";
+import { useTranslations } from "next-intl";
 
 interface CreateGoalModalProps {
   isOpen: boolean;
@@ -41,6 +42,9 @@ export function CreateGoalModal({
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const t = useTranslations("createGoalModal");
+  const tCommon = useTranslations("common");
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -50,15 +54,15 @@ export function CreateGoalModal({
     const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Goal name is required";
+      newErrors.name = t("nameRequired");
     }
 
     if (!formData.targetAmount || parseFloat(formData.targetAmount) <= 0) {
-      newErrors.targetAmount = "Target amount is required and must be positive";
+      newErrors.targetAmount = t("targetAmountRequired");
     }
 
     if (formData.type === "spending_limit" && !formData.categoryId) {
-      newErrors.categoryId = "Category is required for spending limits";
+      newErrors.categoryId = t("categoryRequired");
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -106,9 +110,9 @@ export function CreateGoalModal({
   const getRecommendations = () => {
     if (formData.type === "savings") {
       return [
-        { label: "Recommended: $1,000", value: 1000 },
-        { label: "3-month emergency fund: $7,500", value: 7500 },
-        { label: "6-month emergency fund: $15,000", value: 15000 },
+        { label: t("recommended1000"), value: 1000 },
+        { label: t("emergencyFund3"), value: 7500 },
+        { label: t("emergencyFund6"), value: 15000 },
       ];
     }
     return [];
@@ -119,7 +123,7 @@ export function CreateGoalModal({
       <Card className="w-full max-w-2xl bg-gray-900 border-gray-800 max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>Create New Goal</CardTitle>
+            <CardTitle>{t("title")}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
@@ -135,11 +139,11 @@ export function CreateGoalModal({
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Goal Name */}
             <div>
-              <Label htmlFor="goal-name">Goal Name</Label>
+              <Label htmlFor="goal-name">{t("goalName")}</Label>
               <Input
                 id="goal-name"
                 type="text"
-                placeholder="e.g., Emergency Fund"
+                placeholder={t("goalNamePlaceholder")}
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
@@ -153,7 +157,7 @@ export function CreateGoalModal({
 
             {/* Goal Type */}
             <div>
-              <Label htmlFor="goal-type">Goal Type</Label>
+              <Label htmlFor="goal-type">{t("goalType")}</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) =>
@@ -167,20 +171,22 @@ export function CreateGoalModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-700">
-                  <SelectItem value="savings">Savings Goal</SelectItem>
-                  <SelectItem value="debt_payoff">Debt Payoff</SelectItem>
-                  <SelectItem value="spending_limit">Spending Limit</SelectItem>
+                  <SelectItem value="savings">{t("savingsGoal")}</SelectItem>
+                  <SelectItem value="debt_payoff">{t("debtPayoff")}</SelectItem>
+                  <SelectItem value="spending_limit">
+                    {t("spendingLimit")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Target Amount */}
             <div>
-              <Label htmlFor="target-amount">Target Amount</Label>
+              <Label htmlFor="target-amount">{t("targetAmount")}</Label>
               <Input
                 id="target-amount"
                 type="number"
-                placeholder="e.g., 5000"
+                placeholder={t("targetAmountPlaceholder")}
                 value={formData.targetAmount}
                 onChange={(e) =>
                   setFormData({ ...formData, targetAmount: e.target.value })
@@ -196,7 +202,7 @@ export function CreateGoalModal({
               {/* Recommendations */}
               {getRecommendations().length > 0 && (
                 <div className="mt-2 space-y-1">
-                  <p className="text-sm text-gray-400">Suggestions:</p>
+                  <p className="text-sm text-gray-400">{t("suggestions")}</p>
                   <div className="flex flex-wrap gap-2">
                     {getRecommendations().map((rec, index) => (
                       <Badge
@@ -221,11 +227,11 @@ export function CreateGoalModal({
             {/* Current Amount (for debt payoff) */}
             {formData.type === "debt_payoff" && (
               <div>
-                <Label htmlFor="current-amount">Current Debt Amount</Label>
+                <Label htmlFor="current-amount">{t("currentDebtAmount")}</Label>
                 <Input
                   id="current-amount"
                   type="number"
-                  placeholder="e.g., 3000"
+                  placeholder={t("currentDebtPlaceholder")}
                   value={formData.currentAmount}
                   onChange={(e) =>
                     setFormData({ ...formData, currentAmount: e.target.value })
@@ -233,7 +239,7 @@ export function CreateGoalModal({
                   className="bg-gray-800 border-gray-700"
                 />
                 <p className="text-sm text-gray-400 mt-1">
-                  Enter the current amount you owe
+                  {t("currentDebtHelp")}
                 </p>
               </div>
             )}
@@ -241,7 +247,7 @@ export function CreateGoalModal({
             {/* Category (for spending limits) */}
             {formData.type === "spending_limit" && (
               <div>
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">{t("category")}</Label>
                 <Select
                   value={formData.categoryId}
                   onValueChange={(value) =>
@@ -249,7 +255,7 @@ export function CreateGoalModal({
                   }
                 >
                   <SelectTrigger className="bg-gray-800 border-gray-700">
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder={t("selectCategory")} />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
                     <SelectItem value="cat_dining_123">Dining</SelectItem>
@@ -270,7 +276,7 @@ export function CreateGoalModal({
             {/* Period (for spending limits) */}
             {formData.type === "spending_limit" && (
               <div>
-                <Label htmlFor="period">Period</Label>
+                <Label htmlFor="period">{t("period")}</Label>
                 <Select
                   value={formData.period}
                   onValueChange={(value) =>
@@ -284,9 +290,9 @@ export function CreateGoalModal({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="weekly">{t("weekly")}</SelectItem>
+                    <SelectItem value="monthly">{t("monthly")}</SelectItem>
+                    <SelectItem value="yearly">{t("yearly")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -294,7 +300,7 @@ export function CreateGoalModal({
 
             {/* Target Date */}
             <div>
-              <Label htmlFor="target-date">Target Date (Optional)</Label>
+              <Label htmlFor="target-date">{t("targetDate")}</Label>
               <Input
                 id="target-date"
                 type="date"
@@ -308,10 +314,10 @@ export function CreateGoalModal({
 
             {/* Description */}
             <div>
-              <Label htmlFor="description">Description (Optional)</Label>
+              <Label htmlFor="description">{t("description")}</Label>
               <Textarea
                 id="description"
-                placeholder="Add any notes about this goal..."
+                placeholder={t("descriptionPlaceholder")}
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
@@ -329,13 +335,13 @@ export function CreateGoalModal({
                 onClick={handleClose}
                 className="border-gray-600"
               >
-                Cancel
+                {tCommon("cancel")}
               </Button>
               <Button
                 type="submit"
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
-                Save Goal
+                {t("saveGoal")}
               </Button>
             </div>
           </form>

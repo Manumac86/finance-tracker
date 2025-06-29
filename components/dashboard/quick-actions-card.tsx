@@ -1,57 +1,67 @@
 "use client";
 
-import { Plus, Target, DollarSign, PieChart, Settings, TrendingUp } from "lucide-react";
+import {
+  Plus,
+  Target,
+  DollarSign,
+  PieChart,
+  Settings,
+  TrendingUp,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export function QuickActionsCard() {
+  const t = useTranslations("quickActions");
+
   const quickActions = [
     {
-      label: "Add Transaction",
+      label: t("addTransaction.title"),
       href: "/transactions",
       icon: <Plus className="h-4 w-4" />,
-      description: "Record income or expense",
-      color: "bg-emerald-600 hover:bg-emerald-700"
+      description: t("addTransaction.description"),
+      color: "bg-emerald-600 hover:bg-emerald-700",
     },
     {
-      label: "Create Goal",
+      label: t("createGoal.title"),
       href: "/goals",
       icon: <Target className="h-4 w-4" />,
-      description: "Set a financial target",
-      color: "bg-blue-600 hover:bg-blue-700"
+      description: t("createGoal.description"),
+      color: "bg-blue-600 hover:bg-blue-700",
     },
     {
-      label: "Set Budget",
+      label: t("setBudget.title"),
       href: "/budgets",
       icon: <DollarSign className="h-4 w-4" />,
-      description: "Control your spending",
-      color: "bg-purple-600 hover:bg-purple-700"
+      description: t("setBudget.description"),
+      color: "bg-purple-600 hover:bg-purple-700",
     },
     {
-      label: "View Reports",
+      label: t("viewReports.title"),
       href: "/reports",
       icon: <PieChart className="h-4 w-4" />,
-      description: "Analyze your finances",
-      color: "bg-orange-600 hover:bg-orange-700"
-    }
+      description: t("viewReports.description"),
+      color: "bg-orange-600 hover:bg-orange-700",
+    },
   ];
 
   const insights = [
     {
-      title: "Monthly Savings",
+      title: t("monthlySavings"),
       value: "$1,250",
       change: "+12%",
       positive: true,
-      description: "vs last month"
+      description: t("vsLastMonth"),
     },
     {
-      title: "Top Category",
+      title: t("topCategory"),
       value: "Groceries",
       change: "$420",
       positive: false,
-      description: "this month"
-    }
+      description: t("thisMonth"),
+    },
   ];
 
   return (
@@ -59,7 +69,7 @@ export function QuickActionsCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          Quick Actions
+          {t("title")}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -82,21 +92,32 @@ export function QuickActionsCard() {
 
         {/* Quick Insights */}
         <div className="space-y-3">
-          <div className="text-sm font-medium text-muted-foreground">Quick Insights</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            {t("quickInsights")}
+          </div>
           {insights.map((insight, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div
+              key={index}
+              className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+            >
               <div>
                 <div className="font-medium text-sm">{insight.title}</div>
-                <div className="text-xs text-muted-foreground">{insight.description}</div>
+                <div className="text-xs text-muted-foreground">
+                  {insight.description}
+                </div>
               </div>
               <div className="text-right">
                 <div className="font-medium text-sm">{insight.value}</div>
-                <div className={`text-xs flex items-center gap-1 ${
-                  insight.positive ? 'text-emerald-500' : 'text-red-500'
-                }`}>
-                  <TrendingUp className={`h-3 w-3 ${
-                    insight.positive ? '' : 'rotate-180'
-                  }`} />
+                <div
+                  className={`text-xs flex items-center gap-1 ${
+                    insight.positive ? "text-emerald-500" : "text-red-500"
+                  }`}
+                >
+                  <TrendingUp
+                    className={`h-3 w-3 ${
+                      insight.positive ? "" : "rotate-180"
+                    }`}
+                  />
                   {insight.change}
                 </div>
               </div>
@@ -109,12 +130,12 @@ export function QuickActionsCard() {
           <div className="grid grid-cols-2 gap-2">
             <Link href="/settings">
               <Button variant="outline" size="sm" className="w-full">
-                Settings
+                {t("settings")}
               </Button>
             </Link>
             <Link href="/help">
               <Button variant="outline" size="sm" className="w-full">
-                Help
+                {t("help")}
               </Button>
             </Link>
           </div>

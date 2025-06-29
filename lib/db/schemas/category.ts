@@ -7,20 +7,31 @@ export const categoryDbSchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
   icon: z.string().min(1, "Icon is required"),
-  color: z.string().default('#6B7280'),
+  color: z.string().default("#6B7280"),
   category_type: z.enum(["personal", "business"]).default("personal"),
   parent_category_id: z.string().uuid().optional(),
   is_tax_deductible: z.boolean().default(false),
   tax_category_code: z.string().optional(),
-  business_expense_type: z.enum([
-    "office_supplies", "travel", "meals", "equipment", "software", 
-    "marketing", "professional_services", "utilities", "rent", "other"
-  ]).optional(),
+  business_expense_type: z
+    .enum([
+      "office_supplies",
+      "travel",
+      "meals",
+      "equipment",
+      "software",
+      "marketing",
+      "professional_services",
+      "utilities",
+      "rent",
+      "other",
+    ])
+    .optional(),
   tags: z.array(z.string()).default([]),
   project_id: z.string().optional(),
   is_system_category: z.boolean().default(false),
   sort_order: z.number().default(0),
   is_active: z.boolean().default(true),
+  translations: z.record(z.string(), z.string()).optional(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
 });
@@ -32,16 +43,27 @@ export const categoryUISchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
   icon: z.string().min(1, "Icon is required"),
-  color: z.string().default('#6B7280'),
+  color: z.string().default("#6B7280"),
   categoryType: z.enum(["personal", "business"]).default("personal"),
   parentCategoryId: z.string().optional(),
   isTaxDeductible: z.boolean().default(false),
   taxCategoryCode: z.string().optional(),
-  businessExpenseType: z.enum([
-    "office_supplies", "travel", "meals", "equipment", "software", 
-    "marketing", "professional_services", "utilities", "rent", "other"
-  ]).optional(),
+  businessExpenseType: z
+    .enum([
+      "office_supplies",
+      "travel",
+      "meals",
+      "equipment",
+      "software",
+      "marketing",
+      "professional_services",
+      "utilities",
+      "rent",
+      "other",
+    ])
+    .optional(),
   tags: z.array(z.string()).default([]),
+  translations: z.record(z.string(), z.string()).optional(),
   projectId: z.string().optional(),
   isSystemCategory: z.boolean().default(false),
   sortOrder: z.number().default(0),
@@ -55,15 +77,25 @@ export const createCategorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
   icon: z.string().min(1, "Icon is required"),
-  color: z.string().default('#6B7280'),
+  color: z.string().default("#6B7280"),
   categoryType: z.enum(["personal", "business"]).default("personal"),
   parentCategoryId: z.string().optional(),
   isTaxDeductible: z.boolean().default(false),
   taxCategoryCode: z.string().optional(),
-  businessExpenseType: z.enum([
-    "office_supplies", "travel", "meals", "equipment", "software", 
-    "marketing", "professional_services", "utilities", "rent", "other"
-  ]).optional(),
+  businessExpenseType: z
+    .enum([
+      "office_supplies",
+      "travel",
+      "meals",
+      "equipment",
+      "software",
+      "marketing",
+      "professional_services",
+      "utilities",
+      "rent",
+      "other",
+    ])
+    .optional(),
   tags: z.array(z.string()).default([]),
   projectId: z.string().optional(),
 });
@@ -92,12 +124,15 @@ export function transformCategoryToUI(category: Category): UICategory {
     isSystemCategory: category.is_system_category,
     sortOrder: category.sort_order,
     isActive: category.is_active,
+    translations: category.translations,
     createdAt: category.created_at,
     updatedAt: category.updated_at,
   };
 }
 
-export function transformCategoryToDB(category: Partial<UICategory>): Partial<Category> {
+export function transformCategoryToDB(
+  category: Partial<UICategory>
+): Partial<Category> {
   return {
     id: category.id,
     user_id: category.userId,
@@ -115,6 +150,7 @@ export function transformCategoryToDB(category: Partial<UICategory>): Partial<Ca
     is_system_category: category.isSystemCategory,
     sort_order: category.sortOrder,
     is_active: category.isActive,
+    translations: category.translations,
     created_at: category.createdAt,
     updated_at: category.updatedAt,
   };

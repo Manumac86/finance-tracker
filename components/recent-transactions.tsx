@@ -1,10 +1,15 @@
 "use client";
 import { useTransactions } from "@/contexts/transactions";
-import { 
-  ArrowDownLeft, 
-  ShoppingBag, 
-  Coffee, 
-  Home, 
+import { useTranslations } from "next-intl";
+import {
+  useTranslatedCategories,
+  getTranslatedCategoryName,
+} from "@/hooks/use-translated-categories";
+import {
+  ArrowDownLeft,
+  ShoppingBag,
+  Coffee,
+  Home,
   Car,
   Gamepad2,
   Receipt,
@@ -16,7 +21,7 @@ import {
   Scissors,
   Shield,
   Calculator,
-  MoreHorizontal
+  MoreHorizontal,
 } from "lucide-react";
 
 const getCategoryIcon = (iconName: string) => {
@@ -60,16 +65,18 @@ const getCategoryIcon = (iconName: string) => {
 
 export function RecentTransactions() {
   const { transactions, isLoading } = useTransactions();
+  const { data: translatedCategories } = useTranslatedCategories();
+  const t = useTranslations("recentTransactions");
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
+
+    if (diffDays === 0) return t("today");
+    if (diffDays === 1) return t("yesterday");
+    if (diffDays < 7) return t("daysAgo", { days: diffDays });
     return date.toLocaleDateString();
   };
 
@@ -85,7 +92,10 @@ export function RecentTransactions() {
       <div className="space-y-4">
         <div className="max-h-[350px] overflow-auto pr-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center justify-between py-3 border-b border-border">
+            <div
+              key={i}
+              className="flex items-center justify-between py-3 border-b border-border"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 bg-muted rounded-full animate-pulse" />
                 <div className="space-y-1">
@@ -106,8 +116,8 @@ export function RecentTransactions() {
       <div className="max-h-[350px] overflow-auto pr-2">
         {transactions.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p>No transactions yet</p>
-            <p className="text-sm">Start by adding your first transaction</p>
+            <p>{t("noTransactions")}</p>
+            <p className="text-sm">{t("startAdding")}</p>
           </div>
         ) : (
           transactions.map((transaction) => (
@@ -126,11 +136,15 @@ export function RecentTransactions() {
                   {getCategoryIcon(transaction.categoryIcon)}
                 </div>
                 <div>
-                  <div className="font-medium text-sm">
-                    {transaction.name}
-                  </div>
+                  <div className="font-medium text-sm">{transaction.name}</div>
                   <div className="text-xs text-muted-foreground">
-                    {transaction.categoryName} • {formatDate(transaction.transactionDate)}
+                    {translatedCategories
+                      ? getTranslatedCategoryName(
+                          translatedCategories,
+                          transaction.categoryId
+                        )
+                      : transaction.categoryName}{" "}
+                    • {formatDate(transaction.transactionDate)}
                   </div>
                 </div>
               </div>

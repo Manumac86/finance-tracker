@@ -19,6 +19,7 @@ import { useTransactions } from "@/contexts/transactions";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
 import { suggestCategory } from "@/lib/utils/smart-suggestions";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface BulkTransaction {
   id: string;
@@ -45,6 +46,8 @@ export function BulkTransactionModal({
   const [transactions, setTransactions] = useState<BulkTransaction[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [textInput, setTextInput] = useState("");
+  const t = useTranslations("bulkTransactions");
+  const tCommon = useTranslations("common");
 
   // Add a new empty transaction
   const addTransaction = () => {
@@ -120,7 +123,7 @@ export function BulkTransactionModal({
 
     setTransactions([...transactions, ...newTransactions]);
     setTextInput("");
-    toast.success(`Added ${newTransactions.length} transactions`);
+    toast.success(t("addedTransactions", { count: newTransactions.length }));
   };
 
   // Download CSV template
@@ -179,7 +182,7 @@ export function BulkTransactionModal({
       });
 
       setTransactions([...transactions, ...newTransactions]);
-      toast.success(`Imported ${newTransactions.length} transactions from CSV`);
+      toast.success(t("importedFromCsv", { count: newTransactions.length }));
     };
 
     reader.readAsText(file);
@@ -189,7 +192,7 @@ export function BulkTransactionModal({
   // Submit all transactions
   const handleSubmit = async () => {
     if (transactions.length === 0) {
-      toast.error("Add at least one transaction");
+      toast.error(t("addAtLeastOne"));
       return;
     }
 
@@ -204,7 +207,7 @@ export function BulkTransactionModal({
 
     if (invalidTransactions.length > 0) {
       toast.error(
-        `${invalidTransactions.length} transactions have missing or invalid data`
+        t("missingInvalidData", { count: invalidTransactions.length })
       );
       return;
     }
@@ -258,11 +261,11 @@ export function BulkTransactionModal({
       mutate();
 
       if (createdCount > 0) {
-        toast.success(`Successfully created ${createdCount} transactions`);
+        toast.success(t("successfullyCreated", { count: createdCount }));
       }
 
       if (failedCount > 0) {
-        toast.error(`Failed to create ${failedCount} transactions`);
+        toast.error(t("failedToCreate", { count: failedCount }));
       }
 
       // Close modal and reset if all succeeded
@@ -293,10 +296,9 @@ export function BulkTransactionModal({
     >
       <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto bg-gray-900 border-gray-800 text-gray-50">
         <DialogHeader>
-          <DialogTitle>Bulk Transaction Entry</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Add multiple transactions at once using text input, CSV upload, or
-            manual entry.
+            {t("subtitle")}
           </DialogDescription>
         </DialogHeader>
 
@@ -304,7 +306,7 @@ export function BulkTransactionModal({
           {/* Import Options */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label>Quick Text Entry</Label>
+              <Label>{t("quickTextEntry")}</Label>
               <Textarea
                 placeholder="Grocery Store $45.50&#10;Salary $3000 income&#10;Gas Station $35"
                 value={textInput}
@@ -318,12 +320,12 @@ export function BulkTransactionModal({
                 disabled={!textInput.trim()}
                 className="w-full"
               >
-                Parse Text
+                {t("parseText")}
               </Button>
             </div>
 
             <div className="space-y-2">
-              <Label>CSV Upload</Label>
+              <Label>{t("csvUpload")}</Label>
               <div className="space-y-2">
                 <Input
                   type="file"
@@ -339,20 +341,20 @@ export function BulkTransactionModal({
                   className="w-full border-gray-700"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Template
+                  {t("template")}
                 </Button>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Manual Entry</Label>
+              <Label>{t("manualEntry")}</Label>
               <Button
                 type="button"
                 onClick={addTransaction}
                 className="w-full bg-emerald-600 hover:bg-emerald-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
+                {t("addTransaction")}
               </Button>
             </div>
           </div>
@@ -362,7 +364,7 @@ export function BulkTransactionModal({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">
-                  Transactions ({transactions.length})
+                  {t("transactions")} ({transactions.length})
                 </h3>
                 <Button
                   type="button"
@@ -371,7 +373,7 @@ export function BulkTransactionModal({
                   onClick={() => setTransactions([])}
                   className="border-gray-700"
                 >
-                  Clear All
+                  {t("clearAll")}
                 </Button>
               </div>
 
@@ -382,7 +384,7 @@ export function BulkTransactionModal({
                     className="grid grid-cols-6 gap-2 p-3 bg-gray-800 rounded-lg"
                   >
                     <Input
-                      placeholder="Name"
+                      placeholder={t("name")}
                       value={transaction.name}
                       onChange={(e) =>
                         updateTransaction(
@@ -418,8 +420,8 @@ export function BulkTransactionModal({
                       }
                       className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
                     >
-                      <option value="expense">Expense</option>
-                      <option value="income">Income</option>
+                      <option value="expense">{t("expense")}</option>
+                      <option value="income">{t("income")}</option>
                     </select>
                     <select
                       value={transaction.categoryId}
@@ -432,7 +434,7 @@ export function BulkTransactionModal({
                       }
                       className="bg-gray-700 border-gray-600 text-gray-50 rounded-md px-3 py-2 text-sm"
                     >
-                      <option value="">Select Category</option>
+                      <option value="">{t("selectCategory")}</option>
                       {categories?.map((cat) => (
                         <option
                           key={cat.id || cat.name}
@@ -477,7 +479,7 @@ export function BulkTransactionModal({
             onClick={() => onOpenChange(false)}
             className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
           >
-            Cancel
+            {tCommon("cancel")}
           </Button>
           <Button
             type="button"
@@ -486,8 +488,8 @@ export function BulkTransactionModal({
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isSubmitting
-              ? "Creating..."
-              : `Create ${transactions.length} Transactions`}
+              ? t("creating")
+              : t("createTransactions", { count: transactions.length })}
           </Button>
         </DialogFooter>
       </DialogContent>

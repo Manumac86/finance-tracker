@@ -35,9 +35,14 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/contexts/categories";
+import { useTranslatedCategories } from "@/hooks/use-translated-categories";
 import { useTransactions } from "@/contexts/transactions";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
-import { suggestCategory, suggestMerchant, getQuickMerchantSuggestions } from "@/lib/utils/smart-suggestions";
+import {
+  suggestCategory,
+  suggestMerchant,
+  getQuickMerchantSuggestions,
+} from "@/lib/utils/smart-suggestions";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 
@@ -53,12 +58,13 @@ interface BulkTransaction {
 
 export function AddTransactionButton() {
   const { data: categories } = useCategories();
+  const { data: translatedCategories } = useTranslatedCategories();
   const { transactions, mutate } = useTransactions();
   const { checkBudgetAlerts } = useBudgetAlerts();
-  const tModals = useTranslations('modals');
-  const tForms = useTranslations('forms');
-  const tStatus = useTranslations('status');
-  const tCommon = useTranslations('common');
+  const tModals = useTranslations("modals");
+  const tForms = useTranslations("forms");
+  const tStatus = useTranslations("status");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const [transactionType, setTransactionType] = useState("expense");
   const [amount, setAmount] = useState("");
@@ -73,35 +79,40 @@ export function AddTransactionButton() {
   const [speechSupported, setSpeechSupported] = useState(false);
   const [activeTab, setActiveTab] = useState("single");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  
+
   // Bulk transaction states
-  const [bulkTransactions, setBulkTransactions] = useState<BulkTransaction[]>([]);
+  const [bulkTransactions, setBulkTransactions] = useState<BulkTransaction[]>(
+    []
+  );
   const [textInput, setTextInput] = useState("");
 
   // Initialize speech recognition
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         setSpeechSupported(true);
         const recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
-        recognition.lang = 'en-US';
-        
+        recognition.lang = "en-US";
+
         recognition.onstart = () => setIsListening(true);
         recognition.onend = () => setIsListening(false);
         recognition.onerror = () => {
           setIsListening(false);
-          toast.error('Voice recognition failed. Please try again.');
+          toast.error("Voice recognition failed. Please try again.");
         };
-        
+
         recognition.onresult = (event: SpeechRecognitionEvent) => {
           const transcript = event.results[0][0].transcript;
-          setDescription(prev => prev ? `${prev} ${transcript}` : transcript);
+          setDescription((prev) =>
+            prev ? `${prev} ${transcript}` : transcript
+          );
           setIsListening(false);
         };
-        
+
         recognitionRef.current = recognition;
       }
     }
@@ -122,17 +133,17 @@ export function AddTransactionButton() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) {
       toast.error("Transaction name is required");
       return;
     }
-    
+
     if (!amount || parseFloat(amount) <= 0) {
       toast.error("Amount must be greater than 0");
       return;
     }
-    
+
     if (!category) {
       toast.error("Please select a category");
       return;
@@ -143,45 +154,51 @@ export function AddTransactionButton() {
     try {
       const transactionData = {
         amount: parseFloat(amount),
-        transactionType: transactionType as 'income' | 'expense',
+        transactionType: transactionType as "income" | "expense",
         name: name.trim(),
         description: description.trim() || undefined,
         categoryId: category,
         transactionDate: (date || new Date()).toISOString(),
       };
 
-      const response = await fetch('/api/transactions', {
-        method: 'POST',
+      const response = await fetch("/api/transactions", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(transactionData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create transaction');
+        throw new Error(errorData.error || "Failed to create transaction");
       }
 
       const result = await response.json();
-      
+
       // Check for budget alerts (only for expenses)
-      if (transactionType === 'expense' && result.transaction) {
+      if (transactionType === "expense" && result.transaction) {
         await checkBudgetAlerts(result.transaction);
       }
-      
+
       // Refresh the transactions list
       mutate();
-      
+
       // Show success message
-      toast.success(`${transactionType === 'income' ? 'Income' : 'Expense'} added successfully!`);
-      
+      toast.success(
+        `${
+          transactionType === "income" ? "Income" : "Expense"
+        } added successfully!`
+      );
+
       // Reset form and close modal
       resetForm();
       setOpen(false);
     } catch (error) {
-      console.error('Error creating transaction:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create transaction');
+      console.error("Error creating transaction:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create transaction"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -207,12 +224,12 @@ export function AddTransactionButton() {
   // Handle merchant name changes and provide suggestions
   const handleNameChange = (value: string) => {
     setName(value);
-    
+
     if (value.length >= 2) {
       const suggestions = suggestMerchant(value, transactions);
       setMerchantSuggestions(suggestions);
       setShowSuggestions(suggestions.length > 0);
-      
+
       // Auto-suggest category based on merchant name
       if (!category && value.length >= 3) {
         const suggestedCategory = suggestCategory(value, categories || []);
@@ -228,11 +245,13 @@ export function AddTransactionButton() {
   // Handle category changes and provide merchant suggestions
   const handleCategoryChange = (categoryId: string) => {
     setCategory(categoryId);
-    
+
     // Provide merchant suggestions based on category
-    const selectedCategory = categories?.find(cat => cat.id === categoryId);
+    const selectedCategory = categories?.find((cat) => cat.id === categoryId);
     if (selectedCategory && !name) {
-      const quickSuggestions = getQuickMerchantSuggestions(selectedCategory.name);
+      const quickSuggestions = getQuickMerchantSuggestions(
+        selectedCategory.name
+      );
       setMerchantSuggestions(quickSuggestions);
       setShowSuggestions(true);
     }
@@ -468,7 +487,7 @@ export function AddTransactionButton() {
           data-testid="floating-add-transaction-button"
         >
           <Plus className="h-6 w-6" />
-          <span className="sr-only">{tModals('addTransaction')}</span>
+          <span className="sr-only">{tModals("addTransaction")}</span>
         </Button>
       </div>
 
@@ -482,203 +501,219 @@ export function AddTransactionButton() {
       >
         <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{tModals('addTransaction')}</DialogTitle>
+            <DialogTitle>{tModals("addTransaction")}</DialogTitle>
             <DialogDescription className="text-muted-foreground">
               Add single transactions or import multiple transactions at once.
             </DialogDescription>
           </DialogHeader>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="single">{tModals('singleTransaction')}</TabsTrigger>
-              <TabsTrigger value="bulk">{tModals('bulkImport')}</TabsTrigger>
+              <TabsTrigger value="single">
+                {tModals("singleTransaction")}
+              </TabsTrigger>
+              <TabsTrigger value="bulk">{tModals("bulkImport")}</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="single" className="space-y-4">
               <form onSubmit={handleSubmit}>
                 <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="transaction-type">{tForms('transactionType')}</Label>
-                <RadioGroup
-                  id="transaction-type"
-                  value={transactionType}
-                  onValueChange={setTransactionType}
-                  className="flex space-x-2"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value="expense"
-                      id="expense"
-                      className="text-rose-500"
-                    />
-                    <Label htmlFor="expense" className="font-normal">
-                      {tForms('expense')}
+                  <div className="space-y-2">
+                    <Label htmlFor="transaction-type">
+                      {tForms("transactionType")}
                     </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value="income"
-                      id="income"
-                      className="text-emerald-500"
-                    />
-                    <Label htmlFor="income" className="font-normal">
-                      {tForms('income')}
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-2 relative">
-                <Label htmlFor="name">{tForms('transactionName')}</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder={tForms('transactionNamePlaceholder')}
-                  className=""
-                  value={name}
-                  onChange={(e) => handleNameChange(e.target.value)}
-                  onFocus={() => {
-                    if (merchantSuggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
-                  onBlur={() => {
-                    // Delay hiding suggestions to allow clicks
-                    setTimeout(() => setShowSuggestions(false), 200);
-                  }}
-                  required
-                />
-                
-                {/* Merchant Suggestions Dropdown */}
-                {showSuggestions && merchantSuggestions.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg">
-                    {merchantSuggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
-                        onClick={() => {
-                          setName(suggestion);
-                          setShowSuggestions(false);
-                          
-                          // Auto-suggest category for this merchant
-                          if (!category) {
-                            const suggestedCategory = suggestCategory(suggestion, categories || []);
-                            if (suggestedCategory?.id) {
-                              setCategory(suggestedCategory.id);
-                            }
-                          }
-                        }}
-                      >
-                        {suggestion}
+                    <RadioGroup
+                      id="transaction-type"
+                      value={transactionType}
+                      onValueChange={setTransactionType}
+                      className="flex space-x-2"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="expense"
+                          id="expense"
+                          className="text-rose-500"
+                        />
+                        <Label htmlFor="expense" className="font-normal">
+                          {tForms("expense")}
+                        </Label>
                       </div>
-                    ))}
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="income"
+                          id="income"
+                          className="text-emerald-500"
+                        />
+                        <Label htmlFor="income" className="font-normal">
+                          {tForms("income")}
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="amount">{tForms('amount')}</Label>
-                <div className="relative flex items-center justify-center">
-                  <span className="absolute left-3 text-muted-foreground">$</span>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    placeholder={tForms('amountPlaceholder')}
-                    className="pl-8"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="category">{tForms('category')}</Label>
-                <Select value={category} onValueChange={handleCategoryChange} required>
-                  <SelectTrigger
-                    id="category"
-                    className=""
-                  >
-                    <SelectValue placeholder={tForms('selectCategory')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id || cat.name}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="date">{tForms('date')}</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : "Select a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      initialFocus
+                  <div className="space-y-2 relative">
+                    <Label htmlFor="name">{tForms("transactionName")}</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder={tForms("transactionNamePlaceholder")}
                       className=""
+                      value={name}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      onFocus={() => {
+                        if (merchantSuggestions.length > 0) {
+                          setShowSuggestions(true);
+                        }
+                      }}
+                      onBlur={() => {
+                        // Delay hiding suggestions to allow clicks
+                        setTimeout(() => setShowSuggestions(false), 200);
+                      }}
+                      required
                     />
-                  </PopoverContent>
-                </Popover>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">{tForms('notes')}</Label>
-                <div className="relative">
-                  <Textarea
-                    id="description"
-                    placeholder={tForms('descriptionPlaceholder')}
-                    className="pr-12"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                  {speechSupported && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className={`absolute top-2 right-2 h-8 w-8 p-0 ${
-                        isListening 
-                          ? 'text-red-500 hover:text-red-600' 
-                          : 'text-muted-foreground hover:text-muted-foreground/80'
-                      }`}
-                      onClick={isListening ? stopListening : startListening}
-                      disabled={isSubmitting}
-                    >
-                      {isListening ? (
-                        <MicOff className="h-4 w-4" />
-                      ) : (
-                        <Mic className="h-4 w-4" />
-                      )}
-                      <span className="sr-only">
-                        {isListening ? 'Stop voice input' : tForms('voiceInput')}
+                    {/* Merchant Suggestions Dropdown */}
+                    {showSuggestions && merchantSuggestions.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg">
+                        {merchantSuggestions.map((suggestion, index) => (
+                          <div
+                            key={index}
+                            className="px-3 py-2 cursor-pointer hover:bg-accent text-sm"
+                            onClick={() => {
+                              setName(suggestion);
+                              setShowSuggestions(false);
+
+                              // Auto-suggest category for this merchant
+                              if (!category) {
+                                const suggestedCategory = suggestCategory(
+                                  suggestion,
+                                  categories || []
+                                );
+                                if (suggestedCategory?.id) {
+                                  setCategory(suggestedCategory.id);
+                                }
+                              }
+                            }}
+                          >
+                            {suggestion}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">{tForms("amount")}</Label>
+                    <div className="relative flex items-center justify-center">
+                      <span className="absolute left-3 text-muted-foreground">
+                        $
                       </span>
-                    </Button>
-                  )}
-                </div>
-                {isListening && (
-                  <p className="text-sm text-blue-400">
-                    🎤 {tStatus('listeningVoice')}
-                  </p>
-                )}
-              </div>
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        placeholder={tForms("amountPlaceholder")}
+                        className="pl-8"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="category">{tForms("category")}</Label>
+                    <Select
+                      value={category}
+                      onValueChange={handleCategoryChange}
+                      required
+                    >
+                      <SelectTrigger id="category" className="">
+                        <SelectValue placeholder={tForms("selectCategory")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {translatedCategories?.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id || cat.name}>
+                            {cat.translatedName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="date">{tForms("date")}</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {date ? format(date, "PPP") : "Select a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                          className=""
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">{tForms("notes")}</Label>
+                    <div className="relative">
+                      <Textarea
+                        id="description"
+                        placeholder={tForms("descriptionPlaceholder")}
+                        className="pr-12"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                      {speechSupported && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className={`absolute top-2 right-2 h-8 w-8 p-0 ${
+                            isListening
+                              ? "text-red-500 hover:text-red-600"
+                              : "text-muted-foreground hover:text-muted-foreground/80"
+                          }`}
+                          onClick={isListening ? stopListening : startListening}
+                          disabled={isSubmitting}
+                        >
+                          {isListening ? (
+                            <MicOff className="h-4 w-4" />
+                          ) : (
+                            <Mic className="h-4 w-4" />
+                          )}
+                          <span className="sr-only">
+                            {isListening
+                              ? "Stop voice input"
+                              : tForms("voiceInput")}
+                          </span>
+                        </Button>
+                      )}
+                    </div>
+                    {isListening && (
+                      <p className="text-sm text-blue-400">
+                        🎤 {tStatus("listeningVoice")}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button
@@ -687,7 +722,7 @@ export function AddTransactionButton() {
                     onClick={() => setOpen(false)}
                     className="hover:text-destructive"
                   >
-                    {tCommon('cancel')}
+                    {tCommon("cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -699,7 +734,9 @@ export function AddTransactionButton() {
                         : "bg-emerald-600 hover:bg-emerald-700"
                     )}
                   >
-                    {isSubmitting ? tStatus('saving') : `${tCommon('save')} Transaction`}
+                    {isSubmitting
+                      ? tStatus("saving")
+                      : `${tCommon("save")} Transaction`}
                   </Button>
                 </DialogFooter>
               </form>
@@ -709,7 +746,7 @@ export function AddTransactionButton() {
               {/* Import Options */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label>{tForms('quickTextEntry')}</Label>
+                  <Label>{tForms("quickTextEntry")}</Label>
                   <Textarea
                     placeholder="Grocery Store $45.50&#10;Salary $3000 income&#10;Gas Station $35"
                     value={textInput}
@@ -728,7 +765,7 @@ export function AddTransactionButton() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{tForms('csvUpload')}</Label>
+                  <Label>{tForms("csvUpload")}</Label>
                   <div className="space-y-2">
                     <Input
                       type="file"
@@ -838,12 +875,12 @@ export function AddTransactionButton() {
                           className="bg-background rounded-md px-3 py-2 text-sm"
                         >
                           <option value="">Select Category</option>
-                          {categories?.map((cat) => (
+                          {translatedCategories?.map((cat) => (
                             <option
                               key={cat.id || cat.name}
                               value={cat.id || cat.name}
                             >
-                              {cat.name}
+                              {cat.translatedName}
                             </option>
                           ))}
                         </select>
@@ -892,7 +929,9 @@ export function AddTransactionButton() {
                   {isSubmitting
                     ? "Creating..."
                     : bulkTransactions.length > 0
-                    ? `Create ${bulkTransactions.length} Transaction${bulkTransactions.length === 1 ? '' : 's'}`
+                    ? `Create ${bulkTransactions.length} Transaction${
+                        bulkTransactions.length === 1 ? "" : "s"
+                      }`
                     : "Create Transactions"}
                 </Button>
               </DialogFooter>

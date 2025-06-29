@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { UIGoal } from "@/lib/db/schemas/goal";
 import { CelebrationModal } from "./celebration-modal";
+import { useTranslations } from "next-intl";
 
 interface GoalCardProps {
   goal: UIGoal;
@@ -17,9 +18,11 @@ interface GoalCardProps {
 
 export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
   const [showCelebration, setShowCelebration] = useState(
-    goal.isAchieved && goal.achievedAt && 
-    new Date(goal.achievedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000 // Within last 24 hours
+    goal.isAchieved &&
+      goal.achievedAt &&
+      new Date(goal.achievedAt).getTime() > Date.now() - 24 * 60 * 60 * 1000 // Within last 24 hours
   );
+  const t = useTranslations("goalCard");
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -53,11 +56,11 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
   const getGoalTypeLabel = (type: string) => {
     switch (type) {
       case "savings":
-        return "Savings";
+        return t("savings");
       case "debt_payoff":
-        return "Debt Payoff";
+        return t("debtPayoff");
       case "spending_limit":
-        return "Spending Limit";
+        return t("spendingLimit");
       default:
         return type;
     }
@@ -65,9 +68,11 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
 
   const getProgressDisplay = () => {
     if (goal.type === "debt_payoff") {
-      return `${formatCurrency(goal.currentAmount)} remaining`;
+      return `${formatCurrency(goal.currentAmount)} ${t("remaining")}`;
     }
-    return `${formatCurrency(goal.currentAmount)} / ${formatCurrency(goal.targetAmount)}`;
+    return `${formatCurrency(goal.currentAmount)} / ${formatCurrency(
+      goal.targetAmount
+    )}`;
   };
 
   const getDeadlineDisplay = () => {
@@ -79,7 +84,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
       return (
         <Badge variant="destructive" className="text-xs">
           <AlertTriangle className="h-3 w-3 mr-1" />
-          {daysRemaining} days overdue
+          {t("daysOverdue", { days: Math.abs(daysRemaining) })}
         </Badge>
       );
     }
@@ -88,7 +93,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
       return (
         <Badge variant="secondary" className="text-xs bg-yellow-600">
           <Clock className="h-3 w-3 mr-1" />
-          {daysRemaining} days remaining
+          {t("daysRemaining", { days: daysRemaining })}
         </Badge>
       );
     }
@@ -107,12 +112,12 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
                   {getGoalTypeLabel(goal.type)}
                 </Badge>
                 {goal.isAchieved && (
-                  <Badge 
+                  <Badge
                     data-testid="achievement-badge"
                     className="text-xs bg-green-600"
                   >
                     <Trophy className="h-3 w-3 mr-1" />
-                    Achieved
+                    {t("achieved")}
                   </Badge>
                 )}
               </div>
@@ -146,11 +151,11 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           {/* Progress */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-400">Progress</span>
+              <span className="text-sm text-gray-400">{t("progress")}</span>
               <span className="text-sm font-medium">{goal.progress || 0}%</span>
             </div>
-            <Progress 
-              value={goal.progress || 0} 
+            <Progress
+              value={goal.progress || 0}
               className="h-2"
               aria-valuenow={goal.progress || 0}
             />
@@ -164,7 +169,9 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           {/* Target Date and Deadline Status */}
           {goal.targetDate && (
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-400">Target: {formatDate(goal.targetDate)}</span>
+              <span className="text-gray-400">
+                {t("target")}: {formatDate(goal.targetDate)}
+              </span>
               {getDeadlineDisplay()}
             </div>
           )}
@@ -172,7 +179,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           {/* Achievement Date */}
           {goal.achievedAt && (
             <div className="text-center text-sm text-green-400">
-              Achieved on {formatDate(goal.achievedAt)}
+              {t("achievedOn", { date: formatDate(goal.achievedAt) || "" })}
             </div>
           )}
         </CardContent>
