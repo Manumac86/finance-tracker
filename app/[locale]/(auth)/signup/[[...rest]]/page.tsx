@@ -2,11 +2,10 @@
  * TDD REFACTOR: Cleaner sign-up page using extracted components
  */
 
-import { SignUp } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { currentUser } from '@clerk/nextjs/server'
 import { AuthLayout } from '@/components/auth/auth-layout'
-import { clerkDarkTheme } from '@/lib/auth/clerk-theme'
+import { ThemedSignUp } from '@/components/auth/themed-sign-up'
 
 export default async function SignUpPage() {
   // Check if user is already authenticated
@@ -18,7 +17,7 @@ export default async function SignUpPage() {
 
   return (
     <AuthLayout>
-      <SignUp appearance={clerkDarkTheme} />
+      <ThemedSignUp />
     </AuthLayout>
   )
 }

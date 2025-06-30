@@ -71,7 +71,7 @@ export function BalanceChart() {
           <TabsTrigger
             value="tenDays"
           >
-            Últimos 10 Días
+            {t("last10Days")}
           </TabsTrigger>
         </TabsList>
       </Tabs>

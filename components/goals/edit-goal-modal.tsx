@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { GoalFormData, FormErrors, FormUpdateHandler } from "@/types/forms";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,9 @@ export function EditGoalModal({
   onSave,
   goal,
 }: EditGoalModalProps) {
+  const t = useTranslations("editGoalModal");
+  const tCommon = useTranslations("common");
+  
   const [formData, setFormData] = useState<GoalFormData>({
     name: "",
     description: "",
@@ -113,14 +117,14 @@ export function EditGoalModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-lg bg-gray-900 border-gray-800">
-        <CardHeader className="border-b border-gray-800">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-lg">
+        <CardHeader className="border-b">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-xl">Edit Goal</CardTitle>
-              <p className="text-sm text-gray-400 mt-1">
-                Update your financial goal
+              <CardTitle className="text-xl">{t("title")}</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("subtitle")}
               </p>
             </div>
             <Button
@@ -137,53 +141,53 @@ export function EditGoalModal({
         <form onSubmit={handleSubmit}>
           <CardContent className="p-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Goal Name *</Label>
+              <Label htmlFor="name">{t("goalName")} *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => updateFormData("name", e.target.value)}
-                placeholder="e.g., Emergency Fund, Vacation Savings"
-                className={`bg-gray-800 border-gray-700 ${
-                  errors.name ? "border-red-500" : ""
+                placeholder={t("goalNamePlaceholder")}
+                className={`${
+                  errors.name ? "border-destructive" : ""
                 }`}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name}</p>
+                <p className="text-sm text-destructive">{errors.name}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("description")}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => updateFormData("description", e.target.value)}
-                placeholder="Optional description for this goal"
-                className="bg-gray-800 border-gray-700"
+                placeholder={t("descriptionPlaceholder")}
+                className=""
                 rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Goal Type</Label>
+              <Label htmlFor="type">{t("goalType")}</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => updateFormData("type", value)}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="savings">Savings Goal</SelectItem>
-                  <SelectItem value="debt_payoff">Debt Payoff</SelectItem>
-                  <SelectItem value="spending_limit">Spending Limit</SelectItem>
+                  <SelectItem value="savings">{t("savingsGoal")}</SelectItem>
+                  <SelectItem value="debt_payoff">{t("debtPayoff")}</SelectItem>
+                  <SelectItem value="spending_limit">{t("spendingLimit")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="targetAmount">Target Amount *</Label>
+                <Label htmlFor="targetAmount">{t("targetAmount")} *</Label>
                 <Input
                   id="targetAmount"
                   type="number"
@@ -192,18 +196,18 @@ export function EditGoalModal({
                   onChange={(e) =>
                     updateFormData("targetAmount", e.target.value)
                   }
-                  placeholder="0.00"
-                  className={`bg-gray-800 border-gray-700 ${
-                    errors.targetAmount ? "border-red-500" : ""
+                  placeholder={t("amountPlaceholder")}
+                  className={`${
+                    errors.targetAmount ? "border-destructive" : ""
                   }`}
                 />
                 {errors.targetAmount && (
-                  <p className="text-sm text-red-500">{errors.targetAmount}</p>
+                  <p className="text-sm text-destructive">{errors.targetAmount}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="currentAmount">Current Amount</Label>
+                <Label htmlFor="currentAmount">{t("currentAmount")}</Label>
                 <Input
                   id="currentAmount"
                   type="number"
@@ -212,52 +216,52 @@ export function EditGoalModal({
                   onChange={(e) =>
                     updateFormData("currentAmount", e.target.value)
                   }
-                  placeholder="0.00"
-                  className="bg-gray-800 border-gray-700"
+                  placeholder={t("amountPlaceholder")}
+                  className=""
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="targetDate">Target Date</Label>
+              <Label htmlFor="targetDate">{t("targetDate")}</Label>
               <Input
                 id="targetDate"
                 type="date"
                 value={formData.targetDate}
                 onChange={(e) => updateFormData("targetDate", e.target.value)}
-                className="bg-gray-800 border-gray-700"
+                className=""
               />
             </div>
 
             {formData.type === "spending_limit" && (
               <div className="space-y-2">
-                <Label htmlFor="period">Period</Label>
+                <Label htmlFor="period">{t("period")}</Label>
                 <Select
                   value={formData.period}
                   onValueChange={(value) => updateFormData("period", value)}
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="weekly">{t("weekly")}</SelectItem>
+                    <SelectItem value="monthly">{t("monthly")}</SelectItem>
+                    <SelectItem value="yearly">{t("yearly")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             )}
           </CardContent>
 
-          <div className="border-t border-gray-800 p-6 flex justify-end gap-2">
+          <div className="border-t p-6 flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {tCommon("cancel")}
             </Button>
             <Button
               type="submit"
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              Update Goal
+              {t("updateGoal")}
             </Button>
           </div>
         </form>

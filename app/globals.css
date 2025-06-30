@@ -52,6 +52,8 @@
 
 :root {
   --radius: 0.625rem;
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
 
   /* Base colors - Clean, professional white backgrounds */
   --background: oklch(0.99 0.01 142.495); /* Subtle green-tinted white */
@@ -197,6 +199,55 @@
   }
 }
 
+/* Suppress transitions during theme change */
+.theme-changing * {
+  transition: none !important;
+}
+
+/* Clerk theme adaptive styles */
+.clerk-theme-adaptive {
+  color-scheme: light dark;
+}
+
+/* Clerk component overrides to use CSS variables */
+.cl-internal-b3fm6y { /* Card background */
+  background-color: hsl(var(--background)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.cl-formFieldInput__identifier,
+.cl-formFieldInput__password {
+  background-color: hsl(var(--muted)) !important;
+  border-color: hsl(var(--border)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.cl-formFieldLabel,
+.cl-formFieldLabel__identifier {
+  color: hsl(var(--foreground)) !important;
+}
+
+.cl-headerTitle {
+  color: hsl(var(--foreground)) !important;
+}
+
+.cl-headerSubtitle {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.cl-dividerText {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.cl-footerActionText,
+.cl-footerActionLink {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.cl-footerActionLink:hover {
+  color: hsl(var(--foreground)) !important;
+}
+
 /* TDD GREEN: Mobile-responsive auth layout class */
 @layer components {
   .responsive-auth-layout {
@@ -216,7 +267,7 @@
     background-color: var(--bill);
     color: var(--bill-foreground);
   }
-  
+
   .badge-subscription {
     background-color: var(--subscription);
     color: var(--subscription-foreground);

@@ -1,5 +1,7 @@
 import { AddTransactionButton } from "@/components/add-transaction-button";
-import { Header } from "@/components/header";
+import { AppSidebar } from "@/components/app-sidebar";
+import { TopBar } from "@/components/top-bar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -7,14 +9,15 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <main className="flex-1 px-2 py-4 sm:px-4 sm:py-6 lg:px-6 max-w-full overflow-x-hidden">
-        <Header />
-        <div className="max-w-7xl mx-auto pt-6">
+    <SidebarProvider defaultOpen={true}>
+      <AppSidebar />
+      <SidebarInset>
+        <TopBar />
+        <div className="flex flex-1 flex-col p-4">
           {children}
+          <AddTransactionButton />
         </div>
-        <AddTransactionButton />
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

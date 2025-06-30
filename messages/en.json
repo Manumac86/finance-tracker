@@ -212,6 +212,7 @@
     "lastMonth": "Last Month",
     "thisYear": "This Year",
     "lastYear": "Last Year",
+    "last10Days": "Last 10 Days",
     "custom": "Custom",
     "to": "to"
   },
@@ -419,7 +420,8 @@
       "totalGoals": "Total Goals",
       "achieved": "Achieved",
       "inProgress": "In Progress",
-      "dueSoon": "Due Soon"
+      "dueSoon": "Due Soon",
+      "goalsSummary": "Goals Summary"
     },
     "categories": {
       "title": "Categories & Projects",
@@ -851,6 +853,53 @@
     },
     "success": {
       "transactionUpdated": "Transaction updated successfully!"
+    }
+  },
+  "editGoalModal": {
+    "title": "Edit Goal",
+    "subtitle": "Update your financial goal",
+    "goalName": "Goal Name",
+    "goalNamePlaceholder": "e.g., Emergency Fund, Vacation Savings",
+    "description": "Description",
+    "descriptionPlaceholder": "Optional description for this goal",
+    "goalType": "Goal Type",
+    "savingsGoal": "Savings Goal",
+    "debtPayoff": "Debt Payoff",
+    "spendingLimit": "Spending Limit",
+    "targetAmount": "Target Amount",
+    "currentAmount": "Current Amount",
+    "amountPlaceholder": "0.00",
+    "targetDate": "Target Date",
+    "period": "Period",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "updateGoal": "Update Goal"
+  },
+  "celebrationModal": {
+    "congratulations": "Congratulations!",
+    "achievedGoal": "You've achieved your {goalName} goal!",
+    "debtPaid": "Debt Paid Off",
+    "goalAchieved": "Goal Achieved",
+    "whatNext": "What's Next?",
+    "createNewGoal": "Create New Goal",
+    "nextSteps": {
+      "savings": {
+        "newGoal": "Create a new savings goal",
+        "increaseTarget": "Increase your target amount",
+        "startInvestment": "Start an investment goal"
+      },
+      "debtPayoff": {
+        "celebrate": "Celebrate being debt-free!",
+        "emergencyFund": "Build an emergency fund",
+        "startSaving": "Start saving for your next goal"
+      },
+      "spendingLimit": {
+        "newTarget": "Set a new spending target",
+        "tryCategory": "Try a different category",
+        "focusGoal": "Focus on another financial goal"
+      },
+      "default": "Set your next financial goal"
     }
   }
 }

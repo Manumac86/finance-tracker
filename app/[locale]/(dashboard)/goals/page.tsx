@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Target } from "lucide-react";
 import useSWR from "swr";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GoalCard } from "@/components/goals/goal-card";
@@ -13,6 +14,8 @@ import { UIGoal } from "@/lib/db/schemas/goal";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function GoalsPage() {
+  const t = useTranslations("pages.goals");
+  const tCommon = useTranslations("common");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<UIGoal | null>(null);
@@ -115,10 +118,10 @@ export default function GoalsPage() {
   };
 
   const filterOptions = [
-    { value: "all", label: "All Goals" },
-    { value: "savings", label: "Savings" },
-    { value: "debt_payoff", label: "Debt Payoff" },
-    { value: "spending_limit", label: "Spending Limits" },
+    { value: "all", label: t("allGoals") },
+    { value: "savings", label: t("savings") },
+    { value: "debt_payoff", label: t("debtPayoff") },
+    { value: "spending_limit", label: t("spendingLimits") },
   ];
 
   if (isLoading) {
@@ -126,7 +129,7 @@ export default function GoalsPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading goals...</p>
+          <p className="text-muted-foreground">{tCommon("loading")}</p>
         </div>
       </div>
     );
@@ -135,7 +138,7 @@ export default function GoalsPage() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-red-500">Error loading goals. Please try again.</p>
+        <p className="text-red-500">{tCommon("error")}. {tCommon("tryAgain")}.</p>
       </div>
     );
   }
@@ -145,9 +148,9 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Goals</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Track your financial progress and stay motivated
+            {t("description")}
           </p>
         </div>
         <Button
@@ -155,7 +158,7 @@ export default function GoalsPage() {
           className="bg-emerald-600 hover:bg-emerald-700"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create Goal
+          {tCommon("add")}
         </Button>
       </div>
 
@@ -183,16 +186,16 @@ export default function GoalsPage() {
         <Card>
           <CardContent className="text-center py-12">
             <Target className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No goals yet</h3>
+            <h3 className="text-xl font-semibold mb-2">{t("noGoalsYet")}</h3>
             <p className="text-muted-foreground mb-6">
-              Start by creating your first financial goal to track your progress
+              {t("createFirstGoal")}
             </p>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Create Your First Goal
+              {t("createFirstGoal")}
             </Button>
           </CardContent>
         </Card>
@@ -213,7 +216,7 @@ export default function GoalsPage() {
       {goals.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Goals Summary</CardTitle>
+            <CardTitle>{t("goalsSummary")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -221,13 +224,13 @@ export default function GoalsPage() {
                 <div className="text-2xl font-bold text-emerald-500">
                   {goals.length}
                 </div>
-                <div className="text-sm text-muted-foreground">Total Goals</div>
+                <div className="text-sm text-muted-foreground">{t("totalGoals")}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-500">
                   {goals.filter((goal) => goal.isAchieved).length}
                 </div>
-                <div className="text-sm text-muted-foreground">Achieved</div>
+                <div className="text-sm text-muted-foreground">{t("achieved")}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-500">
@@ -237,7 +240,7 @@ export default function GoalsPage() {
                     ).length
                   }
                 </div>
-                <div className="text-sm text-muted-foreground">In Progress</div>
+                <div className="text-sm text-muted-foreground">{t("inProgress")}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-500">
@@ -247,7 +250,7 @@ export default function GoalsPage() {
                     ).length
                   }
                 </div>
-                <div className="text-sm text-muted-foreground">Due Soon</div>
+                <div className="text-sm text-muted-foreground">{t("dueSoon")}</div>
               </div>
             </div>
           </CardContent>

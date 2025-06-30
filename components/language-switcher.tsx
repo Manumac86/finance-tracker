@@ -13,7 +13,11 @@ import {
 import { Globe } from "lucide-react";
 import { routing, localeNames, localeFlagEmojis } from "@/i18n/routing";
 
-export function LanguageSwitcher() {
+interface LanguageSwitcherProps {
+  variant?: "dropdown" | "inline";
+}
+
+export function LanguageSwitcher({ variant = "dropdown" }: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const currentLocale = useLocale();
@@ -27,6 +31,30 @@ export function LanguageSwitcher() {
     router.push(`/${newLocale}${pathWithoutLocale}`);
     setIsOpen(false);
   };
+
+  if (variant === "inline") {
+    return (
+      <div className="w-full space-y-1">
+        {routing.locales.map((locale) => (
+          <button
+            key={locale}
+            onClick={() => switchLanguage(locale)}
+            className={`w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground ${
+              locale === currentLocale ? "bg-accent" : ""
+            }`}
+          >
+            <span className="text-base">
+              {localeFlagEmojis[locale as keyof typeof localeFlagEmojis]}
+            </span>
+            <span>{localeNames[locale as keyof typeof localeNames]}</span>
+            {locale === currentLocale && (
+              <span className="ml-auto text-xs text-emerald-500">✓</span>
+            )}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

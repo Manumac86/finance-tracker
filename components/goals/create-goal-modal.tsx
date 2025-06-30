@@ -119,8 +119,8 @@ export function CreateGoalModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl bg-gray-900 border-gray-800 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle>{t("title")}</CardTitle>
@@ -148,10 +148,10 @@ export function CreateGoalModal({
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="bg-gray-800 border-gray-700"
+                className=""
               />
               {errors.name && (
-                <p className="text-rose-500 text-sm mt-1">{errors.name}</p>
+                <p className="text-destructive text-sm mt-1">{errors.name}</p>
               )}
             </div>
 
@@ -167,10 +167,10 @@ export function CreateGoalModal({
                   })
                 }
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent>
                   <SelectItem value="savings">{t("savingsGoal")}</SelectItem>
                   <SelectItem value="debt_payoff">{t("debtPayoff")}</SelectItem>
                   <SelectItem value="spending_limit">
@@ -191,10 +191,10 @@ export function CreateGoalModal({
                 onChange={(e) =>
                   setFormData({ ...formData, targetAmount: e.target.value })
                 }
-                className="bg-gray-800 border-gray-700"
+                className=""
               />
               {errors.targetAmount && (
-                <p className="text-rose-500 text-sm mt-1">
+                <p className="text-destructive text-sm mt-1">
                   {errors.targetAmount}
                 </p>
               )}
@@ -202,13 +202,13 @@ export function CreateGoalModal({
               {/* Recommendations */}
               {getRecommendations().length > 0 && (
                 <div className="mt-2 space-y-1">
-                  <p className="text-sm text-gray-400">{t("suggestions")}</p>
+                  <p className="text-sm text-muted-foreground">{t("suggestions")}</p>
                   <div className="flex flex-wrap gap-2">
                     {getRecommendations().map((rec, index) => (
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="cursor-pointer hover:bg-gray-700"
+                        className="cursor-pointer hover:bg-accent"
                         onClick={() =>
                           setFormData({
                             ...formData,
@@ -236,9 +236,9 @@ export function CreateGoalModal({
                   onChange={(e) =>
                     setFormData({ ...formData, currentAmount: e.target.value })
                   }
-                  className="bg-gray-800 border-gray-700"
+                  className=""
                 />
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   {t("currentDebtHelp")}
                 </p>
               </div>
@@ -254,10 +254,10 @@ export function CreateGoalModal({
                     setFormData({ ...formData, categoryId: value })
                   }
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectTrigger>
                     <SelectValue placeholder={t("selectCategory")} />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent>
                     <SelectItem value="cat_dining_123">Dining</SelectItem>
                     <SelectItem value="cat_shopping_123">Shopping</SelectItem>
                     <SelectItem value="cat_entertainment_123">
@@ -266,7 +266,7 @@ export function CreateGoalModal({
                   </SelectContent>
                 </Select>
                 {errors.categoryId && (
-                  <p className="text-rose-500 text-sm mt-1">
+                  <p className="text-destructive text-sm mt-1">
                     {errors.categoryId}
                   </p>
                 )}
@@ -286,10 +286,10 @@ export function CreateGoalModal({
                     })
                   }
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent>
                     <SelectItem value="weekly">{t("weekly")}</SelectItem>
                     <SelectItem value="monthly">{t("monthly")}</SelectItem>
                     <SelectItem value="yearly">{t("yearly")}</SelectItem>
@@ -308,7 +308,7 @@ export function CreateGoalModal({
                 onChange={(e) =>
                   setFormData({ ...formData, targetDate: e.target.value })
                 }
-                className="bg-gray-800 border-gray-700"
+                className=""
               />
             </div>
 
@@ -322,7 +322,7 @@ export function CreateGoalModal({
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                className="bg-gray-800 border-gray-700"
+                className=""
                 rows={3}
               />
             </div>
@@ -333,7 +333,7 @@ export function CreateGoalModal({
                 type="button"
                 variant="outline"
                 onClick={handleClose}
-                className="border-gray-600"
+                className=""
               >
                 {tCommon("cancel")}
               </Button>
