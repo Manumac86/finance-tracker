@@ -260,7 +260,7 @@ export function EnhancedDashboard() {
           <QuickActionsCard />
 
           {/* Bank Connection Prompt */}
-          <BankConnectionPrompt />
+          {!!+process.env.NEXT_PUBLIC_BANK_ENABLED! && <BankConnectionPrompt />}
 
           <Card>
             <CardHeader>

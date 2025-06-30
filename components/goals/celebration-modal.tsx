@@ -4,6 +4,7 @@ import { Trophy, Star, Target, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UIGoal } from "@/lib/db/schemas/goal";
+import { useTranslations } from "next-intl";
 
 interface CelebrationModalProps {
   goal: UIGoal;
@@ -12,6 +13,9 @@ interface CelebrationModalProps {
 }
 
 export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProps) {
+  const t = useTranslations("celebrationModal");
+  const tCommon = useTranslations("common");
+  
   if (!isOpen) return null;
 
   const formatCurrency = (amount: number) => {
@@ -110,9 +114,9 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1 border-emerald-400 text-emerald-400 hover:bg-emerald-400 hover:text-emerald-900"
+              className="flex-1"
             >
-              Cerrar
+              {tCommon("close")}
             </Button>
             <Button
               onClick={() => {
@@ -121,7 +125,7 @@ export function CelebrationModal({ goal, isOpen, onClose }: CelebrationModalProp
               }}
               className="flex-1 bg-emerald-600 hover:bg-emerald-700"
             >
-              Crear Nueva Meta
+              {t("createNewGoal")}
             </Button>
           </div>
         </CardContent>

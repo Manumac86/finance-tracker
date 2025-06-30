@@ -103,7 +103,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
 
   return (
     <>
-      <Card className="bg-gray-900 border-gray-800 hover:border-gray-700 transition-colors">
+      <Card className="hover:shadow-lg transition-all duration-200">
         <CardHeader className="pb-4">
           <div className="flex justify-between items-start">
             <div className="flex-1">
@@ -123,7 +123,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
               </div>
               <h3 className="font-semibold text-lg">{goal.name}</h3>
               {goal.description && (
-                <p className="text-sm text-gray-400 mt-1">{goal.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">{goal.description}</p>
               )}
             </div>
             <div className="flex gap-1 ml-2">
@@ -139,7 +139,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => onDelete(goal.id!)}
-                className="h-8 w-8 p-0 text-red-400 hover:text-red-300"
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive/80"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -151,7 +151,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           {/* Progress */}
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-400">{t("progress")}</span>
+              <span className="text-sm text-muted-foreground">{t("progress")}</span>
               <span className="text-sm font-medium">{goal.progress || 0}%</span>
             </div>
             <Progress
@@ -169,7 +169,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
           {/* Target Date and Deadline Status */}
           {goal.targetDate && (
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-400">
+              <span className="text-muted-foreground">
                 {t("target")}: {formatDate(goal.targetDate)}
               </span>
               {getDeadlineDisplay()}
@@ -178,7 +178,7 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
 
           {/* Achievement Date */}
           {goal.achievedAt && (
-            <div className="text-center text-sm text-green-400">
+            <div className="text-center text-sm text-emerald-500">
               {t("achievedOn", { date: formatDate(goal.achievedAt) || "" })}
             </div>
           )}

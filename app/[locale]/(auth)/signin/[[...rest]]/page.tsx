@@ -4,11 +4,10 @@
  * Functionality remains the same (tests still pass) but code is more maintainable.
  */
 
-import { SignIn } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
 import { currentUser } from '@clerk/nextjs/server'
 import { AuthLayout } from '@/components/auth/auth-layout'
-import { clerkDarkTheme } from '@/lib/auth/clerk-theme'
+import { ThemedSignIn } from '@/components/auth/themed-sign-in'
 
 export default async function SignInPage() {
   // Check if user is already authenticated
@@ -20,7 +19,7 @@ export default async function SignInPage() {
 
   return (
     <AuthLayout>
-      <SignIn appearance={clerkDarkTheme} />
+      <ThemedSignIn />
     </AuthLayout>
   )
 }

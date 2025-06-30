@@ -212,6 +212,7 @@
     "lastMonth": "Mes Pasado",
     "thisYear": "Este Año",
     "lastYear": "Año Pasado",
+    "last10Days": "Últimos 10 Días",
     "custom": "Personalizado",
     "to": "a"
   },
@@ -419,7 +420,8 @@
       "totalGoals": "Metas Totales",
       "achieved": "Alcanzadas",
       "inProgress": "En Progreso",
-      "dueSoon": "Próximas a Vencer"
+      "dueSoon": "Próximas a Vencer",
+      "goalsSummary": "Resumen de Metas"
     },
     "categories": {
       "title": "Categorías y Proyectos",
@@ -851,6 +853,53 @@
     },
     "success": {
       "transactionUpdated": "¡Transacción actualizada exitosamente!"
+    }
+  },
+  "editGoalModal": {
+    "title": "Editar Meta",
+    "subtitle": "Actualiza tu meta financiera",
+    "goalName": "Nombre de la Meta",
+    "goalNamePlaceholder": "ej., Fondo de Emergencia, Ahorros para Vacaciones",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Descripción opcional para esta meta",
+    "goalType": "Tipo de Meta",
+    "savingsGoal": "Meta de Ahorro",
+    "debtPayoff": "Pago de Deuda",
+    "spendingLimit": "Límite de Gasto",
+    "targetAmount": "Monto Objetivo",
+    "currentAmount": "Monto Actual",
+    "amountPlaceholder": "0.00",
+    "targetDate": "Fecha Objetivo",
+    "period": "Período",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "updateGoal": "Actualizar Meta"
+  },
+  "celebrationModal": {
+    "congratulations": "¡Felicitaciones!",
+    "achievedGoal": "¡Lograste tu meta de {goalName}!",
+    "debtPaid": "Deuda Pagada",
+    "goalAchieved": "Meta Alcanzada",
+    "whatNext": "¿Qué sigue?",
+    "createNewGoal": "Crear Nueva Meta",
+    "nextSteps": {
+      "savings": {
+        "newGoal": "Crear una nueva meta de ahorro",
+        "increaseTarget": "Aumentar tu monto objetivo",
+        "startInvestment": "Comenzar una meta de inversión"
+      },
+      "debtPayoff": {
+        "celebrate": "¡Celebra estar libre de deudas!",
+        "emergencyFund": "Construir un fondo de emergencia",
+        "startSaving": "Comenzar a ahorrar para tu próxima meta"
+      },
+      "spendingLimit": {
+        "newTarget": "Establecer un nuevo objetivo de gasto",
+        "tryCategory": "Probar una categoría diferente",
+        "focusGoal": "Enfocarse en otra meta financiera"
+      },
+      "default": "Establece tu próxima meta financiera"
     }
   }
 }

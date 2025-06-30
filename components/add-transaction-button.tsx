@@ -483,10 +483,10 @@ export function AddTransactionButton() {
         <Button
           onClick={() => setOpen(true)}
           size="lg"
-          className="h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+          className="h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-4 border-border"
           data-testid="floating-add-transaction-button"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-6 w-6" style={{ width: 36, height: 36 }} />
           <span className="sr-only">{tModals("addTransaction")}</span>
         </Button>
       </div>

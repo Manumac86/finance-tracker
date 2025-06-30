@@ -4,6 +4,7 @@ import { CategoriesProvider } from "@/contexts/categories";
 import { TransactionsProvider } from "@/contexts/transactions";
 import { BudgetAlertsProvider } from "@/contexts/budget-alerts";
 import { ThemeProvider } from "next-themes";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,13 +15,17 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       disableTransitionOnChange
       storageKey="fintrack-theme"
     >
-      <CategoriesProvider>
-        <TransactionsProvider>
-          <BudgetAlertsProvider>
-            {children}
-          </BudgetAlertsProvider>
-        </TransactionsProvider>
-      </CategoriesProvider>
+      <ClerkProvider
+        appearance={{
+          cssLayerName: "fintrack-theme",
+        }}
+      >
+        <CategoriesProvider>
+          <TransactionsProvider>
+            <BudgetAlertsProvider>{children}</BudgetAlertsProvider>
+          </TransactionsProvider>
+        </CategoriesProvider>
+      </ClerkProvider>
     </ThemeProvider>
   );
 };

@@ -78,12 +78,16 @@ export function QuickActionsCard() {
           {quickActions.map((action) => (
             <Link key={action.label} href={action.href}>
               <Button
-                className={`w-full h-auto p-4 flex flex-col items-center gap-2 ${action.color}`}
+                className={`w-full h-full min-h-[120px] p-4 flex flex-col items-center gap-2 ${action.color}`}
               >
                 {action.icon}
-                <div className="text-center">
-                  <div className="font-medium text-sm">{action.label}</div>
-                  <div className="text-xs opacity-80">{action.description}</div>
+                <div className="text-center w-full">
+                  <div className="font-medium text-sm text-wrap">
+                    {action.label}
+                  </div>
+                  <div className="text-xs opacity-80 text-wrap">
+                    {action.description}
+                  </div>
                 </div>
               </Button>
             </Link>
