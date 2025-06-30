@@ -162,7 +162,10 @@ export async function insertCategory(category: Record<string, unknown>) {
   return data;
 }
 
-export async function updateCategory(id: string, updates: Record<string, unknown>) {
+export async function updateCategory(
+  id: string,
+  updates: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("categories")
     .update(updates)
@@ -223,7 +226,10 @@ export async function insertTransaction(transaction: Record<string, unknown>) {
   return data;
 }
 
-export async function updateTransaction(id: string, updates: Record<string, unknown>) {
+export async function updateTransaction(
+  id: string,
+  updates: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("transactions")
     .update(updates)
@@ -453,7 +459,11 @@ export async function insertProject(project: Record<string, unknown>) {
   return data;
 }
 
-export async function updateProject(id: string, userId: string, updates: Record<string, unknown>) {
+export async function updateProject(
+  id: string,
+  userId: string,
+  updates: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("projects")
     .update(updates)
@@ -503,7 +513,10 @@ export async function selectRecurringTransactions(userId: string) {
   return data || [];
 }
 
-export async function selectRecurringTransactionById(id: string, userId: string) {
+export async function selectRecurringTransactionById(
+  id: string,
+  userId: string
+) {
   const { data, error } = await supabase
     .from("recurring_transactions")
     .select("*")
@@ -519,7 +532,9 @@ export async function selectRecurringTransactionById(id: string, userId: string)
   return data;
 }
 
-export async function insertRecurringTransaction(transaction: Record<string, unknown>) {
+export async function insertRecurringTransaction(
+  transaction: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("recurring_transactions")
     .insert([transaction])
@@ -533,7 +548,11 @@ export async function insertRecurringTransaction(transaction: Record<string, unk
   return data;
 }
 
-export async function updateRecurringTransaction(id: string, userId: string, updates: Record<string, unknown>) {
+export async function updateRecurringTransaction(
+  id: string,
+  userId: string,
+  updates: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("recurring_transactions")
     .update(updates)
@@ -568,19 +587,19 @@ export async function deleteRecurringTransaction(id: string, userId: string) {
 }
 
 // Bill reminders operations
-export async function selectBillReminders(userId: string, upcomingOnly = false) {
-  let query = supabase
-    .from("bill_reminders")
-    .select("*")
-    .eq("user_id", userId);
+export async function selectBillReminders(
+  userId: string,
+  upcomingOnly = false
+) {
+  let query = supabase.from("bill_reminders").select("*").eq("user_id", userId);
 
   if (upcomingOnly) {
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
-    
+
     query = query
       .in("status", ["pending", "overdue"])
-      .lte("due_date", sevenDaysFromNow.toISOString().split('T')[0]);
+      .lte("due_date", sevenDaysFromNow.toISOString().split("T")[0]);
   }
 
   query = query.order("due_date", { ascending: true });
@@ -608,13 +627,17 @@ export async function insertBillReminder(reminder: Record<string, unknown>) {
   return data;
 }
 
-export async function updateBillReminderStatus(id: string, userId: string, status: string) {
+export async function updateBillReminderStatus(
+  id: string,
+  userId: string,
+  status: string
+) {
   const updateData: Record<string, unknown> = {
     status,
     updated_at: new Date().toISOString(),
   };
 
-  if (status === 'paid') {
+  if (status === "paid") {
     updateData.paid_at = new Date().toISOString();
   }
 
@@ -665,7 +688,9 @@ export async function selectBankAccountById(id: string, userId: string) {
   return data;
 }
 
-export async function insertBankAccount(bankAccountData: Record<string, unknown>) {
+export async function insertBankAccount(
+  bankAccountData: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("bank_accounts")
     .insert(bankAccountData)
@@ -742,14 +767,20 @@ export async function updateBankAccountSyncStatus(
     .single();
 
   if (error) {
-    throw new Error(`Failed to update bank account sync status: ${error.message}`);
+    throw new Error(
+      `Failed to update bank account sync status: ${error.message}`
+    );
   }
 
   return data;
 }
 
 // Bank transactions operations
-export async function selectBankTransactions(userId: string, accountId?: string, limit: number = 50) {
+export async function selectBankTransactions(
+  userId: string,
+  accountId?: string,
+  limit: number = 50
+) {
   let query = supabase
     .from("bank_transactions")
     .select("*")
@@ -770,7 +801,9 @@ export async function selectBankTransactions(userId: string, accountId?: string,
   return data || [];
 }
 
-export async function insertBankTransaction(transactionData: Record<string, unknown>) {
+export async function insertBankTransaction(
+  transactionData: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("bank_transactions")
     .insert(transactionData)
@@ -803,14 +836,18 @@ export async function updateBankTransactionSyncStatus(
     .single();
 
   if (error) {
-    throw new Error(`Failed to update bank transaction sync status: ${error.message}`);
+    throw new Error(
+      `Failed to update bank transaction sync status: ${error.message}`
+    );
   }
 
   return data;
 }
 
 // Transaction duplicate detection operations
-export async function insertTransactionDuplicate(duplicateData: Record<string, unknown>) {
+export async function insertTransactionDuplicate(
+  duplicateData: Record<string, unknown>
+) {
   const { data, error } = await supabase
     .from("transaction_duplicates")
     .insert(duplicateData)
@@ -818,7 +855,9 @@ export async function insertTransactionDuplicate(duplicateData: Record<string, u
     .single();
 
   if (error) {
-    throw new Error(`Failed to create transaction duplicate record: ${error.message}`);
+    throw new Error(
+      `Failed to create transaction duplicate record: ${error.message}`
+    );
   }
 
   return data;
@@ -827,11 +866,13 @@ export async function insertTransactionDuplicate(duplicateData: Record<string, u
 export async function selectPendingDuplicates(userId: string) {
   const { data, error } = await supabase
     .from("transaction_duplicates")
-    .select(`
+    .select(
+      `
       *,
       transaction:transactions!transaction_id(id, name, amount, transaction_date),
       duplicate:transactions!potential_duplicate_id(id, name, amount, transaction_date)
-    `)
+    `
+    )
     .eq("status", "pending")
     .eq("transaction.user_id", userId)
     .order("similarity_score", { ascending: false });
@@ -845,7 +886,7 @@ export async function selectPendingDuplicates(userId: string) {
 
 export async function updateDuplicateStatus(
   duplicateId: string,
-  status: 'confirmed' | 'dismissed'
+  status: "confirmed" | "dismissed"
 ) {
   const { data, error } = await supabase
     .from("transaction_duplicates")

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { selectBudgets, insertBudget } from "@/lib/db/postgres";
-import { 
-  cacheUserBudgets, 
-  getCachedUserBudgets, 
-  invalidateUserBudgetsCache 
+import {
+  cacheUserBudgets,
+  getCachedUserBudgets,
+  invalidateUserBudgetsCache,
 } from "@/lib/db/redis";
-import { 
-  CreateBudgetSchema, 
-  transformBudgetToUI
+import {
+  CreateBudgetSchema,
+  transformBudgetToUI,
 } from "@/lib/db/schemas/budget";
 
 export async function GET(request: NextRequest) {
@@ -58,14 +58,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    
+
     // Validate the budget data
     const validationResult = CreateBudgetSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          error: "Validation failed", 
-          details: validationResult.error.errors 
+        {
+          error: "Validation failed",
+          details: validationResult.error.errors,
         },
         { status: 400 }
       );
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       name: budgetData.name,
       description: budgetData.description || null,
-      category_id: budgetData.category_id || null,
+      // category_id: budgetData.category_id || null,
       budget_type: budgetData.budget_type,
       amount: budgetData.amount,
       period: budgetData.period,
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       alert_enabled: budgetData.alert_enabled ?? true,
       overspend_alert_enabled: budgetData.overspend_alert_enabled ?? true,
       rollover_enabled: budgetData.rollover_enabled ?? false,
-      rollover_type: budgetData.rollover_type || 'none',
+      rollover_type: budgetData.rollover_type || "none",
       metadata: budgetData.metadata || {},
     };
 

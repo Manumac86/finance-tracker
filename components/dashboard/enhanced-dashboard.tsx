@@ -78,10 +78,10 @@ export function EnhancedDashboard() {
     savingsRate: 0,
   };
 
-  summary.currentBalance = summary.totalIncome - summary.totalExpenses;
+  summary.currentBalance = summary.totalIncome + summary.totalExpenses;
   summary.savingsRate =
     summary.totalIncome > 0
-      ? ((summary.totalIncome - summary.totalExpenses) / summary.totalIncome) *
+      ? ((summary.totalIncome + summary.totalExpenses) / summary.totalIncome) *
         100
       : 0;
 

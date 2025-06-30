@@ -23,11 +23,11 @@ export default function BudgetsPage() {
   // Build API URL with proper query string construction
   const buildApiUrl = () => {
     const params = new URLSearchParams();
-    
+
     if (selectedFilter !== "all") {
       params.append("period", selectedFilter);
     }
-    
+
     const queryString = params.toString();
     return `/api/budgets${queryString ? `?${queryString}` : ""}`;
   };
@@ -46,8 +46,8 @@ export default function BudgetsPage() {
         name: budgetData.name,
         description: budgetData.description,
         budget_type: budgetData.budgetType,
-        category_id: budgetData.categoryId,
-        amount: budgetData.amount,
+        // category_id: budgetData.categoryId,
+        amount: parseFloat(budgetData.amount),
         period: budgetData.period,
         start_date: budgetData.startDate,
         end_date: budgetData.endDate,
@@ -93,7 +93,7 @@ export default function BudgetsPage() {
         name: updateData.name,
         description: updateData.description,
         budget_type: updateData.budgetType,
-        category_id: updateData.categoryId,
+        // category_id: updateData.categoryId,
         amount: updateData.amount,
         period: updateData.period,
         start_date: updateData.startDate,
