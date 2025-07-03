@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ReferenceLine } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ReferenceLine,
+} from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
@@ -49,10 +56,14 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
 
   // Sync period with timeFilter changes from dashboard
   useEffect(() => {
-    const newPeriod = timeFilter === "week" ? "week" : timeFilter === "month" ? "month" : "week";
+    const newPeriod =
+      timeFilter === "week"
+        ? "week"
+        : timeFilter === "month"
+        ? "month"
+        : "week";
     setPeriod(newPeriod);
   }, [timeFilter]);
-
 
   const {
     data: balanceData,
@@ -70,7 +81,6 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
   // Use the balance data directly since we've fixed the API to exclude future transactions
   const adjustedBalanceData = balanceData;
 
-
   // Transform data for the chart using adjusted data
   const chartData =
     adjustedBalanceData?.map((point) => ({
@@ -79,7 +89,7 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
     })) || [];
 
   // Calculate dynamic Y-axis domain
-  const balanceValues = chartData.map(d => d.balance);
+  const balanceValues = chartData.map((d) => d.balance);
   const minBalance = Math.min(...balanceValues, 0);
   const maxBalance = Math.max(...balanceValues, 0);
   const padding = Math.max(Math.abs(minBalance), Math.abs(maxBalance)) * 0.1;
@@ -112,7 +122,9 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
       <CardContent className="space-y-4">
         <Tabs
           value={period}
-          onValueChange={(value) => setPeriod(value as "year" | "month" | "week")}
+          onValueChange={(value) =>
+            setPeriod(value as "year" | "month" | "week")
+          }
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-3">
@@ -123,80 +135,85 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
         </Tabs>
 
         <div className="w-full">
-        {isLoading ? (
-          <div className="h-[300px]">
-            <ChartSkeleton />
-          </div>
-        ) : error ? (
-          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-            <p>Unable to load balance history</p>
-          </div>
-        ) : chartData.length === 0 ? (
-          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
-            <p>No balance data available for {period}</p>
-          </div>
-        ) : (
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
-            <AreaChart
-              accessibilityLayer
-              data={chartData}
-              margin={{
-                left: 12,
-                right: 12,
-                top: 12,
-                bottom: 12,
-              }}
-            >
-              <defs>
-                <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="hsl(var(--primary))"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="hsl(var(--primary))"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={formatXAxis}
-              />
-              <YAxis
-                domain={yAxisDomain}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
-              />
-              {/* Zero reference line */}
-              <ReferenceLine y={0} stroke="hsl(var(--border))" strokeDasharray="2 2" strokeOpacity={0.5} />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="line" />}
-                formatter={(value) => [
-                  `$${Number(value).toFixed(2)}`,
-                  "Balance",
-                ]}
-              />
-              <Area
-                dataKey="balance"
-                type="natural"
-                fill="url(#fillBalance)"
-                fillOpacity={0.4}
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ChartContainer>
-        )}
+          {isLoading ? (
+            <div className="h-[300px]">
+              <ChartSkeleton />
+            </div>
+          ) : error ? (
+            <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+              <p>Unable to load balance history</p>
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="flex h-[300px] items-center justify-center text-muted-foreground">
+              <p>No balance data available for {period}</p>
+            </div>
+          ) : (
+            <ChartContainer config={chartConfig} className="h-[300px] w-full">
+              <AreaChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                  top: 12,
+                  bottom: 12,
+                }}
+              >
+                <defs>
+                  <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="5%"
+                      stopColor="var(--chart-1)"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor="var(--chart-1)"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={formatXAxis}
+                />
+                <YAxis
+                  domain={yAxisDomain}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
+                />
+                {/* Zero reference line */}
+                <ReferenceLine
+                  y={0}
+                  stroke="hsl(var(--border))"
+                  strokeDasharray="2 2"
+                  strokeOpacity={0.5}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="line" />}
+                  formatter={(value) => [
+                    `$${Number(value).toFixed(2)}`,
+                    "Balance",
+                  ]}
+                />
+                <Area
+                  dataKey="balance"
+                  type="natural"
+                  fill="url(#fillBalance)"
+                  fillOpacity={0.4}
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
         </div>
       </CardContent>
     </Card>
