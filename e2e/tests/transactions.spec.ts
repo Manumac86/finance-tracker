@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { waitForTransactionsLoad, waitForTransactionCreated, waitForModal } from '../utils/page-helpers';
-import { waitForElement, waitForDataUpdate, waitForText } from '../utils/test-helpers';
+import { waitForTransactionsLoad, waitForTransactionCreated, waitForModal, fillTransactionForm } from '../utils/page-helpers';
+import { waitForElement, waitForDataUpdate } from '../utils/test-helpers';
 
 test.describe('Transactions', () => {
   test.beforeEach(async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe('Transactions', () => {
   test.describe('Quick Transaction Entry', () => {
     test('should show floating action buttons', async ({ page }) => {
       // Check for floating action buttons
-      const floatingButtons = page.locator('button').filter({ hasText: '+' });
+      const floatingButtons = page.getByTestId('floating-add-transaction-button').first();
       await expect(floatingButtons).toBeVisible();
       
       // Check for bulk button
@@ -86,7 +86,7 @@ test.describe('Transactions', () => {
 
     test('should open transaction modal on FAB click', async ({ page }) => {
       // Click the main floating action button
-      const addButton = page.locator('button').filter({ hasText: '+' });
+      const addButton = page.getByTestId('floating-add-transaction-button').first();
       await addButton.click();
       
       // Wait for modal to open
@@ -102,35 +102,28 @@ test.describe('Transactions', () => {
     });
 
     test('should create a new expense transaction', async ({ page }) => {
+      const testTransaction = {
+        name: 'Test Coffee Purchase',
+        amount: 5.50,
+        description: 'E2E test transaction',
+        categoryName: 'Food & Drink'
+      };
+      
       // Click add button
-      const addButton = page.locator('button').filter({ hasText: '+' });
+      const addButton = page.getByTestId('floating-add-transaction-button').first();
       await addButton.click();
       
       // Wait for modal
       await waitForModal(page, 'open');
       
-      // Fill transaction form
-      await page.getByLabel(/description/i).fill('Test Coffee Purchase');
-      await page.getByLabel(/amount/i).fill('5.50');
-      
-      // Select category if available
-      const categorySelect = page.getByRole('combobox', { name: /category/i });
-      if (await categorySelect.isVisible()) {
-        await categorySelect.click();
-        // Try to select a category
-        const foodOption = page.getByRole('option', { name: /food/i });
-        if (await foodOption.isVisible()) {
-          await foodOption.click();
-        } else {
-          await page.keyboard.press('Escape');
-        }
-      }
+      // Fill transaction form using helper
+      await fillTransactionForm(page, testTransaction);
       
       // Submit transaction
-      await page.getByRole('button', { name: /add transaction/i }).click();
+      await page.getByRole('button', { name: /add.*transaction|create|save/i }).click();
       
       // Wait for transaction to be created
-      await waitForTransactionCreated(page, 'Test Coffee Purchase');
+      await waitForTransactionCreated(page, testTransaction.name);
     });
   });
 
@@ -196,7 +189,7 @@ test.describe('Transactions', () => {
       }
       
       // Verify floating buttons are visible on mobile
-      const floatingButtons = page.locator('button').filter({ hasText: '+' });
+      const floatingButtons = page.getByTestId('floating-add-transaction-button').first();
       await expect(floatingButtons).toBeVisible();
       
       // Verify no horizontal scroll

@@ -26,7 +26,7 @@ export const TransactionsProvider = ({
 }) => {
   const { data, error, isLoading, mutate } = useSWR<{
     transactions: UITransaction[];
-  }>("/api/transactions", fetcher);
+  }>("/api/transactions?includeFuture=true", fetcher);
 
   return (
     <TransactionsContext.Provider

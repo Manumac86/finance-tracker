@@ -43,7 +43,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 // }
 
 export function EnhancedDashboard() {
-  const [timeFilter, setTimeFilter] = useState("month");
+  const [timeFilter, setTimeFilter] = useState("week");
 
   const t = useTranslations("dashboard");
   const locale = useLocale();
@@ -58,27 +58,28 @@ export function EnhancedDashboard() {
 
   const { data: transactionsData, error: transactionsError } = useSWR<{
     transactions: UITransaction[];
-  }>(`/api/transactions?period=${timeFilter}&limit=50`, fetcher);
+  }>(`/api/transactions?period=${timeFilter}&limit=50&includeFuture=false`, fetcher);
 
   const goals = goalsData?.goals || [];
   const budgets = budgetsData?.budgets || [];
-  const transactions = transactionsData?.transactions || [];
+  const transactions = transactionsData?.transactions || []; // API already filters out future transactions
 
-  // Calculate summary data
+  // Calculate summary data  
   const summary = {
     totalIncome: transactions
       .filter((t) => t.transactionType === "income")
       .reduce((sum, t) => sum + t.amount, 0),
     totalExpenses: transactions
       .filter((t) => t.transactionType === "expense")
-      .reduce((sum, t) => sum + t.amount, 0),
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0), // Get absolute value for display
     currentBalance: 0, // This would typically come from account balances
     monthlyIncome: 0,
     monthlyExpenses: 0,
     savingsRate: 0,
   };
 
-  summary.currentBalance = summary.totalIncome + summary.totalExpenses;
+  // Calculate net balance from all transactions (expenses as negative)
+  summary.currentBalance = transactions.reduce((sum, t) => sum + t.amount, 0);
   summary.savingsRate =
     summary.totalIncome > 0
       ? ((summary.totalIncome + summary.totalExpenses) / summary.totalIncome) *
@@ -176,7 +177,11 @@ export function EnhancedDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-500">
+            <div
+              className={`text-2xl font-bold ${
+                summary.currentBalance > 0 ? "text-emerald-500" : "text-red-500"
+              }`}
+            >
               {formatCurrency(summary.currentBalance)}
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -246,7 +251,11 @@ export function EnhancedDashboard() {
         {/* Financial Health - Full Width on Mobile, 2 cols on Desktop */}
         <div className="lg:col-span-2 space-y-6">
           <FinancialHealthIndicator data={healthData} />
-          <BalanceChart />
+          
+          {/* Balance Chart with proper spacing */}
+          <div className="mb-8">
+            <BalanceChart timeFilter={timeFilter} />
+          </div>
 
           {/* Budget and Goals Row */}
           <div className="grid gap-6 md:grid-cols-2">
@@ -270,7 +279,7 @@ export function EnhancedDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <RecentTransactions />
+              <RecentTransactions excludeFuture={true} />
             </CardContent>
           </Card>
         </div>

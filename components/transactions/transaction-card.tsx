@@ -18,6 +18,8 @@ import {
   useTranslatedCategories,
   getTranslatedCategoryName,
 } from "@/hooks/use-translated-categories";
+import { formatTime } from "@/lib/utils/dates";
+import { formatCurrency } from "@/lib/utils/currencies";
 
 interface TransactionCardProps {
   transaction: UITransaction;
@@ -46,6 +48,20 @@ export function TransactionCard({
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return t("today");
+    
+    // Handle future dates
+    if (diffDays < 0) {
+      const futureDays = Math.abs(diffDays);
+      if (futureDays === 1) return t("tomorrow");
+      if (futureDays < 7) return t("inDays", { days: futureDays });
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+      });
+    }
+    
+    // Handle past dates
     if (diffDays === 1) return t("yesterday");
     if (diffDays < 7) return t("daysAgo", { days: diffDays });
     return date.toLocaleDateString("en-US", {
@@ -55,37 +71,17 @@ export function TransactionCard({
     });
   };
 
-  const formatCurrency = (
-    amount: number,
-    transactionType: "income" | "expense"
-  ) => {
-    const absAmount = Math.abs(amount);
-    const formatted = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(absAmount);
-
-    return transactionType === "income" ? `+${formatted}` : `-${formatted}`;
-  };
-
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
   return (
     <Card
-      className={`group bg-card border transition-all duration-200 hover:border-accent hover:shadow-lg ${
-        isHovered ? "transform hover:scale-102" : ""
+      className={`group bg-card border-border transition-all duration-200 hover:border-accent hover:shadow-lg py-4 ${
+        isHovered ? "transform hover:scale-101" : ""
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => onEdit && onEdit(transaction)}
     >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
+      <CardContent className="px-4">
+        <div className="flex items-center justify-between min-h-16">
           <div className="flex items-center gap-4">
             {/* Category Icon */}
             <div
@@ -117,15 +113,19 @@ export function TransactionCard({
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{categoryName}</span>
-                <span>•</span>
-                <span>{formatDate(transaction.transactionDate)}</span>
-                <span>•</span>
-                <span>{formatTime(transaction.transactionDate)}</span>
+                <span className="text-muted-foreground">{categoryName}</span>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-muted-foreground">
+                  {formatDate(transaction.transactionDate)}
+                </span>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-muted-foreground">
+                  {formatTime(transaction.transactionDate)}
+                </span>
               </div>
 
               {transaction.description && (
-                <p className="text-sm text-muted-foreground mt-1 truncate">
+                <p className="text-xs text-muted-foreground mt-1 truncate">
                   {transaction.description}
                 </p>
               )}

@@ -258,8 +258,8 @@ export default function BankingPage() {
             <Card key={i}>
               <CardContent className="pt-6">
                 <div className="animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
                 </div>
               </CardContent>
             </Card>
@@ -319,25 +319,25 @@ export default function BankingPage() {
                 <div className="text-2xl font-bold">
                   {syncStatus.summary.totalAccounts}
                 </div>
-                <div className="text-sm text-gray-600">Total Accounts</div>
+                <div className="text-sm text-muted-foreground">Total Accounts</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-emerald-600">
                   {syncStatus.summary.syncedAccounts}
                 </div>
-                <div className="text-sm text-gray-600">Synced</div>
+                <div className="text-sm text-muted-foreground">Synced</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-red-600">
                   {syncStatus.summary.failedAccounts}
                 </div>
-                <div className="text-sm text-gray-600">Failed</div>
+                <div className="text-sm text-muted-foreground">Failed</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">
                   {syncStatus.summary.activeAccounts}
                 </div>
-                <div className="text-sm text-gray-600">Active</div>
+                <div className="text-sm text-muted-foreground">Active</div>
               </div>
             </div>
           </CardContent>
@@ -349,11 +349,11 @@ export default function BankingPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-12">
-              <Building2 className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+              <Building2 className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">
                 No Bank Accounts Connected
               </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Connect your bank accounts to automatically import transactions
                 and keep your finances up to date.
               </p>
@@ -383,8 +383,8 @@ export default function BankingPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="p-2 bg-gray-100 rounded-lg">
-                        <CreditCard className="h-6 w-6 text-gray-600" />
+                      <div className="p-2 bg-muted rounded-lg">
+                        <CreditCard className="h-6 w-6 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -400,10 +400,10 @@ export default function BankingPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="text-sm text-gray-600 mb-2">
+                        <div className="text-sm text-muted-foreground mb-2">
                           {account.institutionName} •••• {account.mask}
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <span>{providerInfo.flag}</span>
                             <span>{providerInfo.name}</span>

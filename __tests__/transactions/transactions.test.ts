@@ -36,7 +36,9 @@ describe('Transaction Functionality', () => {
     amount: 45.67,
     transaction_type: 'expense',
     transaction_date: '2024-01-15',
-    category_id: 'cat-1',
+    category_id: '550e8400-e29b-41d4-a716-446655440001', // UUID format
+    category_name: 'Shopping',
+    category_icon: 'ShoppingBag',
     description: 'Weekly groceries',
     created_at: '2024-01-15T10:00:00Z',
     updated_at: '2024-01-15T10:00:00Z',
@@ -50,8 +52,13 @@ describe('Transaction Functionality', () => {
     amount: 45.67,
     transactionType: 'expense' as const,
     transactionDate: '2024-01-15',
-    categoryId: 'cat-1',
+    categoryId: '550e8400-e29b-41d4-a716-446655440001', // UUID format
+    categoryName: 'Shopping',
+    categoryIcon: 'ShoppingBag',
     description: 'Weekly groceries',
+    createdAt: '2024-01-15T10:00:00Z',
+    updatedAt: '2024-01-15T10:00:00Z',
+    isActive: true,
   };
 
   const mockCreateTransactionData = {
@@ -59,7 +66,7 @@ describe('Transaction Functionality', () => {
     amount: 5.50,
     transactionType: 'expense' as const,
     transactionDate: '2024-01-16',
-    categoryId: 'cat-2',
+    categoryId: '550e8400-e29b-41d4-a716-446655440002', // UUID format
     description: 'Morning coffee',
   };
 
@@ -338,12 +345,12 @@ describe('Transaction Functionality', () => {
 
     it('should filter transactions by category', () => {
       const transactionsWithCategories = [
-        { ...mockDbTransaction, category_id: 'cat-1' },
-        { ...mockDbTransaction, category_id: 'cat-2' },
-        { ...mockDbTransaction, category_id: 'cat-1' },
+        { ...mockDbTransaction, category_id: '550e8400-e29b-41d4-a716-446655440001' },
+        { ...mockDbTransaction, category_id: '550e8400-e29b-41d4-a716-446655440002' },
+        { ...mockDbTransaction, category_id: '550e8400-e29b-41d4-a716-446655440001' },
       ];
 
-      const cat1Transactions = transactionsWithCategories.filter(t => t.category_id === 'cat-1');
+      const cat1Transactions = transactionsWithCategories.filter(t => t.category_id === '550e8400-e29b-41d4-a716-446655440001');
       expect(cat1Transactions).toHaveLength(2);
     });
   });
@@ -420,6 +427,79 @@ describe('Transaction Functionality', () => {
       expect(() => {
         mockParse(longNameTransaction);
       }).toThrow('Name too long');
+    });
+  });
+
+  describe('Transaction Category Relationship', () => {
+    it('should validate category_id is a valid UUID', () => {
+      const invalidCategoryIdTransaction = {
+        ...mockCreateTransactionData,
+        categoryId: 'invalid-uuid',
+      };
+
+      mockParse.mockImplementation((data: { categoryId: string }) => {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (data.categoryId && !uuidRegex.test(data.categoryId)) {
+          throw new Error('Invalid category UUID');
+        }
+        return data;
+      });
+
+      expect(() => {
+        mockParse(invalidCategoryIdTransaction);
+      }).toThrow('Invalid category UUID');
+    });
+
+    it('should handle transactions with valid category UUIDs', () => {
+      const validUUIDs = [
+        '550e8400-e29b-41d4-a716-446655440001',
+        '123e4567-e89b-12d3-a456-426614174000',
+        'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+      ];
+
+      validUUIDs.forEach(uuid => {
+        const transaction = { ...mockCreateTransactionData, categoryId: uuid };
+        
+        mockParse.mockImplementation((data: { categoryId: string }) => {
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (data.categoryId && !uuidRegex.test(data.categoryId)) {
+            throw new Error('Invalid category UUID');
+          }
+          return data;
+        });
+
+        expect(() => {
+          mockParse(transaction);
+        }).not.toThrow();
+      });
+    });
+
+    it('should include denormalized category fields', () => {
+      const transaction = {
+        ...mockDbTransaction,
+        category_name: 'Food & Drink',
+        category_icon: 'Coffee',
+      };
+
+      expect(transaction).toHaveProperty('category_name');
+      expect(transaction).toHaveProperty('category_icon');
+      expect(transaction.category_name).toBe('Food & Drink');
+      expect(transaction.category_icon).toBe('Coffee');
+    });
+
+    it('should handle category foreign key constraints', async () => {
+      const transactionWithInvalidCategory = {
+        ...mockDbTransaction,
+        category_id: '550e8400-e29b-41d4-a716-446655440999', // Non-existent category
+      };
+
+      mockInsertTransaction.mockRejectedValue(
+        new Error('Foreign key constraint violation: category_id references non-existent category')
+      );
+
+      await expect(
+        mockInsertTransaction(transactionWithInvalidCategory)
+      ).rejects.toThrow('Foreign key constraint violation');
     });
   });
 

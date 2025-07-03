@@ -133,7 +133,8 @@ async function getDailyTransactionSummaries(
  * Generate date range based on period
  */
 function getDateRange(period: "year" | "month" | "week") {
-  const endDate = new Date();
+  const today = new Date();
+  const endDate = today;
   let startDate: Date;
 
   switch (period) {
@@ -265,6 +266,26 @@ export async function getBalanceHistory({
         initialBalance,
         dailySummaries
       );
+      
+      // For month view, extend to end of month with current balance for future dates
+      if (period === "month") {
+        const monthEnd = endOfMonth(new Date());
+        const lastBalance = dataPoints[dataPoints.length - 1]?.balance || 0;
+        
+        if (endDate < monthEnd) {
+          const futureDays = eachDayOfInterval({ 
+            start: new Date(endDate.getTime() + 24 * 60 * 60 * 1000), // Tomorrow
+            end: monthEnd 
+          });
+          
+          for (const day of futureDays) {
+            dataPoints.push({
+              date: format(day, "MMM d"),
+              balance: lastBalance, // Keep the current balance for future dates
+            });
+          }
+        }
+      }
     }
 
     return dataPoints;

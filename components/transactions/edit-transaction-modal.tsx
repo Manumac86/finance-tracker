@@ -165,10 +165,10 @@ export function EditTransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] bg-gray-900 border-gray-800 text-gray-50">
+      <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {t("subtitle")}
           </DialogDescription>
         </DialogHeader>
@@ -190,7 +190,7 @@ export function EditTransactionModal({
                   <RadioGroupItem
                     value="expense"
                     id="edit-expense"
-                    className="border-gray-700 text-rose-500"
+                    className="border-border text-rose-500"
                   />
                   <Label htmlFor="edit-expense" className="font-normal">
                     {t("expense")}
@@ -200,7 +200,7 @@ export function EditTransactionModal({
                   <RadioGroupItem
                     value="income"
                     id="edit-income"
-                    className="border-gray-700 text-emerald-500"
+                    className="border-border text-emerald-500"
                   />
                   <Label htmlFor="edit-income" className="font-normal">
                     {t("income")}
@@ -215,7 +215,7 @@ export function EditTransactionModal({
                 id="edit-name"
                 type="text"
                 placeholder={t("transactionNamePlaceholder")}
-                className="bg-gray-800 border-gray-700 text-gray-50"
+                className="bg-card border-border text-foreground"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -231,7 +231,7 @@ export function EditTransactionModal({
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  className="pl-8 bg-gray-800 border-gray-700 text-gray-50"
+                  className="pl-8 bg-card border-border text-foreground"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   required
@@ -249,7 +249,7 @@ export function EditTransactionModal({
               >
                 <SelectTrigger
                   id="edit-category"
-                  className="bg-gray-800 border-gray-700 text-gray-50"
+                  className="bg-card border-border text-foreground"
                 >
                   <SelectValue
                     placeholder={
@@ -259,7 +259,7 @@ export function EditTransactionModal({
                     }
                   />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 text-gray-50">
+                <SelectContent className="bg-card border-border text-foreground">
                   {translatedCategories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id!}>
                       {cat.translatedName}
@@ -276,7 +276,7 @@ export function EditTransactionModal({
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-gray-50",
+                      "w-full justify-start text-left font-normal bg-card border-border text-foreground",
                       !date && "text-gray-500"
                     )}
                   >
@@ -284,13 +284,13 @@ export function EditTransactionModal({
                     {date ? format(date, "PPP") : t("selectDate")}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                <PopoverContent className="w-auto p-0 bg-card border-border">
                   <Calendar
                     mode="single"
                     selected={date}
                     onSelect={setDate}
                     initialFocus
-                    className="bg-gray-800 text-gray-50"
+                    className="bg-card border-border text-foreground"
                   />
                 </PopoverContent>
               </Popover>
@@ -301,7 +301,7 @@ export function EditTransactionModal({
               <Textarea
                 id="edit-description"
                 placeholder={t("descriptionPlaceholder")}
-                className="bg-gray-800 border-gray-700 text-gray-50"
+                className="bg-card border-border text-foreground"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
@@ -313,7 +313,7 @@ export function EditTransactionModal({
               variant="secondary"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="border-gray-700 bg-gray-800 text-white hover:text-rose-600"
+              className="hover:bg-destructive text-foreground hover:text-white"
             >
               {t("cancel")}
             </Button>
@@ -323,7 +323,7 @@ export function EditTransactionModal({
               className={cn(
                 "text-white",
                 transactionType === "expense"
-                  ? "bg-rose-600 hover:bg-rose-700"
+                  ? "bg-destructive hover:bg-destructive/90"
                   : "bg-emerald-600 hover:bg-emerald-700"
               )}
             >

@@ -193,8 +193,8 @@ export default function FamilyPage() {
                     ${familyGroup.totalMonthlyIncome.toFixed(2)}
                   </p>
                 </div>
-                <div className="h-8 w-8 bg-green-500/10 rounded-full flex items-center justify-center">
-                  <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <div className="h-8 w-8 bg-background-500/10 rounded-full flex items-center justify-center">
+                  <div className="h-2 w-2 bg-background-500 rounded-full"></div>
                 </div>
               </div>
             </CardContent>

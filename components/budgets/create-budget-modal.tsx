@@ -18,6 +18,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslations } from "next-intl";
+import { useTranslatedCategories } from "@/hooks/use-translated-categories";
+import { getCategoryIcon } from "@/lib/utils/icons";
 
 interface CreateBudgetModalProps {
   isOpen: boolean;
@@ -34,7 +36,7 @@ export function CreateBudgetModal({
     name: "",
     description: "",
     budgetType: "category",
-    // categoryId: "",
+    categoryId: "",
     amount: "",
     period: "monthly",
     startDate: new Date().toISOString().split("T")[0],
@@ -50,6 +52,7 @@ export function CreateBudgetModal({
 
   const t = useTranslations("createBudgetModal");
   const tCommon = useTranslations("common");
+  const { data: translatedCategories } = useTranslatedCategories();
 
   if (!isOpen) return null;
 
@@ -71,6 +74,10 @@ export function CreateBudgetModal({
       newErrors.startDate = t("startDateRequired");
     }
 
+    if (formData.budgetType === "category" && !formData.categoryId) {
+      newErrors.categoryId = t("categoryRequired");
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -81,7 +88,7 @@ export function CreateBudgetModal({
       name: formData.name,
       description: formData.description || "",
       budgetType: formData.budgetType as "category" | "total" | "custom",
-      // categoryId: formData.categoryId || "",
+      categoryId: formData.budgetType === "category" ? formData.categoryId : "",
       amount: formData.amount,
       period: formData.period as "weekly" | "monthly" | "yearly",
       startDate: formData.startDate,
@@ -106,7 +113,7 @@ export function CreateBudgetModal({
       name: "",
       description: "",
       budgetType: "category",
-      // categoryId: "",
+      categoryId: "",
       amount: "",
       period: "monthly",
       startDate: new Date().toISOString().split("T")[0],
@@ -138,12 +145,14 @@ export function CreateBudgetModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl bg-gray-900 border-gray-800 max-h-[90vh] overflow-hidden">
-        <CardHeader className="border-b border-gray-800">
+      <Card className="w-full max-w-2xl bg-card border max-h-[90vh] overflow-hidden">
+        <CardHeader className="border-b border-border">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="text-xl">{t("title")}</CardTitle>
-              <p className="text-sm text-gray-400 mt-1">{t("subtitle")}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("subtitle")}
+              </p>
             </div>
             <Button
               variant="ghost"
@@ -173,12 +182,12 @@ export function CreateBudgetModal({
                     value={formData.name}
                     onChange={(e) => updateFormData("name", e.target.value)}
                     placeholder={t("budgetNamePlaceholder")}
-                    className={`bg-gray-800 border-gray-700 ${
-                      errors.name ? "border-red-500" : ""
+                    className={`bg-input border-input ${
+                      errors.name ? "border-destructive" : ""
                     }`}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-500">{errors.name}</p>
+                    <p className="text-sm text-destructive">{errors.name}</p>
                   )}
                 </div>
 
@@ -191,7 +200,7 @@ export function CreateBudgetModal({
                       updateFormData("description", e.target.value)
                     }
                     placeholder={t("descriptionPlaceholder")}
-                    className="bg-gray-800 border-gray-700"
+                    className="bg-input border-input"
                     rows={3}
                   />
                 </div>
@@ -204,7 +213,7 @@ export function CreateBudgetModal({
                       updateFormData("budgetType", value)
                     }
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger className="bg-input border-input">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,13 +226,57 @@ export function CreateBudgetModal({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {formData.budgetType === "category" &&
                       t("categoryBudgetDesc")}
                     {formData.budgetType === "total" && t("totalBudgetDesc")}
                     {formData.budgetType === "custom" && t("customBudgetDesc")}
                   </p>
                 </div>
+
+                {/* Category Selection - Only show for category budget type */}
+                {formData.budgetType === "category" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="category">{t("selectCategory")} *</Label>
+                    <Select
+                      value={formData.categoryId}
+                      onValueChange={(value) =>
+                        updateFormData("categoryId", value)
+                      }
+                    >
+                      <SelectTrigger
+                        className={`bg-input border-input ${
+                          errors.categoryId ? "border-destructive" : ""
+                        }`}
+                      >
+                        <SelectValue
+                          placeholder={t("selectCategoryPlaceholder")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {translatedCategories?.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id || ""}
+                          >
+                            <div className="flex items-center gap-2">
+                              {getCategoryIcon(category.icon)}
+                              <span>{category.translatedName}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.categoryId && (
+                      <p className="text-sm text-destructive">
+                        {errors.categoryId}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {t("categorySelectionHelp")}
+                    </p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="period" className="space-y-4 mt-6">
@@ -231,7 +284,7 @@ export function CreateBudgetModal({
                   <div className="space-y-2">
                     <Label htmlFor="amount">{t("budgetAmount")} *</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="amount"
                         type="number"
@@ -241,13 +294,15 @@ export function CreateBudgetModal({
                           updateFormData("amount", e.target.value)
                         }
                         placeholder="0.00"
-                        className={`pl-10 bg-gray-800 border-gray-700 ${
-                          errors.amount ? "border-red-500" : ""
+                        className={`pl-10 bg-input border-input ${
+                          errors.amount ? "border-destructive" : ""
                         }`}
                       />
                     </div>
                     {errors.amount && (
-                      <p className="text-sm text-red-500">{errors.amount}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.amount}
+                      </p>
                     )}
                   </div>
 
@@ -257,7 +312,7 @@ export function CreateBudgetModal({
                       value={formData.period}
                       onValueChange={(value) => updateFormData("period", value)}
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700">
+                      <SelectTrigger className="bg-input border-input">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -282,12 +337,14 @@ export function CreateBudgetModal({
                       onChange={(e) =>
                         updateFormData("startDate", e.target.value)
                       }
-                      className={`bg-gray-800 border-gray-700 ${
-                        errors.startDate ? "border-red-500" : ""
+                      className={`bg-input border-input ${
+                        errors.startDate ? "border-destructive" : ""
                       }`}
                     />
                     {errors.startDate && (
-                      <p className="text-sm text-red-500">{errors.startDate}</p>
+                      <p className="text-sm text-destructive">
+                        {errors.startDate}
+                      </p>
                     )}
                   </div>
 
@@ -300,9 +357,11 @@ export function CreateBudgetModal({
                       onChange={(e) =>
                         updateFormData("endDate", e.target.value)
                       }
-                      className="bg-gray-800 border-gray-700"
+                      className="bg-input border-input"
                     />
-                    <p className="text-xs text-gray-500">{t("endDateHelp")}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("endDateHelp")}
+                    </p>
                   </div>
                 </div>
               </TabsContent>
@@ -345,9 +404,9 @@ export function CreateBudgetModal({
                               parseInt(e.target.value)
                             )
                           }
-                          className="bg-gray-800 border-gray-700 w-24"
+                          className="bg-input border-input w-24"
                         />
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {t("alertThresholdHelp")}
                         </p>
                       </div>
@@ -393,7 +452,7 @@ export function CreateBudgetModal({
                           updateFormData("rolloverType", value)
                         }
                       >
-                        <SelectTrigger className="bg-gray-800 border-gray-700">
+                        <SelectTrigger className="bg-input border-input">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -408,7 +467,7 @@ export function CreateBudgetModal({
                           </SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {t("rolloverHelp")}
                       </p>
                     </div>
@@ -418,7 +477,7 @@ export function CreateBudgetModal({
             </Tabs>
           </CardContent>
 
-          <div className="border-t border-gray-800 p-6 flex justify-between">
+          <div className="border-t border-border p-6 flex justify-between">
             <Button type="button" variant="outline" onClick={handleClose}>
               {tCommon("cancel")}
             </Button>

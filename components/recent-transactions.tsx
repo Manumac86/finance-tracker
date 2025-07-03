@@ -63,10 +63,23 @@ const getCategoryIcon = (iconName: string) => {
   }
 };
 
-export function RecentTransactions() {
-  const { transactions, isLoading } = useTransactions();
+interface RecentTransactionsProps {
+  excludeFuture?: boolean;
+}
+
+export function RecentTransactions({ excludeFuture = false }: RecentTransactionsProps) {
+  const { transactions: allTransactions, isLoading } = useTransactions();
   const { data: translatedCategories } = useTranslatedCategories();
   const t = useTranslations("recentTransactions");
+
+  // Filter transactions based on excludeFuture prop
+  const transactions = excludeFuture 
+    ? allTransactions.filter(transaction => {
+        const today = new Date().toISOString().split('T')[0];
+        const transactionDate = new Date(transaction.transactionDate).toISOString().split('T')[0];
+        return transactionDate <= today;
+      })
+    : allTransactions;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,6 +88,16 @@ export function RecentTransactions() {
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return t("today");
+    
+    // Handle future dates
+    if (diffDays < 0) {
+      const futureDays = Math.abs(diffDays);
+      if (futureDays === 1) return t("tomorrow") || "tomorrow";
+      if (futureDays < 7) return t("inDays", { days: futureDays }) || `in ${futureDays} days`;
+      return date.toLocaleDateString();
+    }
+    
+    // Handle past dates
     if (diffDays === 1) return t("yesterday");
     if (diffDays < 7) return t("daysAgo", { days: diffDays });
     return date.toLocaleDateString();

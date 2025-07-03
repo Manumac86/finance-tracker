@@ -212,6 +212,26 @@ export async function selectTransactions(userId: string, limit: number = 50) {
   return data || [];
 }
 
+// For dashboard and balance calculations - only past/present transactions
+export async function selectCurrentTransactions(userId: string, limit: number = 50) {
+  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+  
+  const { data, error } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .lte("transaction_date", today) // Only include transactions up to today
+    .order("transaction_date", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(`Failed to fetch transactions: ${error.message}`);
+  }
+
+  return data || [];
+}
+
 export async function insertTransaction(transaction: Record<string, unknown>) {
   const { data, error } = await supabase
     .from("transactions")

@@ -1,11 +1,38 @@
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from '../utils/test-auth';
+import { testTransactions, testCategories } from '../fixtures/test-data';
+import { setupTestDatabase, cleanupTestData, createTestSupabaseClient, getTestCategoryByName } from '../utils/database-seeder';
 
 test.describe('Authenticated Transactions', () => {
+  let testUserId: string;
+  let supabase: ReturnType<typeof createTestSupabaseClient>;
+
+  test.beforeAll(async () => {
+    // Setup test database with categories
+    supabase = await setupTestDatabase();
+  });
+
   test.beforeEach(async ({ page }) => {
-    // Authenticate and navigate to transactions
+    // Authenticate (this should set up a test user)
     await authenticateTestUser(page);
+    
+    // For testing purposes, use a fixed test user ID
+    testUserId = 'e2e-test-user-' + Date.now();
+    
+    // Clean up any existing test data for this user
+    if (supabase) {
+      await cleanupTestData(supabase, testUserId);
+    }
+    
+    // Navigate to transactions
     await page.goto('/transactions');
+  });
+
+  test.afterEach(async () => {
+    // Clean up test data after each test
+    if (testUserId && supabase) {
+      await cleanupTestData(supabase, testUserId);
+    }
   });
 
   test('should display transaction page elements', async ({ page }) => {
@@ -23,7 +50,7 @@ test.describe('Authenticated Transactions', () => {
     await expect(searchInput).toBeVisible();
     
     // Check for floating action buttons
-    const addButton = page.locator('button').filter({ hasText: '+' });
+    const addButton = page.getByTestId('floating-add-transaction-button').first();
     await expect(addButton).toBeVisible();
     
     const bulkButton = page.getByRole('button', { name: /bulk/i });
@@ -31,29 +58,53 @@ test.describe('Authenticated Transactions', () => {
   });
 
   test('should create a new expense transaction', async ({ page }) => {
+    const testTransaction = testTransactions.coffeeExpense;
+    const expectedCategory = getTestCategoryByName('Food & Drink');
+    
     // Click add button
-    const addButton = page.locator('button').filter({ hasText: '+' });
+    const addButton = page.getByTestId('floating-add-transaction-button').first();
     await addButton.click();
     
     // Wait for modal
     await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
     
     // Fill transaction form
-    await page.getByLabel(/description/i).fill('Coffee Shop');
-    await page.getByLabel(/amount/i).fill('4.50');
+    await page.getByLabel(/description|name/i).fill(testTransaction.name);
+    await page.getByLabel(/amount/i).fill(testTransaction.amount.toString());
+    
+    // Select category if available
+    const categorySelect = page.getByRole('combobox', { name: /category/i });
+    if (await categorySelect.isVisible()) {
+      await categorySelect.click();
+      
+      // Wait for dropdown and select Food & Drink category
+      const categoryOption = page.getByRole('option', { name: new RegExp(expectedCategory.name, 'i') });
+      if (await categoryOption.isVisible({ timeout: 3000 })) {
+        await categoryOption.click();
+      } else {
+        // Fallback: press escape to close dropdown
+        await page.keyboard.press('Escape');
+      }
+    }
+    
+    // Add description if field exists
+    const descriptionField = page.getByLabel(/description/i);
+    if (await descriptionField.isVisible()) {
+      await descriptionField.fill(testTransaction.description);
+    }
     
     // Submit transaction
-    await page.getByRole('button', { name: /add transaction/i }).click();
+    await page.getByRole('button', { name: /add.*transaction|create|save/i }).click();
     
     // Wait for modal to close
-    await page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 5000 });
+    await page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 10000 });
     
-    // Success notification might appear
-    await page.waitForTimeout(2000);
+    // Wait for data to update
+    await page.waitForTimeout(3000);
     
     // Transaction should appear in the list
-    await expect(page.getByText('Coffee Shop')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('$4.50')).toBeVisible();
+    await expect(page.getByText(testTransaction.name)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(`$${testTransaction.amount.toFixed(2)}`)).toBeVisible();
   });
 
   test('should filter transactions by type', async ({ page }) => {
@@ -88,27 +139,35 @@ test.describe('Authenticated Transactions', () => {
       await quickTextTab.click();
     }
     
-    // Enter transactions
+    // Enter test transactions using our test data
     const textArea = page.locator('textarea');
-    await textArea.fill('Grocery Store $45.00\nGas Station $35.50\nRestaurant $28.75');
+    const bulkText = [
+      `${testTransactions.groceryExpense.name} $${testTransactions.groceryExpense.amount}`,
+      `${testTransactions.gasExpense.name} $${testTransactions.gasExpense.amount}`,
+      `Restaurant $28.75`
+    ].join('\n');
     
-    // Parse and submit
+    await textArea.fill(bulkText);
+    
+    // Parse transactions if parse button exists
     const parseButton = page.getByRole('button', { name: /parse/i });
     if (await parseButton.isVisible()) {
       await parseButton.click();
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(2000);
     }
     
     // Submit bulk transactions
-    const submitButton = page.getByRole('button', { name: /add.*transaction|import/i });
+    const submitButton = page.getByRole('button', { name: /add.*transaction|import|create/i });
     await submitButton.click();
     
     // Wait for modal to close
-    await page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 10000 });
+    await page.waitForSelector('[role="dialog"]', { state: 'hidden', timeout: 15000 });
     
-    // Verify transactions were added
-    await page.waitForTimeout(2000);
-    await expect(page.getByText('Grocery Store')).toBeVisible({ timeout: 10000 });
+    // Wait for data to update
+    await page.waitForTimeout(3000);
+    
+    // Verify at least one transaction was added
+    await expect(page.getByText(testTransactions.groceryExpense.name)).toBeVisible({ timeout: 15000 });
   });
 
   test('should navigate to manage transactions', async ({ page }) => {

@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       user_id: userId,
       name: budgetData.name,
       description: budgetData.description || null,
-      // category_id: budgetData.category_id || null,
+      category_id: budgetData.category_id || null,
       budget_type: budgetData.budget_type,
       amount: budgetData.amount,
       period: budgetData.period,

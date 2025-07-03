@@ -19,7 +19,13 @@ export async function GET(
       .from("transactions")
       .select(`
         *,
-        categories!inner(name, icon)
+        categories (
+          id,
+          name,
+          icon,
+          color,
+          category_type
+        )
       `)
       .eq("id", id)
       .eq("user_id", userId)
@@ -30,11 +36,11 @@ export async function GET(
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
     }
     
-    // Transform the data to match our schema
+    // Merge category data if join was successful, otherwise use denormalized data
     const transactionData = {
       ...data,
-      category_name: data.categories.name,
-      category_icon: data.categories.icon,
+      category_name: data.categories?.name || data.category_name,
+      category_icon: data.categories?.icon || data.category_icon,
     };
     
     const transaction = transformTransactionToUI(transactionData);
@@ -147,10 +153,7 @@ export async function PUT(
       .update(updateData)
       .eq("id", id)
       .eq("user_id", userId)
-      .select(`
-        *,
-        categories!inner(name, icon)
-      `)
+      .select("*")
       .single();
     
     if (error) {
@@ -158,14 +161,8 @@ export async function PUT(
       return NextResponse.json({ error: "Failed to update transaction" }, { status: 500 });
     }
     
-    // Transform the data to match our schema
-    const transactionData = {
-      ...updated,
-      category_name: updated.categories?.name || updated.category_name,
-      category_icon: updated.categories?.icon || updated.category_icon,
-    };
-    
-    const updatedTransaction = transformTransactionToUI(transactionData);
+    // The category_name and category_icon are already denormalized in the table
+    const updatedTransaction = transformTransactionToUI(updated);
     
     return NextResponse.json({ 
       transaction: updatedTransaction,

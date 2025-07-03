@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Plus, AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BudgetCard } from "@/components/budgets/budget-card";
 import { CreateBudgetModal } from "@/components/budgets/create-budget-modal";
 import { EditBudgetModal } from "@/components/budgets/edit-budget-modal";
-import { BudgetAnalytics } from "@/components/budgets/budget-analytics";
+import { EnhancedBudgetCard } from "@/components/budgets/enhanced-budget-card";
 import { UIBudget } from "@/lib/db/schemas/budget";
 import { BudgetFormData } from "@/types/forms";
 
@@ -19,6 +19,8 @@ export default function BudgetsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<UIBudget | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  
+  const t = useTranslations("pages.budgets");
 
   // Build API URL with proper query string construction
   const buildApiUrl = () => {
@@ -46,7 +48,7 @@ export default function BudgetsPage() {
         name: budgetData.name,
         description: budgetData.description,
         budget_type: budgetData.budgetType,
-        // category_id: budgetData.categoryId,
+        ...(budgetData.categoryId ? { category_id: budgetData.categoryId } : {}),
         amount: parseFloat(budgetData.amount),
         period: budgetData.period,
         start_date: budgetData.startDate,
@@ -93,8 +95,8 @@ export default function BudgetsPage() {
         name: updateData.name,
         description: updateData.description,
         budget_type: updateData.budgetType,
-        // category_id: updateData.categoryId,
-        amount: updateData.amount,
+        ...(updateData.categoryId ? { category_id: updateData.categoryId } : {}),
+        amount: parseFloat(updateData.amount),
         period: updateData.period,
         start_date: updateData.startDate,
         end_date: updateData.endDate,
@@ -154,7 +156,7 @@ export default function BudgetsPage() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading budgets...</p>
+          <p className="mt-2 text-muted-foreground">{t("loadingBudgets")}</p>
         </div>
       </div>
     );
@@ -163,9 +165,9 @@ export default function BudgetsPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-center text-red-400">
+        <div className="text-center text-destructive">
           <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
-          <p>Failed to load budgets</p>
+          <p>{t("failedToLoadBudgets")}</p>
         </div>
       </div>
     );
@@ -176,9 +178,9 @@ export default function BudgetsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Budget Management</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground">
-            Track your spending limits and stay on budget
+            {t("description")}
           </p>
         </div>
         <Button
@@ -187,7 +189,7 @@ export default function BudgetsPage() {
           data-testid="create-budget-header-button"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Create Budget
+          {t("createBudget")}
         </Button>
       </div>
 
@@ -196,7 +198,7 @@ export default function BudgetsPage() {
         <Card className="bg-card border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Budgets
+              {t("totalBudgets")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -207,7 +209,7 @@ export default function BudgetsPage() {
         <Card className="bg-card border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Budgets
+              {t("activeBudgets")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -220,7 +222,7 @@ export default function BudgetsPage() {
         <Card className="bg-card border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Warnings
+              {t("warnings")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -233,7 +235,7 @@ export default function BudgetsPage() {
         <Card className="bg-card border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Over Budget
+              {t("overBudget")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -252,7 +254,7 @@ export default function BudgetsPage() {
           onClick={() => setSelectedFilter("all")}
           className="border"
         >
-          All Budgets
+          {t("allBudgets")}
         </Button>
         <Button
           variant={selectedFilter === "monthly" ? "default" : "outline"}
@@ -260,7 +262,7 @@ export default function BudgetsPage() {
           onClick={() => setSelectedFilter("monthly")}
           className="border"
         >
-          Monthly
+          {t("monthly")}
         </Button>
         <Button
           variant={selectedFilter === "weekly" ? "default" : "outline"}
@@ -268,7 +270,7 @@ export default function BudgetsPage() {
           onClick={() => setSelectedFilter("weekly")}
           className="border"
         >
-          Weekly
+          {t("weekly")}
         </Button>
         <Button
           variant={selectedFilter === "yearly" ? "default" : "outline"}
@@ -276,12 +278,9 @@ export default function BudgetsPage() {
           onClick={() => setSelectedFilter("yearly")}
           className="border"
         >
-          Yearly
+          {t("yearly")}
         </Button>
       </div>
-
-      {/* Budget Analytics */}
-      {budgets.length > 0 && <BudgetAnalytics budgets={budgets} />}
 
       {/* Budgets Grid */}
       {budgets.length === 0 ? (
@@ -291,24 +290,24 @@ export default function BudgetsPage() {
               <div className="h-12 w-12 rounded-full bg-emerald-600/10 flex items-center justify-center mx-auto mb-4">
                 <Plus className="h-6 w-6 text-emerald-500" />
               </div>
-              <h3 className="text-lg font-medium mb-2">No budgets yet</h3>
+              <h3 className="text-lg font-medium mb-2">{t("noBudgetsYet")}</h3>
               <p className="text-muted-foreground mb-4">
-                Create your first budget to start tracking your spending limits
+                {t("createFirstBudget")}
               </p>
               <Button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="bg-emerald-600 hover:bg-emerald-700"
                 data-testid="create-first-budget-button"
               >
-                Create Your First Budget
+                {t("createBudget")}
               </Button>
             </div>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {budgets.map((budget) => (
-            <BudgetCard
+            <EnhancedBudgetCard
               key={budget.id}
               budget={budget}
               onEdit={handleEditBudget}

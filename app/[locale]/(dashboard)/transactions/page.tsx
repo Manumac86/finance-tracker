@@ -153,19 +153,16 @@ function TransactionsPageContent() {
   const loadMoreTransactions = useCallback(() => {
     setIsLoadingMore(true);
 
-    // Simulate loading delay for better UX
-    setTimeout(() => {
-      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const newTransactions = filteredTransactions.slice(startIndex, endIndex);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const newTransactions = filteredTransactions.slice(startIndex, endIndex);
 
-      if (newTransactions.length > 0) {
-        setDisplayedTransactions((prev) => [...prev, ...newTransactions]);
-        setCurrentPage((prev) => prev + 1);
-      }
+    if (newTransactions.length > 0) {
+      setDisplayedTransactions((prev) => [...prev, ...newTransactions]);
+      setCurrentPage((prev) => prev + 1);
+    }
 
-      setIsLoadingMore(false);
-    }, 500);
+    setIsLoadingMore(false);
   }, [currentPage, filteredTransactions]);
 
   // Reset displayed transactions when filters change
@@ -322,7 +319,7 @@ function TransactionsPageContent() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-card border">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
               <TrendingUp className="h-4 w-4 mr-2" />
@@ -378,7 +375,6 @@ function TransactionsPageContent() {
           </CardContent>
         </Card>
       </div>
-
       {/* Filters */}
       <Card>
         <CardHeader>
@@ -489,17 +485,16 @@ function TransactionsPageContent() {
           </div>
         </CardContent>
       </Card>
-
       {/* Transactions List */}
       <div className="space-y-4">
-        {isLoading ? (
+        {isLoading && (
           <div className="grid gap-4">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="bg-card border">
-                <CardContent className="p-6">
+              <Card key={i} className="bg-card border-border">
+                <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 bg-muted rounded-full animate-pulse" />
+                      <div className="h-8 w-8 bg-muted rounded-full animate-pulse" />
                       <div className="space-y-2">
                         <div className="h-4 w-32 bg-muted rounded animate-pulse" />
                         <div className="h-3 w-24 bg-muted rounded animate-pulse" />
@@ -511,8 +506,9 @@ function TransactionsPageContent() {
               </Card>
             ))}
           </div>
-        ) : displayedTransactions.length === 0 ? (
-          <Card className="bg-card border">
+        )}
+        {displayedTransactions.length === 0 ? (
+          <Card className="bg-card border-border">
             <CardContent className="text-center py-12">
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <Plus className="h-8 w-8 text-muted-foreground" />
@@ -602,10 +598,8 @@ function TransactionsPageContent() {
           </div>
         )}
       </div>
-
       {/* Add Transaction Button */}
       <AddTransactionButton />
-
       {/* Edit Transaction Modal */}
       <EditTransactionModal
         transaction={editingTransaction}

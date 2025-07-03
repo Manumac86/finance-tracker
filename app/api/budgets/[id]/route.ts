@@ -95,7 +95,7 @@ export async function PUT(
       amount: updateData.amount,
       period: updateData.period,
       start_date: updateData.start_date,
-      end_date: updateData.end_date,
+      end_date: updateData.end_date === "" || updateData.end_date === undefined ? null : updateData.end_date,
       alert_threshold_percentage: updateData.alert_threshold_percentage,
       alert_enabled: updateData.alert_enabled,
       overspend_alert_enabled: updateData.overspend_alert_enabled,

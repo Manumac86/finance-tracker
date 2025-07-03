@@ -1,24 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useState, useEffect } from "react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, ReferenceLine } from "recharts";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ChartSkeleton } from "@/components/ui/chart-skeleton";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartConfig,
+} from "@/components/ui/chart";
 import useSWR from "swr";
+import { TrendingUp } from "lucide-react";
 
 interface BalanceDataPoint {
   date: string;
   balance: number;
 }
+
+const chartConfig = {
+  balance: {
+    label: "Balance",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -29,9 +36,23 @@ const fetcher = async (url: string) => {
   return data.data;
 };
 
-export function BalanceChart() {
-  const [period, setPeriod] = useState<"year" | "month" | "week">("year");
+interface BalanceChartProps {
+  timeFilter?: string;
+}
+
+export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
+  const [period, setPeriod] = useState<"year" | "month" | "week">(
+    timeFilter === "week" ? "week" : timeFilter === "month" ? "month" : "week"
+  );
   const t = useTranslations("dates");
+  const tDashboard = useTranslations("dashboard");
+
+  // Sync period with timeFilter changes from dashboard
+  useEffect(() => {
+    const newPeriod = timeFilter === "week" ? "week" : timeFilter === "month" ? "month" : "week";
+    setPeriod(newPeriod);
+  }, [timeFilter]);
+
 
   const {
     data: balanceData,
@@ -46,97 +67,138 @@ export function BalanceChart() {
     }
   );
 
-  // Transform data for the chart
+  // Use the balance data directly since we've fixed the API to exclude future transactions
+  const adjustedBalanceData = balanceData;
+
+
+  // Transform data for the chart using adjusted data
   const chartData =
-    balanceData?.map((point) => ({
-      name: point.date,
+    adjustedBalanceData?.map((point) => ({
+      date: point.date,
       balance: point.balance,
     })) || [];
 
-  return (
-    <div className="space-y-4">
-      <Tabs
-        defaultValue="year"
-        onValueChange={(value) => setPeriod(value as "year" | "month" | "week")}
-        className="w-full"
-      >
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="year">{t("lastYear")}</TabsTrigger>
-          <TabsTrigger value="month">{t("thisMonth")}</TabsTrigger>
-          <TabsTrigger value="week">{t("lastWeek")}</TabsTrigger>
-        </TabsList>
-      </Tabs>
+  // Calculate dynamic Y-axis domain
+  const balanceValues = chartData.map(d => d.balance);
+  const minBalance = Math.min(...balanceValues, 0);
+  const maxBalance = Math.max(...balanceValues, 0);
+  const padding = Math.max(Math.abs(minBalance), Math.abs(maxBalance)) * 0.1;
+  const yAxisDomain = [minBalance - padding, maxBalance + padding];
 
-      <div className="h-[300px] w-full">
+  // Format x-axis labels based on period
+  const formatXAxis = (value: string) => {
+    if (period === "month") {
+      // For monthly view, show day numbers
+      const date = new Date(value);
+      return date.getDate().toString();
+    } else if (period === "week") {
+      // For weekly view, show abbreviated day names
+      const date = new Date(value);
+      return date.toLocaleDateString("en-US", { weekday: "short" });
+    } else {
+      // For yearly view, show abbreviated month names
+      return value.slice(0, 3);
+    }
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="w-5 h-5" />
+          {tDashboard("currentBalance")}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Tabs
+          value={period}
+          onValueChange={(value) => setPeriod(value as "year" | "month" | "week")}
+          className="w-full"
+        >
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="year">{t("lastYear")}</TabsTrigger>
+            <TabsTrigger value="month">{t("thisMonth")}</TabsTrigger>
+            <TabsTrigger value="week">{t("lastWeek")}</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="w-full">
         {isLoading ? (
-          <div className="flex h-full items-center justify-center">
-            <Skeleton className="h-full w-full" />
+          <div className="h-[300px]">
+            <ChartSkeleton />
           </div>
         ) : error ? (
-          <div className="flex h-full items-center justify-center text-muted-foreground">
+          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
             <p>Unable to load balance history</p>
           </div>
         ) : chartData.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-muted-foreground">
+          <div className="flex h-[300px] items-center justify-center text-muted-foreground">
             <p>No balance data available for {period}</p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
+          <ChartContainer config={chartConfig} className="h-[300px] w-full">
             <AreaChart
+              accessibilityLayer
               data={chartData}
               margin={{
-                top: 10,
-                right: 10,
-                left: 0,
-                bottom: 0,
+                left: 12,
+                right: 12,
+                top: 12,
+                bottom: 12,
               }}
             >
               <defs>
-                <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor="hsl(var(--primary))"
+                    stopOpacity={0.8}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor="hsl(var(--primary))"
+                    stopOpacity={0.1}
+                  />
                 </linearGradient>
               </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                className="stroke-border"
-                stroke="currentColor"
-              />
+              <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="name"
-                className="stroke-muted-foreground"
-                stroke="currentColor"
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={formatXAxis}
               />
               <YAxis
-                className="stroke-muted-foreground"
-                stroke="currentColor"
-                domain={["auto", "auto"]}
-                allowDecimals={true}
+                domain={yAxisDomain}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  borderColor: "hsl(var(--border))",
-                  color: "hsl(var(--foreground))",
-                }}
-                itemStyle={{ color: "hsl(var(--foreground))" }}
+              {/* Zero reference line */}
+              <ReferenceLine y={0} stroke="hsl(var(--border))" strokeDasharray="2 2" strokeOpacity={0.5} />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="line" />}
                 formatter={(value) => [
                   `$${Number(value).toFixed(2)}`,
                   "Balance",
                 ]}
               />
               <Area
-                type="monotone"
                 dataKey="balance"
-                stroke="#10b981"
+                type="natural"
+                fill="url(#fillBalance)"
+                fillOpacity={0.4}
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
-                fillOpacity={0.6}
-                fill="url(#colorBalance)"
               />
             </AreaChart>
-          </ResponsiveContainer>
+          </ChartContainer>
         )}
-      </div>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

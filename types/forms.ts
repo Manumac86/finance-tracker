@@ -15,7 +15,7 @@ export interface BudgetFormData {
   name: string;
   description: string;
   budgetType: "category" | "total" | "custom";
-  // categoryId: string;
+  categoryId: string;
   amount: string;
   period: "weekly" | "monthly" | "quarterly" | "yearly";
   startDate: string;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { selectTransactions, insertTransaction, selectCategoryById } from "@/lib/db/postgres";
+import { selectTransactions, selectCurrentTransactions, insertTransaction, selectCategoryById } from "@/lib/db/postgres";
 import { createTransactionSchema, transformTransactionToUI } from "@/lib/db/schemas/transaction";
 
 export async function GET(request: NextRequest) {
@@ -12,8 +12,12 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
+    const includeFuture = searchParams.get('includeFuture') === 'true';
 
-    const transactions = await selectTransactions(userId, limit);
+    // Use appropriate function based on whether to include future transactions
+    const transactions = includeFuture 
+      ? await selectTransactions(userId, limit)
+      : await selectCurrentTransactions(userId, limit);
     const uiTransactions = transactions.map(transformTransactionToUI);
     
     return NextResponse.json({ transactions: uiTransactions });

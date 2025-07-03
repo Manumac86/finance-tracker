@@ -3,6 +3,7 @@ import { clerkSetup } from '@clerk/testing/playwright';
 import dotenv from 'dotenv';
 import path from 'path';
 import { setupClerkEnvironment } from './setup-clerk-env';
+import { setupTestDatabase } from './utils/database-seeder';
 
 async function globalSetup(config: FullConfig) {
   console.log('\n🚀 Starting E2E Tests Setup\n');
@@ -63,6 +64,16 @@ async function globalSetup(config: FullConfig) {
   console.log('   - Clerk testing environment is ready');
   console.log('   - Use setupClerkTestingToken() in tests for authentication');
   console.log('   - No real user accounts needed\n');
+
+  // Setup test database with categories
+  try {
+    console.log('🗄️  Setting up test database...');
+    await setupTestDatabase();
+    console.log('✅ Test database setup completed');
+  } catch (error) {
+    console.error('❌ Failed to setup test database:', error);
+    console.warn('Database-dependent tests may fail');
+  }
 }
 
 export default globalSetup;
