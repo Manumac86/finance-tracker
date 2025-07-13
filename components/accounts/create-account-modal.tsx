@@ -111,12 +111,12 @@ export function CreateAccountModal({
   const { toast } = useToast();
   const { user } = useUser();
 
-  const form = useForm({
+  const form = useForm<CreateManualAccount>({
     resolver: zodResolver(CreateManualAccountSchema),
     defaultValues: {
       name: "",
       user_id: user?.id || "", // Set from Clerk user
-      account_type: "checking",
+      account_type: "checking" as const,
       institution_name: "",
       currency_code: "USD",
       initial_balance: 0,

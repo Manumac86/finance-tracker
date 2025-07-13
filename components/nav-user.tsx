@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   BadgeCheck,
   Bell,
@@ -42,8 +43,40 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { user: clerkUser } = useUser();
+  const { user: clerkUser, isLoaded } = useUser();
   const { setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration errors by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Generate fallback initials safely
+  const getFallbackInitials = () => {
+    if (!mounted || !isLoaded || !clerkUser) {
+      return "U"; // Safe fallback for server/loading state
+    }
+    const first = clerkUser.firstName?.charAt(0)?.toUpperCase() || "";
+    const last = clerkUser.lastName?.charAt(0)?.toUpperCase() || "";
+    return first + last || "U";
+  };
+
+  // Get user display name safely
+  const getDisplayName = () => {
+    if (!mounted || !isLoaded || !clerkUser) {
+      return user.name; // Fallback to prop
+    }
+    return `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || user.name;
+  };
+
+  // Get user email safely
+  const getDisplayEmail = () => {
+    if (!mounted || !isLoaded || !clerkUser) {
+      return user.email; // Fallback to prop
+    }
+    return clerkUser.emailAddresses?.[0]?.emailAddress || user.email;
+  };
 
   return (
     <SidebarMenu>
@@ -56,21 +89,20 @@ export function NavUser({
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage
-                  src={clerkUser?.imageUrl}
-                  alt={user.name}
+                  src={mounted && isLoaded && clerkUser?.imageUrl || user.avatar}
+                  alt={getDisplayName()}
                   className="rounded-full"
                 />
                 <AvatarFallback className="rounded-lg">
-                  {clerkUser?.firstName?.charAt(0)}{" "}
-                  {clerkUser?.lastName?.charAt(0)}
+                  {getFallbackInitials()}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">
-                  {clerkUser?.firstName} {clerkUser?.lastName}
+                  {getDisplayName()}
                 </span>
                 <span className="truncate text-xs">
-                  {clerkUser?.emailAddresses[0].emailAddress}
+                  {getDisplayEmail()}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -86,21 +118,20 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={clerkUser?.imageUrl}
-                    alt={user.name}
+                    src={mounted && isLoaded && clerkUser?.imageUrl || user.avatar}
+                    alt={getDisplayName()}
                     className="rounded-full"
                   />
                   <AvatarFallback className="rounded-lg">
-                    {clerkUser?.firstName?.charAt(0)}{" "}
-                    {clerkUser?.lastName?.charAt(0)}
+                    {getFallbackInitials()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
-                    {clerkUser?.firstName} {clerkUser?.lastName}
+                    {getDisplayName()}
                   </span>
                   <span className="truncate text-xs">
-                    {clerkUser?.emailAddresses[0].emailAddress}
+                    {getDisplayEmail()}
                   </span>
                 </div>
               </div>
@@ -112,23 +143,25 @@ export function NavUser({
               </DropdownMenuLabel>
               <LanguageSwitcher variant="inline" />
             </DropdownMenuGroup>
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
-                Theme
-              </DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                <Monitor className="mr-2 h-4 w-4" />
-                System
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {mounted && (
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
+                  Theme
+                </DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => setTheme("light")}>
+                  <Sun className="mr-2 h-4 w-4" />
+                  Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                  <Moon className="mr-2 h-4 w-4" />
+                  Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")}>
+                  <Monitor className="mr-2 h-4 w-4" />
+                  System
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            )}
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>

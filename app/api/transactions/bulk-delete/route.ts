@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabase, selectManualAccountById, updateAccountBalance } from "@/lib/db/postgres";
+import { auditLogger } from "@/lib/security/audit-logger";
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -92,6 +93,13 @@ export async function DELETE(request: NextRequest) {
     });
 
     await Promise.all(accountUpdatePromises);
+
+    // Log audit event
+    await auditLogger.transactionBulkDeleted(
+      userId, 
+      transactionsToDelete.map(t => t.id), 
+      transactionsToDelete.length
+    );
 
     return NextResponse.json({
       deletedCount: transactionsToDelete.length,

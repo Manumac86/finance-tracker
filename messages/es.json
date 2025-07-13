@@ -33,6 +33,7 @@
     "family": "Familia",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión",
+    "onboarding": "Configuración Inicial",
     "searchPlaceholder": "Buscar transacciones..."
   },
   "dashboard": {

@@ -22,6 +22,22 @@ export function TopBar() {
     (item) => item.url.split("/").pop() === pathname.split("/").pop()
   );
 
+  // Get the page title - handle special cases
+  const getPageTitle = () => {
+    if (navItem?.title) {
+      return t(`${navItem.title.toLowerCase()}`);
+    }
+    
+    // Handle special routes that aren't in navItems
+    const currentPath = pathname.split("/").pop();
+    if (currentPath === "onboarding") {
+      return t("onboarding");
+    }
+    
+    // Default fallback
+    return t("dashboard");
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -36,7 +52,7 @@ export function TopBar() {
     <header className="bg-background sticky top-0 flex h-14 shrink-0 items-center gap-2 p-4 border-border">
       <SidebarTrigger className="-ml-1 h-8 w-8" />
       <h1 className="text-2xl font-bold">
-        {t(`${navItem?.title.toLowerCase()}`)}
+        {getPageTitle()}
       </h1>
       <div className="flex flex-1 items-center gap-2">
         <form onSubmit={handleSearch} className="relative ml-auto">

@@ -362,29 +362,18 @@ function validateSanitizedTransactionData(data: SanitizedTransactionData): void 
  * Sanitize access tokens for storage (encrypt them)
  */
 export function sanitizeAccessToken(token: string): string {
-  // In production, this should use proper encryption
-  // For now, we'll use a simple obfuscation (REPLACE WITH REAL ENCRYPTION)
-  if (!token) return '';
-  
-  // TODO: Implement proper encryption using a key management service
-  // This is just a placeholder to show the pattern
-  return Buffer.from(token).toString('base64');
+  // Import the proper encryption function
+  const { sanitizeAccessToken: encryptToken } = require('@/lib/security/encryption');
+  return encryptToken(token);
 }
 
 /**
  * Desanitize access tokens for use (decrypt them)
  */
 export function desanitizeAccessToken(encryptedToken: string): string {
-  // In production, this should use proper decryption
-  // For now, we'll use simple deobfuscation (REPLACE WITH REAL DECRYPTION)
-  if (!encryptedToken) return '';
-  
-  try {
-    // TODO: Implement proper decryption
-    return Buffer.from(encryptedToken, 'base64').toString();
-  } catch {
-    throw new Error('Failed to decrypt access token');
-  }
+  // Import the proper decryption function
+  const { desanitizeAccessToken: decryptToken } = require('@/lib/security/encryption');
+  return decryptToken(encryptedToken);
 }
 
 /**
