@@ -1,6 +1,7 @@
 import { selectBudgets, selectTransactions } from "@/lib/db/postgres";
 import { UIBudget } from "@/lib/db/schemas/budget";
 import { UITransaction } from "@/lib/db/schemas/transaction";
+import { CustomBudgetRules, evaluateCustomBudgetRules } from "@/lib/types/custom-budget-rules";
 
 export interface BudgetAnalysis {
   spentAmount: number;
@@ -123,15 +124,44 @@ export class BudgetAlertService {
       const isInPeriod = transactionDate >= startDate && transactionDate <= endDate;
       const isExpense = transaction.transactionType === 'expense';
       
+      // Must be in period and be an expense
+      if (!isInPeriod || !isExpense) {
+        return false;
+      }
+      
       if (budget.budgetType === 'category' && budget.categoryIds) {
-        return isInPeriod && isExpense && budget.categoryIds.includes(transaction.categoryId);
+        return budget.categoryIds.includes(transaction.categoryId);
       }
       
       if (budget.budgetType === 'total') {
-        return isInPeriod && isExpense;
+        return true;
       }
       
-      return isInPeriod && isExpense;
+      if (budget.budgetType === 'custom') {
+        // Parse custom rules from budget metadata
+        try {
+          const customRules = budget.metadata?.customRules as CustomBudgetRules;
+          if (!customRules) {
+            return false; // No rules defined
+          }
+          
+          // Evaluate custom rules
+          return evaluateCustomBudgetRules(customRules, {
+            amount: transaction.amount,
+            name: transaction.name,
+            description: transaction.description,
+            categoryId: transaction.categoryId,
+            transactionDate: transaction.transactionDate,
+            accountId: transaction.accountId,
+            accountName: transaction.accountName,
+          });
+        } catch (error) {
+          console.warn('Error evaluating custom budget rules:', error);
+          return false;
+        }
+      }
+      
+      return false;
     });
 
     const spentAmount = relevantTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
@@ -174,6 +204,28 @@ export class BudgetAlertService {
 
     if (budget.budgetType === 'total') {
       return true;
+    }
+
+    if (budget.budgetType === 'custom') {
+      try {
+        const customRules = budget.metadata?.customRules as CustomBudgetRules;
+        if (!customRules) {
+          return false;
+        }
+        
+        return evaluateCustomBudgetRules(customRules, {
+          amount: transaction.amount,
+          name: transaction.name,
+          description: transaction.description,
+          categoryId: transaction.categoryId,
+          transactionDate: transaction.transactionDate,
+          accountId: transaction.accountId,
+          accountName: transaction.accountName,
+        });
+      } catch (error) {
+        console.warn('Error evaluating custom budget rules for transaction:', error);
+        return false;
+      }
     }
 
     return false;

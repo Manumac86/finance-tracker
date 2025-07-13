@@ -63,9 +63,98 @@ This directory contains the CI/CD workflows for the Finance Tracker application.
 - Codecov integration
 - PR coverage comments
 
+### 3. `e2e-tests.yml` - End-to-End Testing
+
+**Triggers:**
+- Push to `main` and `develop`
+- Pull requests to `main` and `develop`
+
+**Features:**
+- Playwright testing on desktop and mobile browsers
+- Authentication bypass for CI environment (`E2E_TEST_BYPASS=true`)
+- Complete environment setup (Supabase, Redis, Clerk)
+- Artifact uploads for test reports and screenshots
+
+### 4. `deploy.yml` - Production & Staging Deployment
+
+**Triggers:**
+- Push to `main` (automatic production deployment)
+- Manual dispatch (choose environment)
+
+**Environments:**
+- **Production**: Vercel deployment with production secrets
+- **Staging**: Vercel deployment with staging secrets
+
+**Features:**
+- Pre-deployment validation (lint, type-check, build)
+- Environment-specific configurations
+- Post-deployment notifications
+- Deployment status summaries
+
+### 5. `lighthouse.yml` - Performance Auditing
+
+**Triggers:**
+- Push to `main`
+- Pull requests to `main`
+- Weekly schedule (Sundays at 02:00 UTC)
+
+**Features:**
+- Lighthouse CI performance audits
+- Multiple page testing (home, dashboard, transactions, budgets, goals)
+- Performance thresholds:
+  - Performance: ≥70%
+  - Accessibility: ≥90%
+  - Best Practices: ≥85%
+  - SEO: ≥80%
+- PR comments with performance scores
+
 ## Setup Requirements
 
-### 1. Codecov Integration (Optional)
+### 1. Required Secrets
+
+For the complete CI/CD pipeline to work, configure these secrets in your repository:
+
+**Authentication & Services:**
+```
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY    # Clerk authentication
+CLERK_SECRET_KEY                     # Clerk secret key
+CLERK_TESTING_TOKEN                  # Clerk testing token for E2E
+
+DATABASE_URL                         # PostgreSQL connection string
+SUPABASE_URL                         # Supabase project URL
+SUPABASE_ANON_KEY                    # Supabase anonymous key
+SUPABASE_SERVICE_ROLE_KEY           # Supabase service role key
+NEXT_PUBLIC_SUPABASE_URL            # Public Supabase URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY       # Public Supabase key
+
+REDIS_URL                           # Redis connection string
+UPSTASH_REDIS_REST_URL             # Upstash Redis REST URL
+UPSTASH_REDIS_REST_TOKEN           # Upstash Redis token
+```
+
+**Deployment (Vercel):**
+```
+VERCEL_TOKEN                        # Vercel deployment token
+VERCEL_ORG_ID                      # Vercel organization ID
+VERCEL_PROJECT_ID                  # Vercel project ID (production)
+VERCEL_STAGING_PROJECT_ID          # Vercel project ID (staging)
+```
+
+**Staging Environment (Optional):**
+```
+STAGING_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+STAGING_CLERK_SECRET_KEY
+STAGING_NEXT_PUBLIC_SUPABASE_URL
+STAGING_NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+**Code Quality & Performance:**
+```
+CODECOV_TOKEN                       # Codecov integration
+LHCI_GITHUB_APP_TOKEN              # Lighthouse CI GitHub app
+```
+
+### 2. Codecov Integration (Optional)
 
 To enable Codecov coverage reporting:
 

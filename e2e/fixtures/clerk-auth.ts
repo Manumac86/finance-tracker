@@ -1,18 +1,15 @@
 import { test as base } from '@playwright/test';
-import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
-// Extend basic test with Clerk authentication
+// Extend basic test with E2E authentication bypass
 export const test = base.extend({
-  // Automatically setup Clerk testing token before each test
+  // Automatically setup authentication bypass for tests
   page: async ({ page }, use) => {
-    try {
-      // Setup Clerk testing token
-      await setupClerkTestingToken({ page });
-      console.log('✅ Clerk testing token setup successful');
-    } catch (error) {
-      console.warn('⚠️  Clerk testing token setup failed:', error);
-      console.warn('Running test without authentication');
-    }
+    // Set the bypass header for all requests during this test
+    await page.setExtraHTTPHeaders({
+      'x-e2e-test-bypass': 'true'
+    });
+    
+    console.log('✅ E2E authentication bypass enabled');
     
     // Use the page in the test
     await use(page);

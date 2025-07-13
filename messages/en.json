@@ -28,7 +28,7 @@
     "recurring": "Recurring",
     "manage": "Manage",
     "reports": "Reports",
-    "banking": "Banking",
+    "accounts": "Accounts",
     "family": "Family",
     "settings": "Settings",
     "signOut": "Sign Out",
@@ -178,6 +178,186 @@
       "insurance": "Insurance",
       "savings": "Savings",
       "other": "Other Expenses"
+    }
+  },
+  "accounts": {
+    "title": "Accounts",
+    "description": "Manage your financial accounts and track balances",
+    "account": "account",
+    "accounts": "accounts",
+    "add": {
+      "title": "Add Account",
+      "first": "Add your first account",
+      "description": "Create a new account to track your finances"
+    },
+    "edit": {
+      "title": "Edit Account",
+      "description": "Update account information for {name}"
+    },
+    "delete": {
+      "confirm": {
+        "title": "Delete Account",
+        "description": "Are you sure you want to delete '{name}'? This action cannot be undone."
+      },
+      "success": {
+        "title": "Account Deleted",
+        "description": "The account has been successfully deleted."
+      },
+      "error": {
+        "title": "Delete Failed",
+        "description": "Failed to delete the account. Please try again."
+      }
+    },
+    "create": {
+      "success": {
+        "title": "Account Created",
+        "description": "Your new account has been successfully created."
+      },
+      "error": {
+        "title": "Creation Failed",
+        "description": "Failed to create the account. Please try again."
+      }
+    },
+    "edit": {
+      "success": {
+        "title": "Account Updated",
+        "description": "Account information has been successfully updated."
+      },
+      "error": {
+        "title": "Update Failed",
+        "description": "Failed to update the account. Please try again."
+      }
+    },
+    "summary": {
+      "totalBalance": "Total Balance",
+      "accounts": "accounts",
+      "assets": "Assets",
+      "liabilities": "Liabilities",
+      "netWorth": "Net Worth",
+      "savingsChecking": "Savings & Checking",
+      "creditDebt": "Credit & Debt",
+      "assetsMinusLiabilities": "Assets minus liabilities"
+    },
+    "breakdown": {
+      "title": "Account Breakdown",
+      "description": "Balance summary by account type"
+    },
+    "list": {
+      "title": "Your Accounts"
+    },
+    "empty": {
+      "title": "No accounts yet",
+      "description": "Add your first account to start tracking your finances"
+    },
+    "types": {
+      "checking": "Checking",
+      "savings": "Savings",
+      "credit": "Credit Card",
+      "cash": "Cash",
+      "investment": "Investment"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "currentBalance": "Current Balance",
+    "initialBalance": "Initial Balance",
+    "accountNumber": "Account ends in",
+    "excludedFromTotals": "Excluded from totals",
+    "hideBalance": "Hide Balance",
+    "showBalance": "Show Balance",
+    "error": {
+      "loading": "Failed to load accounts"
+    },
+    "form": {
+      "basic": {
+        "title": "Basic Information"
+      },
+      "financial": {
+        "title": "Financial Information"
+      },
+      "details": {
+        "title": "Account Details"
+      },
+      "display": {
+        "title": "Display Settings"
+      },
+      "settings": {
+        "title": "Account Settings"
+      },
+      "name": {
+        "label": "Account Name",
+        "placeholder": "Enter account name"
+      },
+      "type": {
+        "label": "Account Type",
+        "placeholder": "Select account type"
+      },
+      "institution": {
+        "label": "Institution Name",
+        "placeholder": "Bank or institution name",
+        "description": "Optional - name of your bank or financial institution"
+      },
+      "currency": {
+        "label": "Currency"
+      },
+      "balance": {
+        "label": "Initial Balance"
+      },
+      "accountNumber": {
+        "label": "Last 4 Digits",
+        "placeholder": "1234",
+        "description": "Optional - last 4 digits of your account number"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Notes about this account"
+      },
+      "color": {
+        "label": "Account Color"
+      },
+      "active": {
+        "label": "Active Account",
+        "description": "Inactive accounts are hidden from calculations"
+      },
+      "includeInTotals": {
+        "label": "Include in Totals",
+        "description": "Include this account in dashboard totals and summaries"
+      },
+      "create": "Create Account",
+      "creating": "Creating...",
+      "update": "Update Account",
+      "updating": "Updating..."
+    },
+    "balance": {
+      "current": "Current Balance",
+      "initial": "Initial balance",
+      "update": {
+        "title": "Update Balance",
+        "amount": "New Balance",
+        "description": "Description (optional)",
+        "descriptionPlaceholder": "Reason for balance change...",
+        "button": "Update Balance"
+      },
+      "updating": "Updating...",
+      "success": {
+        "title": "Balance Updated",
+        "description": "Account balance has been successfully updated."
+      },
+      "error": {
+        "title": "Update Failed",
+        "description": "Failed to update the account balance.",
+        "invalid": "Please enter a valid balance amount."
+      }
+    },
+    "history": {
+      "title": "Balance History",
+      "empty": "No balance history available"
+    },
+    "tabs": {
+      "details": "Details",
+      "balance": "Balance",
+      "history": "History"
     }
   },
   "auth": {

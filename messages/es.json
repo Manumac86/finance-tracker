@@ -18,7 +18,8 @@
     "back": "Atrás",
     "next": "Siguiente",
     "previous": "Anterior",
-    "submit": "Enviar"
+    "submit": "Enviar",
+    "retry": "Reintentar"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -28,7 +29,7 @@
     "recurring": "Recurrentes",
     "manage": "Administrar",
     "reports": "Informes",
-    "banking": "Banca",
+    "accounts": "Cuentas",
     "family": "Familia",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión",
@@ -178,6 +179,184 @@
       "insurance": "Seguros",
       "savings": "Ahorros",
       "other": "Otros Gastos"
+    }
+  },
+  "accounts": {
+    "title": "Cuentas",
+    "description": "Administra tus cuentas financieras y rastrea los saldos",
+    "account": "cuenta",
+    "accounts": "cuentas",
+    "add": {
+      "title": "Agregar Cuenta",
+      "first": "Agrega tu primera cuenta",
+      "description": "Crea una nueva cuenta para rastrear tus finanzas"
+    },
+    "edit": {
+      "title": "Editar Cuenta",
+      "description": "Actualizar información de la cuenta para {name}",
+      "success": {
+        "title": "Cuenta Actualizada",
+        "description": "La información de la cuenta ha sido actualizada exitosamente."
+      },
+      "error": {
+        "title": "Error de Actualización",
+        "description": "No se pudo actualizar la cuenta. Por favor, inténtalo de nuevo."
+      }
+    },
+    "delete": {
+      "confirm": {
+        "title": "Eliminar Cuenta",
+        "description": "¿Estás seguro de que quieres eliminar '{name}'? Esta acción no se puede deshacer."
+      },
+      "success": {
+        "title": "Cuenta Eliminada",
+        "description": "La cuenta ha sido eliminada exitosamente."
+      },
+      "error": {
+        "title": "Error al Eliminar",
+        "description": "No se pudo eliminar la cuenta. Por favor, inténtalo de nuevo."
+      }
+    },
+    "create": {
+      "success": {
+        "title": "Cuenta Creada",
+        "description": "Tu nueva cuenta ha sido creada exitosamente."
+      },
+      "error": {
+        "title": "Error de Creación",
+        "description": "No se pudo crear la cuenta. Por favor, inténtalo de nuevo."
+      }
+    },
+    "summary": {
+      "totalBalance": "Saldo Total",
+      "accounts": "cuentas",
+      "assets": "Activos",
+      "liabilities": "Pasivos",
+      "netWorth": "Patrimonio Neto",
+      "savingsChecking": "Ahorros y Corriente",
+      "creditDebt": "Crédito y Deuda",
+      "assetsMinusLiabilities": "Activos menos pasivos"
+    },
+    "breakdown": {
+      "title": "Desglose de Cuentas",
+      "description": "Resumen de saldos por tipo de cuenta"
+    },
+    "list": {
+      "title": "Tus Cuentas"
+    },
+    "empty": {
+      "title": "Aún no hay cuentas",
+      "description": "Agrega tu primera cuenta para comenzar a rastrear tus finanzas"
+    },
+    "types": {
+      "checking": "Corriente",
+      "savings": "Ahorros",
+      "credit": "Tarjeta de Crédito",
+      "cash": "Efectivo",
+      "investment": "Inversión"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "currentBalance": "Saldo Actual",
+    "initialBalance": "Saldo Inicial",
+    "accountNumber": "Cuenta termina en",
+    "excludedFromTotals": "Excluida de totales",
+    "hideBalance": "Ocultar Saldo",
+    "showBalance": "Mostrar Saldo",
+    "error": {
+      "loading": "No se pudieron cargar las cuentas"
+    },
+    "form": {
+      "basic": {
+        "title": "Información Básica"
+      },
+      "financial": {
+        "title": "Información Financiera"
+      },
+      "details": {
+        "title": "Detalles de la Cuenta"
+      },
+      "display": {
+        "title": "Configuración de Visualización"
+      },
+      "settings": {
+        "title": "Configuración de la Cuenta"
+      },
+      "name": {
+        "label": "Nombre de la Cuenta",
+        "placeholder": "Ingresa el nombre de la cuenta"
+      },
+      "type": {
+        "label": "Tipo de Cuenta",
+        "placeholder": "Selecciona el tipo de cuenta"
+      },
+      "institution": {
+        "label": "Nombre de la Institución",
+        "placeholder": "Nombre del banco o institución",
+        "description": "Opcional - nombre de tu banco o institución financiera"
+      },
+      "currency": {
+        "label": "Moneda"
+      },
+      "balance": {
+        "label": "Saldo Inicial"
+      },
+      "accountNumber": {
+        "label": "Últimos 4 Dígitos",
+        "placeholder": "1234",
+        "description": "Opcional - últimos 4 dígitos de tu número de cuenta"
+      },
+      "description": {
+        "label": "Descripción",
+        "placeholder": "Notas sobre esta cuenta"
+      },
+      "color": {
+        "label": "Color de la Cuenta"
+      },
+      "active": {
+        "label": "Cuenta Activa",
+        "description": "Las cuentas inactivas se ocultan de los cálculos"
+      },
+      "includeInTotals": {
+        "label": "Incluir en Totales",
+        "description": "Incluir esta cuenta en los totales del panel y resúmenes"
+      },
+      "create": "Crear Cuenta",
+      "creating": "Creando...",
+      "update": "Actualizar Cuenta",
+      "updating": "Actualizando..."
+    },
+    "balance": {
+      "current": "Saldo Actual",
+      "initial": "Saldo inicial",
+      "update": {
+        "title": "Actualizar Saldo",
+        "amount": "Nuevo Saldo",
+        "description": "Descripción (opcional)",
+        "descriptionPlaceholder": "Razón del cambio de saldo...",
+        "button": "Actualizar Saldo"
+      },
+      "updating": "Actualizando...",
+      "success": {
+        "title": "Saldo Actualizado",
+        "description": "El saldo de la cuenta ha sido actualizado exitosamente."
+      },
+      "error": {
+        "title": "Error de Actualización",
+        "description": "No se pudo actualizar el saldo de la cuenta.",
+        "invalid": "Por favor, ingresa un monto de saldo válido."
+      }
+    },
+    "history": {
+      "title": "Historial de Saldos",
+      "empty": "No hay historial de saldos disponible"
+    },
+    "tabs": {
+      "details": "Detalles",
+      "balance": "Saldo",
+      "history": "Historial"
     }
   },
   "auth": {

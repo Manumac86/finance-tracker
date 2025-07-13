@@ -58,6 +58,7 @@ export default function BudgetsPage() {
         overspend_alert_enabled: budgetData.overspendAlertEnabled,
         rollover_enabled: budgetData.rolloverEnabled,
         rollover_type: budgetData.rolloverType,
+        ...(budgetData.metadata ? { metadata: budgetData.metadata } : {}),
       };
 
       console.log("Sending budget data:", apiData);

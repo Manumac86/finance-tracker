@@ -234,3 +234,58 @@ All acceptance criteria verified and tests passing.
 EOF
 )"
 ```
+
+# MVP Development Plan (Current Focus)
+
+## MVP v1.0 Target: July 27, 2025
+**Status**: 85% Complete - Phase 1 Critical Fixes Required
+
+### Phase 1: Foundation Fixes (CRITICAL - Must Complete First)
+**Timeline**: Days 1-4
+- [ ] Fix balance history table migration (column naming conflicts)
+- [ ] Resolve TypeScript compilation errors (account form validation)
+- [ ] Complete security implementation (encryption, audit logging)
+- [ ] Finish onboarding flow (financial setup wizard)
+- [ ] Optimize mobile UX (transaction entry, touch interactions)
+
+### Phase 2: Core MVP Features (HIGH PRIORITY)
+**Timeline**: Days 5-10
+- [ ] Implement debt management system (tables, API, UI)
+- [ ] Enhanced analytics dashboard (cash flow, spending patterns)
+- [ ] Spending insights & recommendations
+- [ ] End-to-end account integration testing
+
+### Phase 3: Enhanced Experience (MEDIUM PRIORITY)
+**Timeline**: Days 11-14
+- [ ] Multi-currency support
+- [ ] Performance optimizations
+- [ ] Enhanced reporting features
+- [ ] UI/UX polish
+
+### Features EXCLUDED from MVP (Deferred to v2.0)
+- Investment tracking system
+- Real banking integration
+- Automated transaction categorization
+- Receipt scanning and OCR
+- Financial planning tools
+- Advanced reporting features
+- Marketplace integrations
+- Tax optimization features
+- Business expense tracking
+- API for third-party integrations
+
+### Current Completed Features
+✅ Transaction management (CRUD, bulk operations)
+✅ Multi-category budgeting with custom rules
+✅ Manual account management with balance tracking
+✅ Goal tracking system
+✅ Multi-language support (EN/ES)
+✅ Mobile-responsive design
+✅ Authentication and security (Clerk)
+
+### Critical Issues to Address Immediately
+🔴 Database migration failures (balance history table)
+🔴 TypeScript compilation errors
+🔴 Security implementation gaps (encryption TODOs)
+
+**Remember**: Focus on MVP completion. Prioritize Phase 1 fixes before any new features. All development should align with this 2-week timeline to production-ready v1.0.

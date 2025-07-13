@@ -20,6 +20,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslations } from "next-intl";
 import { useTranslatedCategories } from "@/hooks/use-translated-categories";
 import { getCategoryIcon } from "@/lib/utils/icons";
+import { CustomBudgetRulesComponent } from "./custom-budget-rules";
+import { CustomBudgetRules } from "@/lib/types/custom-budget-rules";
 
 interface CreateBudgetModalProps {
   isOpen: boolean;
@@ -46,6 +48,11 @@ export function CreateBudgetModal({
     overspendAlertEnabled: true,
     rolloverEnabled: false,
     rolloverType: "none",
+  });
+  
+  const [customRules, setCustomRules] = useState<CustomBudgetRules>({
+    rules: [],
+    operator: "AND",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [activeTab, setActiveTab] = useState("basic");
@@ -78,6 +85,11 @@ export function CreateBudgetModal({
       newErrors.categoryIds = t("categoryRequired");
     }
 
+    // Validate custom rules for custom budgets
+    if (formData.budgetType === "custom" && customRules.rules.length === 0) {
+      newErrors.customRules = "At least one custom rule is required for custom budgets";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -102,8 +114,10 @@ export function CreateBudgetModal({
         | "surplus"
         | "deficit"
         | "both",
+      metadata: formData.budgetType === "custom" ? { customRules } : {},
     };
 
+    console.log("CreateBudgetModal - Sending budget data:", budgetData);
     onSave(budgetData);
     resetForm();
   };
@@ -123,6 +137,10 @@ export function CreateBudgetModal({
       overspendAlertEnabled: true,
       rolloverEnabled: false,
       rolloverType: "none",
+    });
+    setCustomRules({
+      rules: [],
+      operator: "AND",
     });
     setErrors({});
     setActiveTab("basic");
@@ -289,6 +307,21 @@ export function CreateBudgetModal({
                     <p className="text-xs text-muted-foreground">
                       {t("multiCategorySelectionHelp")}
                     </p>
+                  </div>
+                )}
+
+                {/* Custom Budget Rules - Only show for custom budget type */}
+                {formData.budgetType === "custom" && (
+                  <div className="space-y-4">
+                    <CustomBudgetRulesComponent
+                      rules={customRules}
+                      onRulesChange={setCustomRules}
+                    />
+                    {errors.customRules && (
+                      <p className="text-sm text-destructive">
+                        {errors.customRules}
+                      </p>
+                    )}
                   </div>
                 )}
               </TabsContent>

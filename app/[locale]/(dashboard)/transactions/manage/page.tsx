@@ -287,6 +287,47 @@ export default function TransactionManagePage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    const transactionIds = Array.from(selectedTransactions);
+    
+    if (transactionIds.length === 0) {
+      toast.error("No transactions selected");
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to delete ${transactionIds.length} transaction${transactionIds.length !== 1 ? 's' : ''}? This action cannot be undone.`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/transactions/bulk-delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transactionIds }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete transactions");
+      }
+
+      const result = await response.json();
+
+      // Clear selection and refresh transactions
+      setSelectedTransactions(new Set());
+      mutate();
+
+      toast.success(`${result.deletedCount} transaction${result.deletedCount !== 1 ? 's' : ''} deleted successfully!`);
+    } catch (error) {
+      console.error("Error deleting transactions:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete transactions"
+      );
+    }
+  };
+
   const selectedCount = selectedTransactions.size;
 
   return (
@@ -528,6 +569,7 @@ export default function TransactionManagePage() {
                 variant="outline"
                 size="sm"
                 className="border-red-700 text-red-400 bg-background"
+                onClick={handleBulkDelete}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete

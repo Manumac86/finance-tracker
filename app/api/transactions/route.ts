@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { selectTransactions, selectCurrentTransactions, insertTransaction, selectCategoryById } from "@/lib/db/postgres";
+import { selectTransactions, selectCurrentTransactions, insertTransaction, selectCategoryById, selectManualAccountById, updateAccountBalance } from "@/lib/db/postgres";
 import { createTransactionSchema, transformTransactionToUI } from "@/lib/db/schemas/transaction";
 
 export async function GET(request: NextRequest) {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { amount, transactionType, name, description, categoryId, transactionDate } = validation.data;
+    const { amount, transactionType, name, description, categoryId, accountId, transactionDate } = validation.data;
 
     // Get category information from PostgreSQL
     let categoryName = "General";
@@ -64,6 +64,22 @@ export async function POST(request: NextRequest) {
       console.warn("Could not fetch category info, using defaults:", categoryError);
     }
 
+    // Get account information if account is specified
+    let accountName = null;
+    let accountColor = null;
+    
+    if (accountId) {
+      try {
+        const account = await selectManualAccountById(accountId, userId);
+        if (account) {
+          accountName = account.name;
+          accountColor = account.color;
+        }
+      } catch (accountError) {
+        console.warn("Could not fetch account info:", accountError);
+      }
+    }
+
     // Prepare transaction data for database
     const transactionData = {
       user_id: userId,
@@ -74,10 +90,28 @@ export async function POST(request: NextRequest) {
       category_id: categoryId,
       category_name: categoryName,
       category_icon: categoryIcon,
+      account_id: accountId || null,
+      account_name: accountName,
+      account_color: accountColor,
       transaction_date: transactionDate || new Date().toISOString(),
     };
 
     const createdTransaction = await insertTransaction(transactionData);
+    
+    // Update account balance if account is specified
+    if (accountId) {
+      try {
+        const account = await selectManualAccountById(accountId, userId);
+        if (account) {
+          const newBalance = account.current_balance + (transactionType === 'expense' ? -Math.abs(amount) : Math.abs(amount));
+          await updateAccountBalance(accountId, userId, newBalance, `Transaction: ${name}`);
+        }
+      } catch (accountError) {
+        console.warn("Could not update account balance:", accountError);
+        // Don't fail the transaction creation if account update fails
+      }
+    }
+    
     const uiTransaction = transformTransactionToUI(createdTransaction);
     
     return NextResponse.json({ transaction: uiTransaction }, { status: 201 });

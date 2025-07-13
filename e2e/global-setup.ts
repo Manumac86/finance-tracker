@@ -11,6 +11,10 @@ async function globalSetup(config: FullConfig) {
   // Load environment variables from .env.local
   dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
   
+  // Enable E2E test bypass for authentication
+  process.env.E2E_TEST_BYPASS = 'true';
+  console.log('✅ E2E test bypass enabled for authentication');
+  
   // Check required environment variables
   const requiredEnvVars = [
     'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',

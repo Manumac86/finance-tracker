@@ -213,9 +213,12 @@ export async function selectTransactions(userId: string, limit: number = 50) {
 }
 
 // For dashboard and balance calculations - only past/present transactions
-export async function selectCurrentTransactions(userId: string, limit: number = 50) {
-  const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-  
+export async function selectCurrentTransactions(
+  userId: string,
+  limit: number = 50
+) {
+  const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
@@ -377,16 +380,21 @@ export async function deleteBudget(budgetId: string, userId: string) {
 }
 
 // Budget categories operations (multi-category support)
-export async function selectBudgetsWithCategories(userId: string, period?: string) {
+export async function selectBudgetsWithCategories(
+  userId: string,
+  period?: string
+) {
   let query = supabase
     .from("budgets")
-    .select(`
+    .select(
+      `
       *,
       budget_categories!inner(
         category_id,
         categories(id, name, icon, color)
       )
-    `)
+    `
+    )
     .eq("user_id", userId)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
@@ -398,7 +406,9 @@ export async function selectBudgetsWithCategories(userId: string, period?: strin
   const { data, error } = await query;
 
   if (error) {
-    throw new Error(`Failed to fetch budgets with categories: ${error.message}`);
+    throw new Error(
+      `Failed to fetch budgets with categories: ${error.message}`
+    );
   }
 
   return data || [];
@@ -421,7 +431,7 @@ export async function insertBudgetWithCategories(
 
   // Insert budget-category associations
   if (categoryIds.length > 0) {
-    const budgetCategories = categoryIds.map(categoryId => ({
+    const budgetCategories = categoryIds.map((categoryId) => ({
       budget_id: budget.id,
       category_id: categoryId,
     }));
@@ -433,14 +443,19 @@ export async function insertBudgetWithCategories(
     if (categoriesError) {
       // Rollback: delete the created budget
       await supabase.from("budgets").delete().eq("id", budget.id);
-      throw new Error(`Failed to associate categories: ${categoriesError.message}`);
+      throw new Error(
+        `Failed to associate categories: ${categoriesError.message}`
+      );
     }
   }
 
   return budget;
 }
 
-export async function updateBudgetCategories(budgetId: string, categoryIds: string[]) {
+export async function updateBudgetCategories(
+  budgetId: string,
+  categoryIds: string[]
+) {
   // First, delete existing category associations
   const { error: deleteError } = await supabase
     .from("budget_categories")
@@ -448,12 +463,14 @@ export async function updateBudgetCategories(budgetId: string, categoryIds: stri
     .eq("budget_id", budgetId);
 
   if (deleteError) {
-    throw new Error(`Failed to remove existing categories: ${deleteError.message}`);
+    throw new Error(
+      `Failed to remove existing categories: ${deleteError.message}`
+    );
   }
 
   // Insert new category associations
   if (categoryIds.length > 0) {
-    const budgetCategories = categoryIds.map(categoryId => ({
+    const budgetCategories = categoryIds.map((categoryId) => ({
       budget_id: budgetId,
       category_id: categoryId,
     }));
@@ -463,7 +480,9 @@ export async function updateBudgetCategories(budgetId: string, categoryIds: stri
       .insert(budgetCategories);
 
     if (insertError) {
-      throw new Error(`Failed to associate new categories: ${insertError.message}`);
+      throw new Error(
+        `Failed to associate new categories: ${insertError.message}`
+      );
     }
   }
 
@@ -473,10 +492,12 @@ export async function updateBudgetCategories(budgetId: string, categoryIds: stri
 export async function getBudgetCategories(budgetId: string) {
   const { data, error } = await supabase
     .from("budget_categories")
-    .select(`
+    .select(
+      `
       category_id,
       categories(id, name, icon, color)
-    `)
+    `
+    )
     .eq("budget_id", budgetId);
 
   if (error) {
@@ -1060,4 +1081,225 @@ export async function selectRegionalBankConfigByRegion(region: string) {
   }
 
   return data;
+}
+
+// Manual accounts operations
+export async function selectManualAccounts(userId: string) {
+  const { data, error } = await supabase
+    .from("manual_accounts")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Failed to fetch manual accounts: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function selectManualAccountById(id: string, userId: string) {
+  const { data, error } = await supabase
+    .from("manual_accounts")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch manual account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function insertManualAccount(
+  accountData: Record<string, unknown>
+) {
+  // Set current_balance to initial_balance if not provided
+  if (
+    !accountData.current_balance &&
+    accountData.initial_balance !== undefined
+  ) {
+    accountData.current_balance = accountData.initial_balance;
+  }
+
+  const { data, error } = await supabase
+    .from("manual_accounts")
+    .insert(accountData)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create manual account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function updateManualAccount(
+  accountId: string,
+  userId: string,
+  updateData: Record<string, unknown>
+) {
+  const { data, error } = await supabase
+    .from("manual_accounts")
+    .update(updateData)
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update manual account: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function deleteManualAccount(accountId: string, userId: string) {
+  const { error } = await supabase
+    .from("manual_accounts")
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .eq("is_active", true);
+
+  if (error) {
+    throw new Error(`Failed to delete manual account: ${error.message}`);
+  }
+
+  return true;
+}
+
+export async function updateAccountBalance(
+  accountId: string,
+  userId: string,
+  newBalance: number,
+  description?: string
+) {
+  const { data, error } = await supabase
+    .from("manual_accounts")
+    .update({
+      current_balance: newBalance,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", accountId)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update account balance: ${error.message}`);
+  }
+
+  return data;
+}
+
+export async function getAccountSummary(userId: string) {
+  // Get all accounts for this user
+  const { data: accounts, error } = await supabase
+    .from("manual_accounts")
+    .select("*")
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Failed to get account summary: ${error.message}`);
+  }
+
+  if (!accounts || accounts.length === 0) {
+    return {
+      total_accounts: 0,
+      active_accounts: 0,
+      total_balance: 0,
+      total_assets: 0,
+      total_liabilities: 0,
+      checking_balance: 0,
+      savings_balance: 0,
+      credit_balance: 0,
+      cash_balance: 0,
+      investment_balance: 0,
+    };
+  }
+
+  // Calculate summary from the accounts data
+  const activeAccounts = accounts.filter((acc) => acc.is_active);
+  const includedAccounts = activeAccounts.filter(
+    (acc) => acc.include_in_totals
+  );
+
+  const summary = {
+    total_accounts: accounts.length,
+    active_accounts: activeAccounts.length,
+    total_balance: 0,
+    total_assets: 0,
+    total_liabilities: 0,
+    checking_balance: 0,
+    savings_balance: 0,
+    credit_balance: 0,
+    cash_balance: 0,
+    investment_balance: 0,
+  };
+
+  includedAccounts.forEach((account) => {
+    const balance = account.current_balance || 0;
+
+    // Add to total balance
+    summary.total_balance += balance;
+
+    // Add to assets/liabilities
+    if (account.account_type === "credit") {
+      // Credit cards are liabilities
+      summary.total_liabilities += Math.abs(balance);
+    } else if (balance > 0) {
+      summary.total_assets += balance;
+    }
+
+    // Add to type-specific balances
+    switch (account.account_type) {
+      case "checking":
+        summary.checking_balance += balance;
+        break;
+      case "savings":
+        summary.savings_balance += balance;
+        break;
+      case "credit":
+        summary.credit_balance += balance;
+        break;
+      case "cash":
+        summary.cash_balance += balance;
+        break;
+      case "investment":
+        summary.investment_balance += balance;
+        break;
+    }
+  });
+
+  return summary;
+}
+
+export async function selectAccountBalanceHistory(
+  accountId: string,
+  userId: string,
+  limit: number = 50
+) {
+  const { data, error } = await supabase
+    .from("account_balance_history")
+    .select("*")
+    .eq("account_id", accountId)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.warn(`Failed to fetch account balance history: ${error.message}`);
+    // Return empty array if table doesn't exist yet or other error
+    return [];
+  }
+
+  return data || [];
 }

@@ -118,6 +118,20 @@ export function TransactionCard({
                 <span className="text-muted-foreground text-xs">
                   {categoryName}
                 </span>
+                {transaction.accountName && (
+                  <>
+                    <span className="text-muted-foreground text-xs">•</span>
+                    <div className="flex items-center gap-1">
+                      <div 
+                        className="w-2 h-2 rounded-full" 
+                        style={{ backgroundColor: transaction.accountColor || '#6B7280' }}
+                      />
+                      <span className="text-muted-foreground text-xs">
+                        {transaction.accountName}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <span className="text-muted-foreground text-xs">•</span>
                 <span className="text-muted-foreground text-xs">
                   {formatDate(transaction.transactionDate)}

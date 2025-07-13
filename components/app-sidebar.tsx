@@ -70,10 +70,10 @@ export const navItems = [
     enabled: !!+process.env.NEXT_PUBLIC_REPORTS_ENABLED!,
   },
   {
-    title: "Banking",
-    url: "/banking",
+    title: "Accounts",
+    url: "/accounts",
     icon: Building2,
-    enabled: !!+process.env.NEXT_PUBLIC_BANK_ENABLED!,
+    enabled: !!+process.env.NEXT_PUBLIC_ACCOUNTS_ENABLED!,
   },
   {
     title: "Family",

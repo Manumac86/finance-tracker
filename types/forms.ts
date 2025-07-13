@@ -25,6 +25,7 @@ export interface BudgetFormData {
   overspendAlertEnabled: boolean;
   rolloverEnabled: boolean;
   rolloverType: "none" | "surplus" | "deficit" | "both";
+  metadata?: Record<string, unknown>; // For custom budget rules and other metadata
 }
 
 export interface TransactionFormData {

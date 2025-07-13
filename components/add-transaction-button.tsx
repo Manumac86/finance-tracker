@@ -36,6 +36,7 @@ import { useCategories } from "@/contexts/categories";
 import { useTranslatedCategories } from "@/hooks/use-translated-categories";
 import { useTransactions } from "@/contexts/transactions";
 import { useBudgetAlerts } from "@/contexts/budget-alerts";
+import { useAccounts } from "@/contexts/accounts";
 import {
   suggestCategory,
   suggestMerchant,
@@ -54,6 +55,7 @@ interface BulkTransaction {
   amount: string;
   transactionType: "income" | "expense";
   categoryId: string;
+  accountId?: string;
   description?: string;
   date: string;
 }
@@ -63,6 +65,7 @@ export function AddTransactionButton() {
   const { data: translatedCategories } = useTranslatedCategories();
   const { transactions, mutate } = useTransactions();
   const { checkBudgetAlerts } = useBudgetAlerts();
+  const { accounts } = useAccounts();
   const tModals = useTranslations("modals");
   const tForms = useTranslations("forms");
   const tStatus = useTranslations("status");
@@ -72,6 +75,7 @@ export function AddTransactionButton() {
   const [amount, setAmount] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
+  const [account, setAccount] = useState("none");
   const [date, setDate] = useState<Date>();
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,6 +174,7 @@ export function AddTransactionButton() {
         name: name.trim(),
         description: description.trim() || undefined,
         categoryId: category,
+        accountId: account && account !== "none" ? account : undefined,
         transactionDate: (date || new Date()).toISOString(),
       };
 
@@ -239,6 +244,7 @@ export function AddTransactionButton() {
     setAmount("");
     setName("");
     setCategory("");
+    setAccount("none");
     setDate(undefined);
     setDescription("");
     setMerchantSuggestions([]);
@@ -687,6 +693,38 @@ export function AddTransactionButton() {
                                 value={cat.id || cat.name}
                               >
                                 {cat.translatedName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="account">Account (Optional)</Label>
+                        <Select
+                          value={account}
+                          onValueChange={setAccount}
+                        >
+                          <SelectTrigger id="account">
+                            <SelectValue placeholder="Select account (optional)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No account selected</SelectItem>
+                            {accounts?.map((acc) => (
+                              <SelectItem
+                                key={acc.id}
+                                value={acc.id || "none"}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div 
+                                    className="w-3 h-3 rounded-full" 
+                                    style={{ backgroundColor: acc.color }}
+                                  />
+                                  <span>{acc.name}</span>
+                                  <span className="text-sm text-muted-foreground">
+                                    ({acc.accountType})
+                                  </span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
