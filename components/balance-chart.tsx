@@ -148,7 +148,7 @@ export function BalanceChart({ timeFilter = "week" }: BalanceChartProps) {
               <p>No balance data available for {period}</p>
             </div>
           ) : (
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
+            <ChartContainer config={chartConfig} className="w-full max-w-full">
               <AreaChart
                 accessibilityLayer
                 data={chartData}

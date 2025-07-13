@@ -124,7 +124,7 @@ export function FinancialHealthIndicator({
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 max-w-full">
         {/* Overall Score */}
         <div className="text-center">
           <div className="text-3xl font-bold mb-2">{healthScore.score}/100</div>

@@ -58,13 +58,16 @@ export function EnhancedDashboard() {
 
   const { data: transactionsData, error: transactionsError } = useSWR<{
     transactions: UITransaction[];
-  }>(`/api/transactions?period=${timeFilter}&limit=50&includeFuture=false`, fetcher);
+  }>(
+    `/api/transactions?period=${timeFilter}&limit=50&includeFuture=false`,
+    fetcher
+  );
 
   const goals = goalsData?.goals || [];
   const budgets = budgetsData?.budgets || [];
   const transactions = transactionsData?.transactions || []; // API already filters out future transactions
 
-  // Calculate summary data  
+  // Calculate summary data
   const summary = {
     totalIncome: transactions
       .filter((t) => t.transactionType === "income")
@@ -251,7 +254,7 @@ export function EnhancedDashboard() {
         {/* Financial Health - Full Width on Mobile, 2 cols on Desktop */}
         <div className="lg:col-span-2 space-y-6">
           <FinancialHealthIndicator data={healthData} />
-          
+
           {/* Balance Chart with proper spacing */}
           <div className="mb-8">
             <BalanceChart timeFilter={timeFilter} />
