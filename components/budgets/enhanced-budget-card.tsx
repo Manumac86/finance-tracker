@@ -94,8 +94,8 @@ export function EnhancedBudgetCard({
       const isInPeriod =
         transactionDate >= startDate && transactionDate <= endDate;
 
-      if (budget.budgetType === "category" && budget.categoryId) {
-        return isInPeriod && transaction.categoryId === budget.categoryId;
+      if (budget.budgetType === "category" && budget.categoryIds) {
+        return isInPeriod && budget.categoryIds.includes(transaction.categoryId);
       }
 
       return isInPeriod;

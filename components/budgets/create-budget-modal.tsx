@@ -36,7 +36,7 @@ export function CreateBudgetModal({
     name: "",
     description: "",
     budgetType: "category",
-    categoryId: "",
+    categoryIds: [] as string[],  // Explicitly type as string array
     amount: "",
     period: "monthly",
     startDate: new Date().toISOString().split("T")[0],
@@ -74,8 +74,8 @@ export function CreateBudgetModal({
       newErrors.startDate = t("startDateRequired");
     }
 
-    if (formData.budgetType === "category" && !formData.categoryId) {
-      newErrors.categoryId = t("categoryRequired");
+    if (formData.budgetType === "category" && formData.categoryIds.length === 0) {
+      newErrors.categoryIds = t("categoryRequired");
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -88,7 +88,7 @@ export function CreateBudgetModal({
       name: formData.name,
       description: formData.description || "",
       budgetType: formData.budgetType as "category" | "total" | "custom",
-      categoryId: formData.budgetType === "category" ? formData.categoryId : "",
+      categoryIds: formData.budgetType === "category" ? formData.categoryIds : [],  // Pass array of category IDs
       amount: formData.amount,
       period: formData.period as "weekly" | "monthly" | "yearly",
       startDate: formData.startDate,
@@ -113,7 +113,7 @@ export function CreateBudgetModal({
       name: "",
       description: "",
       budgetType: "category",
-      categoryId: "",
+      categoryIds: [] as string[],  // Reset to empty array with explicit typing
       amount: "",
       period: "monthly",
       startDate: new Date().toISOString().split("T")[0],
@@ -140,6 +140,20 @@ export function CreateBudgetModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setFormData(prev => {
+      const newCategoryIds = prev.categoryIds.includes(categoryId)
+        ? prev.categoryIds.filter(id => id !== categoryId)
+        : [...prev.categoryIds, categoryId];
+      return { ...prev, categoryIds: newCategoryIds };
+    });
+    
+    // Clear error when categories are selected
+    if (errors.categoryIds) {
+      setErrors(prev => ({ ...prev, categoryIds: "" }));
     }
   };
 
@@ -234,46 +248,46 @@ export function CreateBudgetModal({
                   </p>
                 </div>
 
-                {/* Category Selection - Only show for category budget type */}
+                {/* Multi-Category Selection - Only show for category budget type */}
                 {formData.budgetType === "category" && (
                   <div className="space-y-2">
-                    <Label htmlFor="category">{t("selectCategory")} *</Label>
-                    <Select
-                      value={formData.categoryId}
-                      onValueChange={(value) =>
-                        updateFormData("categoryId", value)
-                      }
-                    >
-                      <SelectTrigger
-                        className={`bg-input border-input ${
-                          errors.categoryId ? "border-destructive" : ""
-                        }`}
-                      >
-                        <SelectValue
-                          placeholder={t("selectCategoryPlaceholder")}
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
+                    <Label htmlFor="categories">{t("selectCategories")} *</Label>
+                    <div className={`border rounded-md p-3 bg-input ${
+                      errors.categoryIds ? "border-destructive" : "border-input"
+                    }`}>
+                      <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
                         {translatedCategories?.map((category) => (
-                          <SelectItem
-                            key={category.id}
-                            value={category.id || ""}
-                          >
-                            <div className="flex items-center gap-2">
+                          <div key={category.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`category-${category.id}`}
+                              checked={formData.categoryIds.includes(category.id || "")}
+                              onCheckedChange={() => handleCategoryToggle(category.id || "")}
+                            />
+                            <label
+                              htmlFor={`category-${category.id}`}
+                              className="flex items-center gap-2 text-sm cursor-pointer"
+                            >
                               {getCategoryIcon(category.icon)}
                               <span>{category.translatedName}</span>
-                            </div>
-                          </SelectItem>
+                            </label>
+                          </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.categoryId && (
+                      </div>
+                      {formData.categoryIds.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-border">
+                          <p className="text-xs text-muted-foreground">
+                            {t("selectedCategories", { count: formData.categoryIds.length })}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {errors.categoryIds && (
                       <p className="text-sm text-destructive">
-                        {errors.categoryId}
+                        {errors.categoryIds}
                       </p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      {t("categorySelectionHelp")}
+                      {t("multiCategorySelectionHelp")}
                     </p>
                   </div>
                 )}

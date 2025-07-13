@@ -150,8 +150,8 @@ export function BudgetImpactPreview({
       if (!isInPeriod) continue;
 
       // Check if budget applies to this category
-      if (budget.budgetType === "category" && budget.categoryId) {
-        isAffected = budget.categoryId === categoryId;
+      if (budget.budgetType === "category" && budget.categoryIds) {
+        isAffected = budget.categoryIds.includes(categoryId);
       } else if (budget.budgetType === "total") {
         isAffected = true; // Total budgets affect all transactions
       }

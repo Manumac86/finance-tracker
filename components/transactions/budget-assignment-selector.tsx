@@ -67,7 +67,7 @@ export function BudgetAssignmentSelector({
               {budgets.map((budget) => (
                 <SelectItem key={budget.id} value={budget.id!}>
                   {budget.name}
-                  {budget.budgetType === "category" && budget.categoryId && (
+                  {budget.budgetType === "category" && budget.categoryIds && budget.categoryIds.length > 0 && (
                     <span className="text-muted-foreground text-xs ml-2">
                       (Category)
                     </span>

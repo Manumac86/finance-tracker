@@ -123,8 +123,8 @@ export class BudgetAlertService {
       const isInPeriod = transactionDate >= startDate && transactionDate <= endDate;
       const isExpense = transaction.transactionType === 'expense';
       
-      if (budget.budgetType === 'category' && budget.categoryId) {
-        return isInPeriod && isExpense && transaction.categoryId === budget.categoryId;
+      if (budget.budgetType === 'category' && budget.categoryIds) {
+        return isInPeriod && isExpense && budget.categoryIds.includes(transaction.categoryId);
       }
       
       if (budget.budgetType === 'total') {
@@ -168,8 +168,8 @@ export class BudgetAlertService {
 
     if (transactionDate < budgetStart || transactionDate > budgetEnd) return false;
 
-    if (budget.budgetType === 'category' && budget.categoryId) {
-      return transaction.categoryId === budget.categoryId;
+    if (budget.budgetType === 'category' && budget.categoryIds) {
+      return budget.categoryIds.includes(transaction.categoryId);
     }
 
     if (budget.budgetType === 'total') {

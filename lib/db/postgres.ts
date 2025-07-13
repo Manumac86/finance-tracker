@@ -376,6 +376,116 @@ export async function deleteBudget(budgetId: string, userId: string) {
   return true;
 }
 
+// Budget categories operations (multi-category support)
+export async function selectBudgetsWithCategories(userId: string, period?: string) {
+  let query = supabase
+    .from("budgets")
+    .select(`
+      *,
+      budget_categories!inner(
+        category_id,
+        categories(id, name, icon, color)
+      )
+    `)
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+
+  if (period) {
+    query = query.eq("period", period);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(`Failed to fetch budgets with categories: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+export async function insertBudgetWithCategories(
+  budgetData: Record<string, unknown>,
+  categoryIds: string[]
+) {
+  // Start a transaction by first inserting the budget
+  const { data: budget, error: budgetError } = await supabase
+    .from("budgets")
+    .insert(budgetData)
+    .select()
+    .single();
+
+  if (budgetError) {
+    throw new Error(`Failed to create budget: ${budgetError.message}`);
+  }
+
+  // Insert budget-category associations
+  if (categoryIds.length > 0) {
+    const budgetCategories = categoryIds.map(categoryId => ({
+      budget_id: budget.id,
+      category_id: categoryId,
+    }));
+
+    const { error: categoriesError } = await supabase
+      .from("budget_categories")
+      .insert(budgetCategories);
+
+    if (categoriesError) {
+      // Rollback: delete the created budget
+      await supabase.from("budgets").delete().eq("id", budget.id);
+      throw new Error(`Failed to associate categories: ${categoriesError.message}`);
+    }
+  }
+
+  return budget;
+}
+
+export async function updateBudgetCategories(budgetId: string, categoryIds: string[]) {
+  // First, delete existing category associations
+  const { error: deleteError } = await supabase
+    .from("budget_categories")
+    .delete()
+    .eq("budget_id", budgetId);
+
+  if (deleteError) {
+    throw new Error(`Failed to remove existing categories: ${deleteError.message}`);
+  }
+
+  // Insert new category associations
+  if (categoryIds.length > 0) {
+    const budgetCategories = categoryIds.map(categoryId => ({
+      budget_id: budgetId,
+      category_id: categoryId,
+    }));
+
+    const { error: insertError } = await supabase
+      .from("budget_categories")
+      .insert(budgetCategories);
+
+    if (insertError) {
+      throw new Error(`Failed to associate new categories: ${insertError.message}`);
+    }
+  }
+
+  return true;
+}
+
+export async function getBudgetCategories(budgetId: string) {
+  const { data, error } = await supabase
+    .from("budget_categories")
+    .select(`
+      category_id,
+      categories(id, name, icon, color)
+    `)
+    .eq("budget_id", budgetId);
+
+  if (error) {
+    throw new Error(`Failed to fetch budget categories: ${error.message}`);
+  }
+
+  return data || [];
+}
+
 // Budget alerts operations
 export async function insertBudgetAlert(alertData: Record<string, unknown>) {
   const { data, error } = await supabase

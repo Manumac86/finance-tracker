@@ -1,15 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { updateBudget, deleteBudget } from "@/lib/db/postgres";
-import { 
-  cacheBudgetDetail, 
-  getCachedBudgetDetail, 
-  invalidateBudgetCache 
+import {
+  updateBudget,
+  deleteBudget,
+  updateBudgetCategories,
+  getBudgetCategories,
+} from "@/lib/db/postgres";
+import {
+  cacheBudgetDetail,
+  getCachedBudgetDetail,
+  invalidateBudgetCache,
 } from "@/lib/db/redis";
 import { supabase } from "@/lib/db/postgres";
 import {
   UpdateBudgetSchema,
-  transformBudgetToUI
+  transformBudgetToUI,
 } from "@/lib/db/schemas/budget";
 
 export async function GET(
@@ -32,11 +37,11 @@ export async function GET(
 
     // Fetch from database
     const { data: budget, error } = await supabase
-      .from('budgets')
-      .select('*')
-      .eq('id', resolvedParams.id)
-      .eq('user_id', userId)
-      .eq('is_active', true)
+      .from("budgets")
+      .select("*")
+      .eq("id", resolvedParams.id)
+      .eq("user_id", userId)
+      .eq("is_active", true)
       .single();
 
     if (error || !budget) {
@@ -45,6 +50,10 @@ export async function GET(
 
     // Transform to UI format with enriched data
     const enrichedBudget = transformBudgetToUI(budget);
+
+    // Get and set category IDs
+    const budgetCategories = await getBudgetCategories(resolvedParams.id);
+    enrichedBudget.categoryIds = budgetCategories.map((bc) => bc.category_id);
 
     // Cache the result
     await cacheBudgetDetail(resolvedParams.id, enrichedBudget);
@@ -87,15 +96,22 @@ export async function PUT(
     const updateData = validationResult.data;
 
     // Prepare update data (transform camelCase to snake_case)
+    // Extract category IDs if provided
+    const categoryIds =
+      (updateData as { categoryIds: string[] }).categoryIds || [];
+
     const updatePayload = {
       name: updateData.name,
       description: updateData.description,
-      category_id: updateData.category_id,
+      // category_id removed - handled through budget_categories junction table
       budget_type: updateData.budget_type,
       amount: updateData.amount,
       period: updateData.period,
       start_date: updateData.start_date,
-      end_date: updateData.end_date === "" || updateData.end_date === undefined ? null : updateData.end_date,
+      end_date:
+        updateData.end_date === "" || updateData.end_date === undefined
+          ? null
+          : updateData.end_date,
       alert_threshold_percentage: updateData.alert_threshold_percentage,
       alert_enabled: updateData.alert_enabled,
       overspend_alert_enabled: updateData.overspend_alert_enabled,
@@ -106,20 +122,33 @@ export async function PUT(
     };
 
     // Remove undefined values
-    Object.keys(updatePayload).forEach(key => {
+    Object.keys(updatePayload).forEach((key) => {
       if (updatePayload[key as keyof typeof updatePayload] === undefined) {
         delete updatePayload[key as keyof typeof updatePayload];
       }
     });
 
     // Update the budget using helper function
-    const updatedBudget = await updateBudget(resolvedParams.id, userId, updatePayload);
+    const updatedBudget = await updateBudget(
+      resolvedParams.id,
+      userId,
+      updatePayload
+    );
+
+    // Update category associations if provided
+    if (categoryIds.length > 0) {
+      await updateBudgetCategories(resolvedParams.id, categoryIds);
+    }
 
     // Invalidate caches
     await invalidateBudgetCache(resolvedParams.id, userId);
 
     // Transform to UI format with enriched data
     const enrichedBudget = transformBudgetToUI(updatedBudget);
+
+    // Get and set category IDs
+    const budgetCategories = await getBudgetCategories(resolvedParams.id);
+    enrichedBudget.categoryIds = budgetCategories.map((bc) => bc.category_id);
 
     // Cache the updated budget
     await cacheBudgetDetail(resolvedParams.id, enrichedBudget);

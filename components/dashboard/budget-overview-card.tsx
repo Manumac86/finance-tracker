@@ -49,11 +49,11 @@ export function BudgetOverviewCard({
         const isExpense = transaction.transactionType === "expense";
 
         // For category budgets, filter by category
-        if (budget.budgetType === "category" && budget.categoryId) {
+        if (budget.budgetType === "category" && budget.categoryIds) {
           return (
             isCurrentPeriod &&
             isExpense &&
-            transaction.categoryId === budget.categoryId
+            budget.categoryIds.includes(transaction.categoryId)
           );
         }
 

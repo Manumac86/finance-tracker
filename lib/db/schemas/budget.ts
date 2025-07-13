@@ -19,7 +19,7 @@ export const BudgetSchema = z.object({
   user_id: z.string(),
   name: z.string().min(1, "Budget name is required"),
   description: z.string().optional(),
-  category_id: z.string().uuid().optional(),
+  // Removed category_id - now handled through budget_categories junction table
   budget_type: BudgetTypeEnum,
   amount: z.number().positive("Budget amount must be positive"),
   period: BudgetPeriodEnum,
@@ -53,6 +53,8 @@ export const CreateBudgetSchema = BudgetSchema.omit({
   last_calculated_at: true,
   created_at: true,
   updated_at: true,
+}).extend({
+  categoryIds: z.array(z.string().uuid()).optional(), // For multi-category support
 });
 
 export const UpdateBudgetSchema = BudgetSchema.partial().omit({
@@ -104,7 +106,7 @@ export interface UIBudget {
   userId: string;
   name: string;
   description?: string;
-  categoryId?: string;
+  categoryIds?: string[]; // Array of category IDs for multi-category support
   budgetType: "category" | "total" | "custom";
   amount: number;
   period: "weekly" | "monthly" | "quarterly" | "yearly";
@@ -197,7 +199,7 @@ export function transformBudgetToUI(budget: Budget): UIBudget {
     userId: budget.user_id,
     name: budget.name,
     description: budget.description,
-    categoryId: budget.category_id,
+    categoryIds: [], // Will be populated by separate query to budget_categories table
     budgetType: budget.budget_type,
     amount: budget.amount,
     period: budget.period,
@@ -230,7 +232,7 @@ export function transformUIToBudget(
     user_id: uiBudget.userId,
     name: uiBudget.name,
     description: uiBudget.description,
-    category_id: uiBudget.categoryId,
+    // category_id removed - handled through budget_categories junction table
     budget_type: uiBudget.budgetType,
     amount: uiBudget.amount,
     period: uiBudget.period,

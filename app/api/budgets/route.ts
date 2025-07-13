@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { selectBudgets, insertBudget } from "@/lib/db/postgres";
+import { 
+  selectBudgetsWithCategories,
+  insertBudgetWithCategories,
+  getBudgetCategories
+} from "@/lib/db/postgres";
 import {
   cacheUserBudgets,
   getCachedUserBudgets,
@@ -29,11 +33,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch from database
-    const budgets = await selectBudgets(userId, period || undefined);
+    // Fetch from database with categories
+    const budgets = await selectBudgetsWithCategories(userId, period || undefined);
 
-    // Transform to UI format with enriched data
-    const enrichedBudgets = budgets.map(transformBudgetToUI);
+    // Transform to UI format with enriched data and populate category IDs
+    const enrichedBudgets = await Promise.all(
+      budgets.map(async (budget) => {
+        const uiBudget = transformBudgetToUI(budget);
+        // Get category IDs from budget_categories junction table
+        const budgetCategories = await getBudgetCategories(budget.id);
+        uiBudget.categoryIds = budgetCategories.map(bc => bc.category_id);
+        return uiBudget;
+      })
+    );
 
     // Cache the results (only for non-filtered requests)
     if (!period) {
@@ -72,13 +84,24 @@ export async function POST(request: NextRequest) {
     }
 
     const budgetData = validationResult.data;
+    
+    // Extract category IDs from the request
+    const categoryIds = budgetData.categoryIds || [];
+    
+    // Validate category requirements for category budgets
+    if (budgetData.budget_type === "category" && categoryIds.length === 0) {
+      return NextResponse.json(
+        { error: "At least one category is required for category budgets" },
+        { status: 400 }
+      );
+    }
 
     // Prepare data for insertion
     const insertData = {
       user_id: userId,
       name: budgetData.name,
       description: budgetData.description || null,
-      category_id: budgetData.category_id || null,
+      // category_id removed - handled through budget_categories junction table
       budget_type: budgetData.budget_type,
       amount: budgetData.amount,
       period: budgetData.period,
@@ -92,14 +115,15 @@ export async function POST(request: NextRequest) {
       metadata: budgetData.metadata || {},
     };
 
-    // Insert budget using Supabase
-    const createdBudget = await insertBudget(insertData);
+    // Insert budget with categories using new multi-category function
+    const createdBudget = await insertBudgetWithCategories(insertData, categoryIds);
 
     // Invalidate cache
     await invalidateUserBudgetsCache(userId);
 
-    // Transform to UI format with enriched data
+    // Transform to UI format with enriched data and category IDs
     const enrichedBudget = transformBudgetToUI(createdBudget);
+    enrichedBudget.categoryIds = categoryIds;
 
     return NextResponse.json({ budget: enrichedBudget }, { status: 201 });
   } catch (error) {

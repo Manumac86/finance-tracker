@@ -48,7 +48,7 @@ export function TransactionCard({
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) return t("today");
-    
+
     // Handle future dates
     if (diffDays < 0) {
       const futureDays = Math.abs(diffDays);
@@ -60,7 +60,7 @@ export function TransactionCard({
         year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
       });
     }
-    
+
     // Handle past dates
     if (diffDays === 1) return t("yesterday");
     if (diffDays < 7) return t("daysAgo", { days: diffDays });
@@ -73,19 +73,19 @@ export function TransactionCard({
 
   return (
     <Card
-      className={`group bg-card border-border transition-all duration-200 hover:border-accent hover:shadow-lg py-4 ${
+      className={`group bg-card border-border transition-all duration-200 hover:border-accent hover:shadow-lg py-2 ${
         isHovered ? "transform hover:scale-101" : ""
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onEdit && onEdit(transaction)}
     >
-      <CardContent className="px-4">
-        <div className="flex items-center justify-between min-h-16">
-          <div className="flex items-center gap-4">
+      <CardContent className="px-2">
+        <div className="flex items-center justify-between min-h-10">
+          <div className="flex items-center gap-2">
             {/* Category Icon */}
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full transition-colors ${
+              className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
                 transaction.transactionType === "income"
                   ? "bg-emerald-500/20 text-emerald-500"
                   : "bg-rose-500/20 text-rose-500"
@@ -97,7 +97,9 @@ export function TransactionCard({
             {/* Transaction Details */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold truncate">{transaction.name}</h3>
+                <h3 className="font-semibold truncate text-sm">
+                  {transaction.name}
+                </h3>
                 <Badge
                   variant="outline"
                   className={`text-xs ${
@@ -113,13 +115,15 @@ export function TransactionCard({
               </div>
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-muted-foreground">{categoryName}</span>
-                <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-xs">
+                  {categoryName}
+                </span>
+                <span className="text-muted-foreground text-xs">•</span>
+                <span className="text-muted-foreground text-xs">
                   {formatDate(transaction.transactionDate)}
                 </span>
-                <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground">
+                <span className="text-muted-foreground text-xs">•</span>
+                <span className="text-muted-foreground text-xs">
                   {formatTime(transaction.transactionDate)}
                 </span>
               </div>
@@ -134,9 +138,9 @@ export function TransactionCard({
 
           {/* Amount and Actions */}
           <div className="flex items-center gap-3">
-            <div className="text-right">
+            <div className="text-right text-sm">
               <div
-                className={`text-xl font-bold ${
+                className={`font-bold ${
                   transaction.transactionType === "income"
                     ? "text-emerald-500"
                     : "text-rose-500"

@@ -542,7 +542,7 @@ function TransactionsPageContent() {
               {displayedTransactions.map((transaction, index) => (
                 <div
                   key={transaction.id}
-                  className={`transform transition-all duration-300 ease-in-out ${
+                  className={`transform transition-all duration-300 ease-in-out max-w-full ${
                     index < 10 ? "animate-in slide-in-from-bottom-4" : ""
                   }`}
                   style={{
