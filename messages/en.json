@@ -195,6 +195,9 @@
       "title": "Edit Account",
       "description": "Update account information for {name}"
     },
+    "loading": {
+      "title": "Loading Account"
+    },
     "delete": {
       "confirm": {
         "title": "Delete Account",

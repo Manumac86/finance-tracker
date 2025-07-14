@@ -195,6 +195,9 @@ export function EditAccountModal({ accountId, open, onOpenChange }: EditAccountM
     return (
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{t("loading.title", { defaultValue: "Loading Account" })}</DialogTitle>
+          </DialogHeader>
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>

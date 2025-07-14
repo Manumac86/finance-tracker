@@ -204,6 +204,9 @@
         "description": "No se pudo actualizar la cuenta. Por favor, inténtalo de nuevo."
       }
     },
+    "loading": {
+      "title": "Cargando Cuenta"
+    },
     "delete": {
       "confirm": {
         "title": "Eliminar Cuenta",
