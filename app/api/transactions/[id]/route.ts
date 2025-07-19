@@ -74,10 +74,10 @@ export async function PUT(
       );
     }
 
-    // Check if transaction exists and belongs to user
+    // Check if transaction exists and belongs to user, and get current values
     const { data: existing } = await supabase
       .from("transactions")
-      .select("id")
+      .select("id, amount, account_id")
       .eq("id", id)
       .eq("user_id", userId)
       .eq("is_active", true)
@@ -146,6 +146,31 @@ export async function PUT(
     if (validation.data.transactionDate !== undefined) {
       updateData.transaction_date = validation.data.transactionDate;
     }
+
+    if (validation.data.accountId !== undefined) {
+      if (validation.data.accountId) {
+        // Verify account exists and belongs to user
+        const { data: account, error: accountError } = await supabase
+          .from("manual_accounts")
+          .select("id, name, color")
+          .eq("id", validation.data.accountId)
+          .eq("user_id", userId)
+          .single();
+
+        if (accountError || !account) {
+          return NextResponse.json({ error: "Invalid account" }, { status: 400 });
+        }
+
+        updateData.account_id = validation.data.accountId;
+        updateData.account_name = account.name;
+        updateData.account_color = account.color;
+      } else {
+        // Remove account assignment
+        updateData.account_id = null;
+        updateData.account_name = null;
+        updateData.account_color = null;
+      }
+    }
     
     // Update the transaction
     const { data: updated, error } = await supabase
@@ -159,6 +184,46 @@ export async function PUT(
     if (error) {
       console.error("Error updating transaction:", error);
       return NextResponse.json({ error: "Failed to update transaction" }, { status: 500 });
+    }
+
+    // Update account balances if account assignment changed
+    const oldAccountId = existing.account_id;
+    const newAccountId = updated.account_id;
+
+    // Function to recalculate account balance from all transactions
+    const recalculateAccountBalance = async (accountId: string) => {
+      // Get sum of all active transactions assigned to this account
+      const { data: transactionSum } = await supabase
+        .from("transactions")
+        .select("amount")
+        .eq("account_id", accountId)
+        .eq("user_id", userId)
+        .eq("is_active", true);
+
+      const totalFromTransactions = transactionSum?.reduce((sum, t) => sum + t.amount, 0) || 0;
+
+      // Update the account balance to reflect the actual sum
+      await supabase
+        .from("manual_accounts")
+        .update({
+          balance: totalFromTransactions,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", accountId)
+        .eq("user_id", userId);
+    };
+
+    // If account assignment changed, recalculate balances for affected accounts
+    if (oldAccountId !== newAccountId) {
+      if (oldAccountId) {
+        await recalculateAccountBalance(oldAccountId);
+      }
+      if (newAccountId) {
+        await recalculateAccountBalance(newAccountId);
+      }
+    } else if (oldAccountId && existing.amount !== updated.amount) {
+      // Same account but amount changed, recalculate
+      await recalculateAccountBalance(oldAccountId);
     }
     
     // The category_name and category_icon are already denormalized in the table
@@ -186,6 +251,15 @@ export async function DELETE(
 
     const { id } = await params;
     
+    // Get transaction data before deleting to update account balance
+    const { data: transactionToDelete } = await supabase
+      .from("transactions")
+      .select("amount, account_id")
+      .eq("id", id)
+      .eq("user_id", userId)
+      .eq("is_active", true)
+      .single();
+    
     // Soft delete the transaction
     const { data, error } = await supabase
       .from("transactions")
@@ -201,6 +275,29 @@ export async function DELETE(
     
     if (error || !data) {
       return NextResponse.json({ error: "Transaction not found" }, { status: 404 });
+    }
+
+    // Recalculate account balance if transaction had an account assigned
+    if (transactionToDelete?.account_id) {
+      // Get sum of all remaining active transactions assigned to this account
+      const { data: transactionSum } = await supabase
+        .from("transactions")
+        .select("amount")
+        .eq("account_id", transactionToDelete.account_id)
+        .eq("user_id", userId)
+        .eq("is_active", true);
+
+      const totalFromTransactions = transactionSum?.reduce((sum, t) => sum + t.amount, 0) || 0;
+
+      // Update the account balance to reflect the actual sum
+      await supabase
+        .from("manual_accounts")
+        .update({
+          balance: totalFromTransactions,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", transactionToDelete.account_id)
+        .eq("user_id", userId);
     }
     
     return NextResponse.json({ 

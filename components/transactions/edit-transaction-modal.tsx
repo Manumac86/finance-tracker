@@ -36,6 +36,7 @@ import { UITransaction } from "@/lib/db/schemas/transaction";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useTranslatedCategories } from "@/hooks/use-translated-categories";
+import { useAccounts } from "@/contexts/accounts";
 
 interface EditTransactionModalProps {
   transaction: UITransaction | null;
@@ -53,6 +54,7 @@ export function EditTransactionModal({
   const { data: translatedCategories, isLoading: categoriesLoading } =
     useTranslatedCategories();
   const { mutate } = useTransactions();
+  const { accounts } = useAccounts();
   const t = useTranslations("editTransactionModal");
 
   const [transactionType, setTransactionType] = useState<"income" | "expense">(
@@ -61,6 +63,7 @@ export function EditTransactionModal({
   const [amount, setAmount] = useState("");
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
+  const [account, setAccount] = useState("none");
   const [date, setDate] = useState<Date>();
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,6 +75,7 @@ export function EditTransactionModal({
       setAmount(Math.abs(transaction.amount).toString());
       setName(transaction.name);
       setCategory(transaction.categoryId);
+      setAccount(transaction.accountId || "none");
       setDate(new Date(transaction.transactionDate));
       setDescription(transaction.description || "");
     }
@@ -118,6 +122,7 @@ export function EditTransactionModal({
         name: name.trim(),
         description: description.trim() || undefined,
         categoryId: category,
+        accountId: account && account !== "none" ? account : undefined,
         transactionDate: (date || new Date()).toISOString(),
       };
 
@@ -265,6 +270,29 @@ export function EditTransactionModal({
                       {cat.translatedName}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-account">{t("account")}</Label>
+              <Select
+                value={account}
+                onValueChange={setAccount}
+              >
+                <SelectTrigger
+                  id="edit-account"
+                  className="bg-card border-border text-foreground"
+                >
+                  <SelectValue placeholder={t("selectAccount")} />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border text-foreground">
+                  <SelectItem value="none">{t("noAccount")}</SelectItem>
+                  {accounts?.map((acc) => acc.id ? (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      {acc.name}
+                    </SelectItem>
+                  ) : null)}
                 </SelectContent>
               </Select>
             </div>
