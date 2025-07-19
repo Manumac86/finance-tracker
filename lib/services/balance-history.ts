@@ -31,7 +31,26 @@ interface BalanceChangeRow {
 }
 
 /**
+ * Get the current total balance from all manual accounts
+ */
+async function getCurrentAccountBalance(userId: string): Promise<number> {
+  const { data: accounts, error } = await supabase
+    .from("manual_accounts")
+    .select("current_balance, is_active, include_in_totals")
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Failed to fetch account balances: ${error.message}`);
+  }
+
+  return (accounts || [])
+    .filter(account => account.is_active && account.include_in_totals)
+    .reduce((total, account) => total + (account.current_balance || 0), 0);
+}
+
+/**
  * Get the initial balance before the start date
+ * Now uses account balance minus future transactions for historical accuracy
  */
 async function getInitialBalance(
   userId: string,
@@ -39,36 +58,35 @@ async function getInitialBalance(
 ): Promise<number> {
   console.log("[Initial balance] beforeDate", beforeDate);
   console.log("[Initial balance] userId", userId);
-  const { data, error } = await supabase.rpc("calculate_balance_before_date", {
-    p_user_id: userId,
-    p_before_date: beforeDate,
-  });
+  
+  // Get current account balance
+  const currentAccountBalance = await getCurrentAccountBalance(userId);
+  console.log("[Initial balance] currentAccountBalance", currentAccountBalance);
+  
+  // Get all transactions from the beforeDate to now
+  const { data: futureTransactions, error: txError } = await supabase
+    .from("transactions")
+    .select("amount")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .gte("transaction_date", beforeDate);
 
-  console.log("[Initial balance] data", data);
-
-  if (error) {
-    // Fallback to manual calculation if RPC doesn't exist
-    const { data: transactions, error: txError } = await supabase
-      .from("transactions")
-      .select("transaction_type, amount")
-      .eq("user_id", userId)
-      .eq("is_active", true)
-      .lt("transaction_date", beforeDate);
-
-    if (txError) {
-      throw new Error(`Failed to fetch initial balance: ${txError.message}`);
-    }
-    console.log("Transactions:", transactions);
-
-    return (
-      transactions?.reduce((balance, tx) => {
-        const amount = Number(tx.amount);
-        return balance + amount;
-      }, 0) || 0
-    );
+  if (txError) {
+    throw new Error(`Failed to fetch future transactions: ${txError.message}`);
   }
 
-  return data || 0;
+  // Calculate the sum of future transactions
+  const futureTransactionsSum = (futureTransactions || []).reduce((sum, tx) => {
+    return sum + Number(tx.amount);
+  }, 0);
+
+  console.log("[Initial balance] futureTransactionsSum", futureTransactionsSum);
+  
+  // Initial balance = current account balance - future transactions
+  const initialBalance = currentAccountBalance - futureTransactionsSum;
+  console.log("[Initial balance] calculated initialBalance", initialBalance);
+  
+  return initialBalance;
 }
 
 /**
@@ -231,6 +249,7 @@ function buildDailyDataPoints(
 /**
  * Calculate balance history over time from transactions
  * This provides the running balance at each day for charting
+ * Now ensures the final balance matches current account balances
  */
 export async function getBalanceHistory({
   userId,
@@ -241,14 +260,16 @@ export async function getBalanceHistory({
     const startDateStr = format(startOfDay(startDate), "yyyy-MM-dd");
     const endDateStr = format(startOfDay(endDate), "yyyy-MM-dd");
 
-    // Get initial balance and transaction summaries in parallel
-    const [initialBalance, dailySummaries] = await Promise.all([
+    // Get initial balance, current account balance, and transaction summaries in parallel
+    const [initialBalance, currentAccountBalance, dailySummaries] = await Promise.all([
       getInitialBalance(userId, startDateStr),
+      getCurrentAccountBalance(userId),
       getDailyTransactionSummaries(userId, startDateStr, endDateStr),
     ]);
 
     console.log("[Balance history] dailySummaries", dailySummaries);
     console.log("[Balance history] initialBalance", initialBalance);
+    console.log("[Balance history] currentAccountBalance", currentAccountBalance);
 
     // Build data points based on period
     let dataPoints: BalanceDataPoint[];
@@ -270,7 +291,6 @@ export async function getBalanceHistory({
       // For month view, extend to end of month with current balance for future dates
       if (period === "month") {
         const monthEnd = endOfMonth(new Date());
-        const lastBalance = dataPoints[dataPoints.length - 1]?.balance || 0;
         
         if (endDate < monthEnd) {
           const futureDays = eachDayOfInterval({ 
@@ -281,11 +301,16 @@ export async function getBalanceHistory({
           for (const day of futureDays) {
             dataPoints.push({
               date: format(day, "MMM d"),
-              balance: lastBalance, // Keep the current balance for future dates
+              balance: currentAccountBalance, // Use actual current balance for future dates
             });
           }
         }
       }
+    }
+
+    // Ensure the last data point reflects the current account balance
+    if (dataPoints.length > 0) {
+      dataPoints[dataPoints.length - 1].balance = currentAccountBalance;
     }
 
     return dataPoints;

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import useSWR from "swr";
-import { Calendar, TrendingUp, DollarSign, Target } from "lucide-react";
+import { Calendar, TrendingUp, DollarSign, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +23,13 @@ import { BankConnectionPrompt } from "../banking/bank-connection-prompt";
 import { UIGoal } from "@/lib/db/schemas/goal";
 import { UIBudget } from "@/lib/db/schemas/budget";
 import { UITransaction } from "@/lib/db/schemas/transaction";
+import { useDebts } from "@/contexts/debts";
+import { useAccounts } from "@/contexts/accounts";
 import { useTranslations, useLocale } from "next-intl";
 import { localeConfig } from "@/i18n/routing";
 import { BalanceChart } from "@/components/balance-chart";
+import { DebtProgressChart } from "@/components/debt-progress-chart";
+import { useFinancialCalculations } from "@/hooks/use-financial-calculations";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // interface DashboardData {
@@ -63,47 +67,34 @@ export function EnhancedDashboard() {
     fetcher
   );
 
+  const { summary: debtSummary, isLoading: debtsLoading, error: debtsError } = useDebts();
+  const { accounts, isLoading: accountsLoading, error: accountsError } = useAccounts();
+
   const goals = goalsData?.goals || [];
   const budgets = budgetsData?.budgets || [];
   const transactions = transactionsData?.transactions || []; // API already filters out future transactions
 
-  // Calculate summary data
-  const summary = {
-    totalIncome: transactions
-      .filter((t) => t.transactionType === "income")
-      .reduce((sum, t) => sum + t.amount, 0),
-    totalExpenses: transactions
-      .filter((t) => t.transactionType === "expense")
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0), // Get absolute value for display
-    currentBalance: 0, // This would typically come from account balances
-    monthlyIncome: 0,
-    monthlyExpenses: 0,
-    savingsRate: 0,
-  };
+  // Use centralized financial calculations
+  const financialMetrics = useFinancialCalculations({
+    transactions,
+    budgets,
+    goals,
+    accounts,
+    debtSummary,
+    timeFilter,
+  });
 
-  // Calculate net balance from all transactions (expenses as negative)
-  summary.currentBalance = transactions.reduce((sum, t) => sum + t.amount, 0);
-  summary.savingsRate =
-    summary.totalIncome > 0
-      ? ((summary.totalIncome + summary.totalExpenses) / summary.totalIncome) *
-        100
-      : 0;
-
-  // Calculate financial health data
+  // Create health data from centralized calculations
   const healthData = {
-    totalIncome: summary.totalIncome,
-    totalExpenses: summary.totalExpenses,
-    budgetUtilization:
-      budgets.length > 0
-        ? (summary.totalExpenses /
-            budgets.reduce((sum, b) => sum + b.amount, 0)) *
-          100
-        : 0,
-    goalProgress:
-      goals.length > 0
-        ? goals.reduce((sum, g) => sum + (g.progress ?? 0), 0) / goals.length
-        : 0,
-    emergencyFundRatio: 2.5, // This would be calculated based on actual emergency fund
+    totalIncome: financialMetrics.totalIncome,
+    totalExpenses: financialMetrics.totalExpenses,
+    totalDebt: financialMetrics.totalDebt,
+    monthlyDebtPayments: financialMetrics.monthlyDebtPayments,
+    debtToIncomeRatio: financialMetrics.debtToIncomeRatio,
+    budgetUtilization: financialMetrics.budgetUtilization,
+    goalProgress: financialMetrics.goalProgress,
+    emergencyFundRatio: financialMetrics.emergencyFundRatio,
+    savingsRate: financialMetrics.savingsRate,
   };
 
   const formatCurrency = (amount: number) => {
@@ -117,8 +108,8 @@ export function EnhancedDashboard() {
     }).format(amount);
   };
 
-  const isLoading = !goalsData || !budgetsData || !transactionsData;
-  const hasError = goalsError || budgetsError || transactionsError;
+  const isLoading = !goalsData || !budgetsData || !transactionsData || debtsLoading || accountsLoading;
+  const hasError = goalsError || budgetsError || transactionsError || debtsError || accountsError;
 
   if (hasError) {
     return (
@@ -182,15 +173,15 @@ export function EnhancedDashboard() {
           <CardContent>
             <div
               className={`text-2xl font-bold ${
-                summary.currentBalance > 0 ? "text-emerald-500" : "text-red-500"
+                financialMetrics.currentBalance > 0 ? "text-emerald-500" : "text-red-500"
               }`}
             >
-              {formatCurrency(summary.currentBalance)}
+              {formatCurrency(financialMetrics.currentBalance)}
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <TrendingUp className="w-3 h-3" />
-              {summary.savingsRate > 0 ? "+" : ""}
-              {summary.savingsRate.toFixed(1)}% {t("savingsRate")}
+              {financialMetrics.savingsRate > 0 ? "+" : ""}
+              {financialMetrics.savingsRate.toFixed(1)}% {t("savingsRate")}
             </div>
           </CardContent>
         </Card>
@@ -204,7 +195,7 @@ export function EnhancedDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">
-              {formatCurrency(summary.totalIncome)}
+              {formatCurrency(financialMetrics.totalIncome)}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
               {timeFilter} {t("total")}
@@ -221,7 +212,7 @@ export function EnhancedDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-500">
-              {formatCurrency(summary.totalExpenses)}
+              {formatCurrency(financialMetrics.totalExpenses)}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
               {timeFilter} {t("total")}
@@ -233,17 +224,23 @@ export function EnhancedDashboard() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                {t("goalsProgress")}
+                {t("totalDebts")}
               </p>
-              <Target className="w-4 h-4 text-blue-500" />
+              <CreditCard className="w-4 h-4 text-orange-500" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">
-              {goals.filter((g) => g.isAchieved).length}/{goals.length}
+            <div className="text-2xl font-bold text-orange-500">
+              {formatCurrency(financialMetrics.totalDebt)}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {t("goalsCompleted")}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+              <span>{financialMetrics.activeDebtsCount} {t("activeDebts")}</span>
+              {financialMetrics.debtToIncomeRatio > 0 && (
+                <>
+                  <span>•</span>
+                  <span>{financialMetrics.debtToIncomeRatio.toFixed(1)}% {t("debtToIncomeRatio")}</span>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -255,9 +252,10 @@ export function EnhancedDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <FinancialHealthIndicator data={healthData} />
 
-          {/* Balance Chart with proper spacing */}
-          <div className="mb-8">
+          {/* Charts Section */}
+          <div className="grid gap-6 mb-8">
             <BalanceChart timeFilter={timeFilter} />
+            {financialMetrics.totalDebt > 0 && <DebtProgressChart timeFilter={timeFilter} />}
           </div>
 
           {/* Budget and Goals Row */}
