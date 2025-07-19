@@ -221,7 +221,7 @@ function evaluateAccountType(rule: AccountTypeRule, accountType?: string): boole
     return false;
   }
   
-  const isIncluded = rule.accountTypes.includes(accountType as any);
+  const isIncluded = rule.accountTypes.includes(accountType as typeof rule.accountTypes[number]);
   
   return rule.matchMode === "include" ? isIncluded : !isIncluded;
 }

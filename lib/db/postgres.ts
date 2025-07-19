@@ -1178,8 +1178,7 @@ export async function deleteManualAccount(accountId: string, userId: string) {
 export async function updateAccountBalance(
   accountId: string,
   userId: string,
-  newBalance: number,
-  description?: string
+  newBalance: number
 ) {
   const { data, error } = await supabase
     .from("manual_accounts")

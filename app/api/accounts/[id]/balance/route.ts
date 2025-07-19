@@ -43,8 +43,7 @@ export async function PUT(
     const account = await updateAccountBalance(
       id,
       userId,
-      new_balance,
-      description
+      new_balance
     );
 
     return NextResponse.json({

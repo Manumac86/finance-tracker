@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   BarChart3,
   Building2,
+  CreditCard,
   DollarSign,
   FileDown,
   Receipt,
@@ -44,6 +45,12 @@ export const navItems = [
     url: "/budgets",
     icon: DollarSign,
     enabled: !!+process.env.NEXT_PUBLIC_BUDGETS_ENABLED!,
+  },
+  {
+    title: "Debts",
+    url: "/debts",
+    icon: CreditCard,
+    enabled: !!+process.env.NEXT_PUBLIC_DEBTS_ENABLED!,
   },
   {
     title: "Transactions",

@@ -1,7 +1,6 @@
 import { selectTransactions, updateBudget } from "@/lib/db/postgres";
 import { CustomBudgetRules, evaluateCustomBudgetRules } from "@/lib/types/custom-budget-rules";
 import { UIBudget } from "@/lib/db/schemas/budget";
-import { UITransaction } from "@/lib/db/schemas/transaction";
 
 /**
  * Calculate current spending for a custom budget based on its rules

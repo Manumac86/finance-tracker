@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export async function POST() {
@@ -32,7 +32,7 @@ export async function POST() {
     `;
     
     console.log('📝 Creating table...');
-    const { data: createResult, error: createError } = await supabaseAdmin.rpc('exec', {
+    const { error: createError } = await supabaseAdmin.rpc('exec', {
       sql: createTableSQL
     });
     

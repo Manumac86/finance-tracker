@@ -1,0 +1,21 @@
+
+> finance-tracker@0.1.0 dev /Users/manumartinez/Projects/SWR/finance-tracker
+> next dev --turbopack
+
+[32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNext.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+ ⚠ Port 3000 is in use, using available port 3002 instead.
+   ▲ Next.js 15.3.1 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.31.6:3002
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Compiled middleware in 371ms
+ ✓ Ready in 2.3s
+ ✓ Compiled middleware in 12ms
+ ○ Compiling /api/accounts/recalculate-balances ...
+ ✓ Compiled /api/accounts/recalculate-balances in 729ms
+(node:89531) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ POST /api/accounts/recalculate-balances 401 in 912ms
+ ✓ Compiled middleware in 12ms

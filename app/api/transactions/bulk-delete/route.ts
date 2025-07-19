@@ -85,7 +85,7 @@ export async function DELETE(request: NextRequest) {
         const account = await selectManualAccountById(accountId, userId);
         if (account) {
           const newBalance = account.current_balance + adjustment;
-          await updateAccountBalance(accountId, userId, newBalance, `Bulk delete transactions`);
+          await updateAccountBalance(accountId, userId, newBalance);
         }
       } catch (error) {
         console.warn(`Could not update account ${accountId} balance:`, error);

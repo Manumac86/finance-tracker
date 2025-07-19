@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         const account = await selectManualAccountById(accountId, userId);
         if (account) {
           const newBalance = account.current_balance + (transactionType === 'expense' ? -Math.abs(amount) : Math.abs(amount));
-          await updateAccountBalance(accountId, userId, newBalance, `Transaction: ${name}`);
+          await updateAccountBalance(accountId, userId, newBalance);
         }
       } catch (accountError) {
         console.warn("Could not update account balance:", accountError);

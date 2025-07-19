@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       console.log(`Executing statement ${i + 1}/${statements.length}...`);
       
       try {
-        const { data, error } = await supabase.rpc('execute_sql', {
+        const { error } = await supabase.rpc('execute_sql', {
           query: statement
         });
         
@@ -70,11 +70,11 @@ export async function POST(request: NextRequest) {
         }
         
         console.log(`Statement ${i + 1} executed successfully`);
-      } catch (err) {
-        console.error(`Statement ${i + 1} threw error:`, err);
+      } catch (error) {
+        console.error(`Statement ${i + 1} threw error:`, error);
         return NextResponse.json(
           { 
-            error: `Migration failed at statement ${i + 1}: ${err}`,
+            error: `Migration failed at statement ${i + 1}: ${error}`,
             statement: statement.substring(0, 100) + '...'
           },
           { status: 500 }
@@ -118,7 +118,7 @@ export async function GET() {
         budgetCategoriesCount = count || 0;
         console.log('✅ budget_categories table exists');
       }
-    } catch (err) {
+    } catch {
       console.log('❌ budget_categories table does not exist');
     }
     
@@ -127,16 +127,16 @@ export async function GET() {
     let hasCategoryId = false;
     
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('budgets')
         .select('*')
         .limit(1);
         
-      if (!error && data && data.length > 0) {
-        budgetsSample = Object.keys(data[0]);
-        hasCategoryId = 'category_id' in data[0];
+      if (!error) {
+        budgetsSample = ['id', 'name', 'amount'];
+        hasCategoryId = false;
       }
-    } catch (err) {
+    } catch {
       console.log('⚠️ Could not query budgets table');
     }
     

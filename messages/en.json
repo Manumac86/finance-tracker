@@ -24,6 +24,7 @@
     "dashboard": "Dashboard",
     "transactions": "Transactions",
     "budgets": "Budgets",
+    "debts": "Debts",
     "goals": "Goals",
     "recurring": "Recurring",
     "manage": "Manage",
@@ -61,6 +62,9 @@
     "savingsRate": "savings rate",
     "total": "total",
     "goalsCompleted": "goals completed",
+    "totalDebts": "Total Debts",
+    "activeDebts": "active debts",
+    "debtToIncomeRatio": "debt-to-income",
     "errorLoading": "Error loading dashboard data",
     "loadingOverview": "Loading your financial overview...",
     "retry": "Retry"
@@ -678,6 +682,7 @@
     },
     "metrics": {
       "savingsRate": "Savings Rate",
+      "debtToIncomeRatio": "Debt-to-Income",
       "budgetUsage": "Budget Usage",
       "goalProgress": "Goal Progress",
       "emergencyFund": "Emergency Fund"
@@ -687,9 +692,11 @@
       "excellent": "Great job! Keep up the excellent financial habits.",
       "increaseSavings": "Try to increase your savings rate to 20%+",
       "buildEmergencyFund": "Build your emergency fund to 3-6 months of expenses",
+      "reduceDebt": "Consider strategies to reduce your debt burden",
       "overspending": "You're overspending! Review your budget",
       "reduceFocus": "Focus on reducing expenses to save more",
       "reviewGoals": "Review your financial goals and create action plans",
+      "highDebtRatio": "Your debt-to-income ratio is high - prioritize debt reduction",
       "immediateAction": "Immediate action needed: Create a strict budget",
       "additionalIncome": "Consider additional income sources",
       "eliminateExpenses": "Eliminate non-essential expenses"
@@ -1114,6 +1121,9 @@
     "category": "Category",
     "loadingCategories": "Loading categories...",
     "selectCategory": "Select a category",
+    "account": "Account",
+    "selectAccount": "Select an account (optional)",
+    "noAccount": "No account",
     "date": "Date",
     "selectDate": "Select a date",
     "description": "Description (Optional)",
@@ -1177,6 +1187,300 @@
         "focusGoal": "Focus on another financial goal"
       },
       "default": "Set your next financial goal"
+    }
+  },
+  "debts": {
+    "pageTitle": "Debt Management",
+    "pageDescription": "Track and manage all your debts in one place",
+    "title": "Debts",
+    "subtitle": "You have {count} active debts totaling {total}",
+    "error": {
+      "loadingDebt": "Error loading debt",
+      "debtNotFound": "Debt not found",
+      "loadingDebts": "Error loading debts",
+      "loadingSummary": "Error loading summary",
+      "retry": "Retry"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "ok": "OK",
+      "overdue": "{days} days overdue",
+      "dueSoon": "Due in {days} days"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "delete": "Delete",
+      "viewDetails": "View Details",
+      "goBack": "Go Back",
+      "back": "Back",
+      "addDebt": "Add Debt",
+      "addFirstDebt": "Add Your First Debt"
+    },
+    "card": {
+      "currentBalance": "Current Balance",
+      "originalAmount": "Original Amount",
+      "payoffProgress": "Payoff Progress",
+      "minPayment": "Min Payment",
+      "notSet": "Not Set",
+      "interestRate": "Interest Rate",
+      "dueDate": "Due Date",
+      "lender": "Lender"
+    },
+    "detail": {
+      "currentBalance": "Current Balance",
+      "of": "of",
+      "totalPaid": "Total Paid",
+      "payments": "payments",
+      "interestRate": "Interest Rate",
+      "notSet": "Not Set",
+      "noInterest": "No Interest",
+      "timeToPayoff": "Time to Payoff",
+      "unknown": "Unknown",
+      "noMinPayment": "No Min Payment",
+      "payoffProgress": "Payoff Progress",
+      "progress": "Progress",
+      "debtDetails": "Debt Details",
+      "lender": "Lender",
+      "notSpecified": "Not Specified",
+      "minimumPayment": "Minimum Payment",
+      "paymentDay": "Payment Day",
+      "dayOfMonth": "Day {day} of month",
+      "dueDate": "Due Date",
+      "createdDate": "Created Date",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "notes": "Notes",
+      "tabs": {
+        "payments": "Payments",
+        "analytics": "Analytics",
+        "calculator": "Calculator"
+      },
+      "paymentHistory": "Payment History",
+      "recordPayment": "Record Payment",
+      "recordPaymentDescription": "Add a new payment for this debt",
+      "balanceAfter": "Balance After",
+      "noPayments": "No Payments Yet",
+      "noPaymentsDescription": "Start tracking your debt progress by recording your first payment",
+      "recordFirstPayment": "Record First Payment",
+      "paymentAnalytics": "Payment Analytics",
+      "paymentCalculator": "Payment Calculator"
+    },
+    "search": {
+      "placeholder": "Search debts..."
+    },
+    "filter": {
+      "type": "Type",
+      "allTypes": "All Types",
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "types": {
+      "credit_card": "Credit Card",
+      "loan": "Loan",
+      "mortgage": "Mortgage",
+      "student_loan": "Student Loan",
+      "other": "Other"
+    },
+    "sort": {
+      "label": "Sort by",
+      "name": "Name",
+      "balance": "Balance",
+      "interestRate": "Interest Rate",
+      "dueDate": "Due Date",
+      "dateAdded": "Date Added"
+    },
+    "stats": {
+      "showing": "Showing",
+      "active": "active",
+      "totalBalance": "Total Balance",
+      "avgInterest": "Avg Interest"
+    },
+    "empty": {
+      "noResults": "No debts match your current filters",
+      "noDebts": "No debts found",
+      "tryDifferentFilters": "Try adjusting your filters",
+      "getStarted": "Get started by adding your first debt"
+    },
+    "modal": {
+      "create": {
+        "title": "Add New Debt",
+        "description": "Track a new debt or loan"
+      },
+      "edit": {
+        "title": "Edit Debt",
+        "description": "Update debt information"
+      },
+      "sections": {
+        "basic": "Basic Information",
+        "financial": "Financial Details",
+        "payment": "Payment Information",
+        "additional": "Additional Details"
+      },
+      "fields": {
+        "name": "Debt Name",
+        "debtType": "Debt Type",
+        "lender": "Lender",
+        "originalAmount": "Original Amount",
+        "currentBalance": "Current Balance",
+        "interestRate": "Interest Rate",
+        "minimumPayment": "Minimum Payment",
+        "paymentDay": "Payment Day",
+        "dueDate": "Due Date",
+        "linkedAccount": "Linked Account",
+        "accountNumber": "Account Number",
+        "notes": "Notes",
+        "isActive": "Active"
+      },
+      "placeholders": {
+        "name": "e.g., Credit Card, Car Loan",
+        "debtType": "Select debt type",
+        "lender": "e.g., Bank Name",
+        "linkedAccount": "Select account",
+        "accountNumber": "e.g., ****1234",
+        "notes": "Optional notes about this debt"
+      },
+      "descriptions": {
+        "interestRate": "Annual percentage rate (APR)",
+        "paymentDay": "Day of month payment is due",
+        "linkedAccount": "Connect to track payments automatically",
+        "accountNumber": "Last 4 digits for identification",
+        "isActive": "Whether you're actively paying this debt"
+      },
+      "options": {
+        "noAccount": "No account selected"
+      },
+      "actions": {
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "create": "Create Debt",
+        "update": "Update Debt"
+      }
+    },
+    "summary": {
+      "totalDebt": "Total Debt",
+      "activeDebts": "Active Debts",
+      "monthlyPayments": "Monthly Payments",
+      "minimumPayments": "Minimum Payments",
+      "avgInterestRate": "Avg Interest Rate",
+      "interestCost": "Interest Cost",
+      "payoffDate": "Payoff Date",
+      "noPayoffDate": "No payoff date",
+      "totalInterest": "Total Interest",
+      "debtToIncomeRatio": "Debt-to-Income Ratio",
+      "debtToIncome": {
+        "noData": "No income data",
+        "excellent": "Excellent (<20%)",
+        "good": "Good (20-35%)",
+        "concerning": "Concerning (>35%)",
+        "description": "Based on minimum payments vs monthly income"
+      },
+      "quickActions": "Quick Actions",
+      "actions": {
+        "payExtra": "Pay Extra",
+        "payExtraDesc": "Make additional payments to reduce debt faster",
+        "createStrategy": "Create Strategy",
+        "createStrategyDesc": "Plan your debt payoff strategy"
+      }
+    },
+    "payment": {
+      "currentBalance": "Current Balance",
+      "minimumPayment": "Minimum Payment",
+      "notSet": "Not Set",
+      "amount": "Payment Amount",
+      "amountDescription": "Maximum amount you can pay is {max}",
+      "quickAmounts": "Quick Amounts",
+      "date": "Payment Date",
+      "selectDate": "Select date",
+      "dateDescription": "When did you make this payment?",
+      "notes": "Payment Notes",
+      "notesPlaceholder": "Optional notes about this payment",
+      "notesDescription": "Add any details about this payment",
+      "impactPreview": "Impact Preview",
+      "newBalance": "New Balance",
+      "paymentAmount": "Payment Amount",
+      "cancel": "Cancel",
+      "recording": "Recording...",
+      "recordPayment": "Record Payment",
+      "suggestions": {
+        "minimum": "Minimum",
+        "double": "Double Min",
+        "extra50": "Min + $50",
+        "extra100": "Min + $100"
+      }
+    },
+    "analytics": {
+      "noData": "No Payment Data",
+      "noDataDescription": "Start making payments to see analytics",
+      "totalPayments": "Total Payments",
+      "paymentsCount": "payments",
+      "averagePayment": "Average Payment",
+      "consistent": "Consistent",
+      "variable": "Variable",
+      "monthlyAverage": "Monthly Average",
+      "activeMonths": "active months",
+      "paymentRange": "Payment Range",
+      "minToMax": "Min to Max",
+      "progressOverTime": "Progress Over Time",
+      "debtReduction": "Debt Reduction",
+      "complete": "Complete",
+      "remaining": "Remaining",
+      "monthlyBreakdown": "Monthly Breakdown",
+      "payments": "payments",
+      "ofTotal": "of total",
+      "insights": "Insights",
+      "insights": {
+        "consistent": "Consistent Payment Pattern",
+        "consistentDescription": "Your payments are consistent with your minimum payment amount",
+        "variable": "Variable Payment Pattern",
+        "variableDescription": "Your payment amounts vary significantly",
+        "aboveMinimum": "Above Minimum Payments",
+        "aboveMinimumDescription": "You're paying {extra} above minimum - great job!",
+        "almostDone": "Almost Debt-Free!",
+        "almostDoneDescription": "You're very close to paying off this debt"
+      }
+    },
+    "calculator": {
+      "noInterestRate": "No Interest Rate Set",
+      "noInterestRateDescription": "Add an interest rate to see payoff calculations",
+      "payoffTime": "Payoff Time",
+      "totalInterest": "Total Interest",
+      "payoffDate": "Payoff Date",
+      "paymentTooLow": "Payment Too Low",
+      "customPayment": "Custom Payment",
+      "monthlyPayment": "Monthly Payment",
+      "totalAmount": "Total Amount",
+      "paymentTooLowDescription": "Payment must be higher than minimum",
+      "targetTimeline": "Target Timeline",
+      "payoffIn": "Pay off in",
+      "months": "months",
+      "years": "years",
+      "requiredPayment": "Required Payment",
+      "extraNeeded": "Extra Needed",
+      "interestSavings": "Interest Savings",
+      "save": "Save",
+      "monthsEarlier": "months earlier",
+      "scenarios": {
+        "minimum": "Minimum Payment",
+        "minimumDesc": "Pay only the minimum amount",
+        "double": "Double Payment",
+        "doubleDesc": "Pay double the minimum amount",
+        "extra50": "Extra $50",
+        "extra50Desc": "Add $50 to minimum payment",
+        "extra100": "Extra $100",
+        "extra100Desc": "Add $100 to minimum payment"
+      }
+    },
+    "delete": {
+      "title": "Delete Debt",
+      "description": "Are you sure you want to delete '{name}'? This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "confirm": "Delete"
     }
   }
 }

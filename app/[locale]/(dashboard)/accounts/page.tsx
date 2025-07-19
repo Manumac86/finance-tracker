@@ -24,6 +24,7 @@ import { CreateAccountModal } from "@/components/accounts/create-account-modal";
 import { EditAccountModal } from "@/components/accounts/edit-account-modal";
 import { AccountCard } from "@/components/accounts/account-card";
 import { useAccounts } from "@/contexts/accounts";
+import { RecalculateBalancesButton } from "@/components/admin/recalculate-balances-button";
 
 const accountTypeIcons = {
   checking: Landmark,
@@ -83,7 +84,9 @@ export default function AccountsPage() {
           <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-muted-foreground">{t("description")}</p>
         </div>
-        <button
+        <div className="flex items-center gap-2">
+          <RecalculateBalancesButton />
+          <button
           className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
           onClick={() => {
             setShowCreateModal((prev) => {
@@ -94,6 +97,7 @@ export default function AccountsPage() {
           <Plus className="h-4 w-4 mr-2" />
           {t("add.title")}
         </button>
+        </div>
       </div>
 
       {/* Account Summary */}

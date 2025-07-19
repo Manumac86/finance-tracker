@@ -25,6 +25,7 @@
     "dashboard": "Panel",
     "transactions": "Transacciones",
     "budgets": "Presupuestos",
+    "debts": "Deudas",
     "goals": "Metas",
     "recurring": "Recurrentes",
     "manage": "Administrar",
@@ -62,6 +63,9 @@
     "savingsRate": "tasa de ahorro",
     "total": "total",
     "goalsCompleted": "metas completadas",
+    "totalDebts": "Total de Deudas",
+    "activeDebts": "deudas activas",
+    "debtToIncomeRatio": "deuda-ingresos",
     "errorLoading": "Error al cargar datos del panel",
     "loadingOverview": "Cargando su resumen financiero...",
     "retry": "Reintentar"
@@ -677,6 +681,7 @@
     },
     "metrics": {
       "savingsRate": "Tasa de Ahorro",
+      "debtToIncomeRatio": "Deuda-Ingresos",
       "budgetUsage": "Uso del Presupuesto",
       "goalProgress": "Progreso de Metas",
       "emergencyFund": "Fondo de Emergencia"
@@ -686,9 +691,11 @@
       "excellent": "¡Excelente trabajo! Continúa con estos hábitos financieros excelentes.",
       "increaseSavings": "Trata de aumentar tu tasa de ahorro al 20%+",
       "buildEmergencyFund": "Construye tu fondo de emergencia para 3-6 meses de gastos",
+      "reduceDebt": "Considera estrategias para reducir tu carga de deuda",
       "overspending": "¡Estás gastando de más! Revisa tu presupuesto",
       "reduceFocus": "Enfócate en reducir gastos para ahorrar más",
       "reviewGoals": "Revisa tus metas financieras y crea planes de acción",
+      "highDebtRatio": "Tu relación deuda-ingresos es alta - prioriza la reducción de deuda",
       "immediateAction": "Acción inmediata necesaria: Crea un presupuesto estricto",
       "additionalIncome": "Considera fuentes de ingresos adicionales",
       "eliminateExpenses": "Elimina gastos no esenciales"
@@ -1113,6 +1120,9 @@
     "category": "Categoría",
     "loadingCategories": "Cargando categorías...",
     "selectCategory": "Selecciona una categoría",
+    "account": "Cuenta",
+    "selectAccount": "Selecciona una cuenta (opcional)",
+    "noAccount": "Sin cuenta",
     "date": "Fecha",
     "selectDate": "Selecciona una fecha",
     "description": "Descripción (Opcional)",
@@ -1176,6 +1186,300 @@
         "focusGoal": "Enfocarse en otra meta financiera"
       },
       "default": "Establece tu próxima meta financiera"
+    }
+  },
+  "debts": {
+    "pageTitle": "Gestión de Deudas",
+    "pageDescription": "Rastrea y administra todas tus deudas en un solo lugar",
+    "title": "Deudas",
+    "subtitle": "Tienes {count} deudas activas por un total de {total}",
+    "error": {
+      "loadingDebt": "Error cargando deuda",
+      "debtNotFound": "Deuda no encontrada",
+      "loadingDebts": "Error cargando deudas",
+      "loadingSummary": "Error cargando resumen",
+      "retry": "Reintentar"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "ok": "OK",
+      "overdue": "{days} días de retraso",
+      "dueSoon": "Vence en {days} días"
+    },
+    "actions": {
+      "view": "Ver",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "viewDetails": "Ver Detalles",
+      "goBack": "Regresar",
+      "back": "Atrás",
+      "addDebt": "Agregar Deuda",
+      "addFirstDebt": "Agregar Tu Primera Deuda"
+    },
+    "card": {
+      "currentBalance": "Saldo Actual",
+      "originalAmount": "Monto Original",
+      "payoffProgress": "Progreso de Pago",
+      "minPayment": "Pago Mín",
+      "notSet": "No Establecido",
+      "interestRate": "Tasa de Interés",
+      "dueDate": "Fecha de Vencimiento",
+      "lender": "Prestamista"
+    },
+    "detail": {
+      "currentBalance": "Saldo Actual",
+      "of": "de",
+      "totalPaid": "Total Pagado",
+      "payments": "pagos",
+      "interestRate": "Tasa de Interés",
+      "notSet": "No Establecido",
+      "noInterest": "Sin Interés",
+      "timeToPayoff": "Tiempo para Pagar",
+      "unknown": "Desconocido",
+      "noMinPayment": "Sin Pago Mín",
+      "payoffProgress": "Progreso de Pago",
+      "progress": "Progreso",
+      "debtDetails": "Detalles de la Deuda",
+      "lender": "Prestamista",
+      "notSpecified": "No Especificado",
+      "minimumPayment": "Pago Mínimo",
+      "paymentDay": "Día de Pago",
+      "dayOfMonth": "Día {day} del mes",
+      "dueDate": "Fecha de Vencimiento",
+      "createdDate": "Fecha de Creación",
+      "status": "Estado",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "notes": "Notas",
+      "tabs": {
+        "payments": "Pagos",
+        "analytics": "Análisis",
+        "calculator": "Calculadora"
+      },
+      "paymentHistory": "Historial de Pagos",
+      "recordPayment": "Registrar Pago",
+      "recordPaymentDescription": "Agregar un nuevo pago para esta deuda",
+      "balanceAfter": "Saldo Después",
+      "noPayments": "Sin Pagos Aún",
+      "noPaymentsDescription": "Comienza a rastrear tu progreso de deuda registrando tu primer pago",
+      "recordFirstPayment": "Registrar Primer Pago",
+      "paymentAnalytics": "Análisis de Pagos",
+      "paymentCalculator": "Calculadora de Pagos"
+    },
+    "search": {
+      "placeholder": "Buscar deudas..."
+    },
+    "filter": {
+      "type": "Tipo",
+      "allTypes": "Todos los Tipos",
+      "status": "Estado",
+      "allStatuses": "Todos los Estados",
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "types": {
+      "credit_card": "Tarjeta de Crédito",
+      "loan": "Préstamo",
+      "mortgage": "Hipoteca",
+      "student_loan": "Préstamo Estudiantil",
+      "other": "Otro"
+    },
+    "sort": {
+      "label": "Ordenar por",
+      "name": "Nombre",
+      "balance": "Saldo",
+      "interestRate": "Tasa de Interés",
+      "dueDate": "Fecha de Vencimiento",
+      "dateAdded": "Fecha Agregada"
+    },
+    "stats": {
+      "showing": "Mostrando",
+      "active": "activo",
+      "totalBalance": "Saldo Total",
+      "avgInterest": "Interés Prom"
+    },
+    "empty": {
+      "noResults": "Ninguna deuda coincide con tus filtros actuales",
+      "noDebts": "No se encontraron deudas",
+      "tryDifferentFilters": "Intenta ajustar tus filtros",
+      "getStarted": "Comienza agregando tu primera deuda"
+    },
+    "modal": {
+      "create": {
+        "title": "Agregar Nueva Deuda",
+        "description": "Rastrea una nueva deuda o préstamo"
+      },
+      "edit": {
+        "title": "Editar Deuda",
+        "description": "Actualizar información de la deuda"
+      },
+      "sections": {
+        "basic": "Información Básica",
+        "financial": "Detalles Financieros",
+        "payment": "Información de Pago",
+        "additional": "Detalles Adicionales"
+      },
+      "fields": {
+        "name": "Nombre de la Deuda",
+        "debtType": "Tipo de Deuda",
+        "lender": "Prestamista",
+        "originalAmount": "Monto Original",
+        "currentBalance": "Saldo Actual",
+        "interestRate": "Tasa de Interés",
+        "minimumPayment": "Pago Mínimo",
+        "paymentDay": "Día de Pago",
+        "dueDate": "Fecha de Vencimiento",
+        "linkedAccount": "Cuenta Vinculada",
+        "accountNumber": "Número de Cuenta",
+        "notes": "Notas",
+        "isActive": "Activo"
+      },
+      "placeholders": {
+        "name": "ej., Tarjeta de Crédito, Préstamo de Auto",
+        "debtType": "Seleccionar tipo de deuda",
+        "lender": "ej., Nombre del Banco",
+        "linkedAccount": "Seleccionar cuenta",
+        "accountNumber": "ej., ****1234",
+        "notes": "Notas opcionales sobre esta deuda"
+      },
+      "descriptions": {
+        "interestRate": "Tasa de porcentaje anual (APR)",
+        "paymentDay": "Día del mes en que vence el pago",
+        "linkedAccount": "Conectar para rastrear pagos automáticamente",
+        "accountNumber": "Últimos 4 dígitos para identificación",
+        "isActive": "Si estás pagando activamente esta deuda"
+      },
+      "options": {
+        "noAccount": "Ninguna cuenta seleccionada"
+      },
+      "actions": {
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "create": "Crear Deuda",
+        "update": "Actualizar Deuda"
+      }
+    },
+    "summary": {
+      "totalDebt": "Deuda Total",
+      "activeDebts": "Deudas Activas",
+      "monthlyPayments": "Pagos Mensuales",
+      "minimumPayments": "Pagos Mínimos",
+      "avgInterestRate": "Tasa de Interés Prom",
+      "interestCost": "Costo de Interés",
+      "payoffDate": "Fecha de Pago",
+      "noPayoffDate": "Sin fecha de pago",
+      "totalInterest": "Interés Total",
+      "debtToIncomeRatio": "Relación Deuda-Ingresos",
+      "debtToIncome": {
+        "noData": "Sin datos de ingresos",
+        "excellent": "Excelente (<20%)",
+        "good": "Bueno (20-35%)",
+        "concerning": "Preocupante (>35%)",
+        "description": "Basado en pagos mínimos vs ingresos mensuales"
+      },
+      "quickActions": "Acciones Rápidas",
+      "actions": {
+        "payExtra": "Pagar Extra",
+        "payExtraDesc": "Hacer pagos adicionales para reducir la deuda más rápido",
+        "createStrategy": "Crear Estrategia",
+        "createStrategyDesc": "Planifica tu estrategia de pago de deudas"
+      }
+    },
+    "payment": {
+      "currentBalance": "Saldo Actual",
+      "minimumPayment": "Pago Mínimo",
+      "notSet": "No Establecido",
+      "amount": "Monto del Pago",
+      "amountDescription": "El monto máximo que puedes pagar es {max}",
+      "quickAmounts": "Montos Rápidos",
+      "date": "Fecha del Pago",
+      "selectDate": "Seleccionar fecha",
+      "dateDescription": "¿Cuándo hiciste este pago?",
+      "notes": "Notas del Pago",
+      "notesPlaceholder": "Notas opcionales sobre este pago",
+      "notesDescription": "Agregar detalles sobre este pago",
+      "impactPreview": "Vista Previa del Impacto",
+      "newBalance": "Nuevo Saldo",
+      "paymentAmount": "Monto del Pago",
+      "cancel": "Cancelar",
+      "recording": "Registrando...",
+      "recordPayment": "Registrar Pago",
+      "suggestions": {
+        "minimum": "Mínimo",
+        "double": "Doble Mín",
+        "extra50": "Mín + $50",
+        "extra100": "Mín + $100"
+      }
+    },
+    "analytics": {
+      "noData": "Sin Datos de Pago",
+      "noDataDescription": "Comienza haciendo pagos para ver análisis",
+      "totalPayments": "Pagos Totales",
+      "paymentsCount": "pagos",
+      "averagePayment": "Pago Promedio",
+      "consistent": "Consistente",
+      "variable": "Variable",
+      "monthlyAverage": "Promedio Mensual",
+      "activeMonths": "meses activos",
+      "paymentRange": "Rango de Pagos",
+      "minToMax": "Mín a Máx",
+      "progressOverTime": "Progreso en el Tiempo",
+      "debtReduction": "Reducción de Deuda",
+      "complete": "Completo",
+      "remaining": "Restante",
+      "monthlyBreakdown": "Desglose Mensual",
+      "payments": "pagos",
+      "ofTotal": "del total",
+      "insights": "Perspectivas",
+      "insights": {
+        "consistent": "Patrón de Pago Consistente",
+        "consistentDescription": "Tus pagos son consistentes con tu monto de pago mínimo",
+        "variable": "Patrón de Pago Variable",
+        "variableDescription": "Los montos de tus pagos varían significativamente",
+        "aboveMinimum": "Pagos Superiores al Mínimo",
+        "aboveMinimumDescription": "Estás pagando {extra} por encima del mínimo - ¡excelente trabajo!",
+        "almostDone": "¡Casi Libre de Deudas!",
+        "almostDoneDescription": "Estás muy cerca de pagar esta deuda"
+      }
+    },
+    "calculator": {
+      "noInterestRate": "Sin Tasa de Interés Establecida",
+      "noInterestRateDescription": "Agregar una tasa de interés para ver cálculos de pago",
+      "payoffTime": "Tiempo de Pago",
+      "totalInterest": "Interés Total",
+      "payoffDate": "Fecha de Pago",
+      "paymentTooLow": "Pago Muy Bajo",
+      "customPayment": "Pago Personalizado",
+      "monthlyPayment": "Pago Mensual",
+      "totalAmount": "Monto Total",
+      "paymentTooLowDescription": "El pago debe ser mayor que el mínimo",
+      "targetTimeline": "Cronograma Objetivo",
+      "payoffIn": "Pagar en",
+      "months": "meses",
+      "years": "años",
+      "requiredPayment": "Pago Requerido",
+      "extraNeeded": "Extra Necesario",
+      "interestSavings": "Ahorros de Interés",
+      "save": "Ahorrar",
+      "monthsEarlier": "meses antes",
+      "scenarios": {
+        "minimum": "Pago Mínimo",
+        "minimumDesc": "Pagar solo el monto mínimo",
+        "double": "Pago Doble",
+        "doubleDesc": "Pagar el doble del monto mínimo",
+        "extra50": "Extra $50",
+        "extra50Desc": "Agregar $50 al pago mínimo",
+        "extra100": "Extra $100",
+        "extra100Desc": "Agregar $100 al pago mínimo"
+      }
+    },
+    "delete": {
+      "title": "Eliminar Deuda",
+      "description": "¿Estás seguro de que quieres eliminar '{name}'? Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "deleting": "Eliminando...",
+      "confirm": "Eliminar"
     }
   }
 }

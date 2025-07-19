@@ -15,9 +15,13 @@ import { useTranslations } from "next-intl";
 interface FinancialHealthData {
   totalIncome: number;
   totalExpenses: number;
+  totalDebt: number;
+  monthlyDebtPayments: number;
+  debtToIncomeRatio: number;
   budgetUtilization: number;
   goalProgress: number;
   emergencyFundRatio: number;
+  savingsRate: number;
 }
 
 interface FinancialHealthIndicatorProps {
@@ -39,29 +43,59 @@ export function FinancialHealthIndicator({
 }: FinancialHealthIndicatorProps) {
   const t = useTranslations("financialHealth");
 
+  // Use the centrally calculated savings rate
+  const actualSavingsRate = data.savingsRate;
+
   const healthScore = useMemo((): HealthScore => {
     const {
-      totalIncome,
-      totalExpenses,
+      debtToIncomeRatio,
       budgetUtilization,
       goalProgress,
       emergencyFundRatio,
     } = data;
 
+    // Use the centrally calculated savings rate
+    const savingsRateForCalculation = data.savingsRate;
+    
     // Calculate individual scores (0-100)
-    const savingsRate =
-      totalIncome > 0 ? ((totalIncome + totalExpenses) / totalIncome) * 100 : 0;
-    const budgetScore = Math.max(0, 100 - (budgetUtilization - 80)); // Optimal around 80%
-    const goalScore = goalProgress;
-    const emergencyScore = Math.min(100, emergencyFundRatio * 20); // 5 months = 100%
+    // Savings rate score: 20% = 100 points, scales down
+    const savingsScore = Math.max(0, Math.min(100, 
+      savingsRateForCalculation <= 0 ? 0 :
+      savingsRateForCalculation >= 20 ? 100 :
+      (savingsRateForCalculation / 20) * 100
+    ));
+    
+    // Budget score: 80% usage is optimal, penalize over/under usage
+    const budgetScore = budgetUtilization === 0 ? 50 : // No budget = neutral
+      Math.max(0, Math.min(100, 
+        budgetUtilization <= 80 ? 100 - (80 - budgetUtilization) * 0.5 :
+        100 - (budgetUtilization - 80) * 2
+      ));
+    
+    // Goal score: direct percentage
+    const goalScore = Math.max(0, Math.min(100, goalProgress));
+    
+    // Emergency fund score: 3-6 months is optimal
+    const emergencyScore = Math.max(0, Math.min(100, 
+      emergencyFundRatio >= 3 ? 100 :
+      (emergencyFundRatio / 3) * 100
+    ));
+    
+    // Debt-to-income ratio score (lower is better)
+    const debtScore = debtToIncomeRatio === 0 ? 100 : 
+                      debtToIncomeRatio <= 10 ? 90 :
+                      debtToIncomeRatio <= 20 ? 70 :
+                      debtToIncomeRatio <= 35 ? 40 :
+                      debtToIncomeRatio <= 50 ? 20 : 0;
 
-    // Weighted average
-    const overallScore = Math.round(
-      savingsRate * 0.3 +
-        budgetScore * 0.25 +
-        goalScore * 0.25 +
-        emergencyScore * 0.2
-    );
+    // Weighted average including debt metrics - ensure max 100
+    const overallScore = Math.max(0, Math.min(100, Math.round(
+      savingsScore * 0.25 +
+        budgetScore * 0.2 +
+        goalScore * 0.2 +
+        emergencyScore * 0.15 +
+        debtScore * 0.2
+    )));
 
     let status: HealthStatus;
     let color: string;
@@ -77,25 +111,32 @@ export function FinancialHealthIndicator({
       status = "good";
       color = "text-green-500 bg-green-500/10";
       icon = <TrendingUp className="w-4 h-4" />;
-      if (savingsRate < 20)
+      if (savingsRateForCalculation < 20)
         recommendations.push(t("recommendations.increaseSavings"));
       if (emergencyScore < 60)
         recommendations.push(t("recommendations.buildEmergencyFund"));
+      if (debtToIncomeRatio > 20)
+        recommendations.push(t("recommendations.reduceDebt"));
     } else if (overallScore >= 40) {
       status = "warning";
       color = "text-yellow-500 bg-yellow-500/10";
       icon = <AlertTriangle className="w-4 h-4" />;
       if (budgetUtilization > 90)
         recommendations.push(t("recommendations.overspending"));
-      if (savingsRate < 10)
+      if (savingsRateForCalculation < 10)
         recommendations.push(t("recommendations.reduceFocus"));
       if (goalProgress < 50)
         recommendations.push(t("recommendations.reviewGoals"));
+      if (debtToIncomeRatio > 35)
+        recommendations.push(t("recommendations.highDebtRatio"));
     } else {
       status = "critical";
       color = "text-red-500 bg-red-500/10";
       icon = <TrendingDown className="w-4 h-4" />;
-      recommendations.push(t("recommendations.immediateAction"));
+      if (debtToIncomeRatio > 50)
+        recommendations.push(t("recommendations.highDebtRatio"));
+      if (savingsRateForCalculation <= 0)
+        recommendations.push(t("recommendations.immediateAction"));
       recommendations.push(t("recommendations.additionalIncome"));
       recommendations.push(t("recommendations.eliminateExpenses"));
     }
@@ -137,15 +178,23 @@ export function FinancialHealthIndicator({
             <div className="text-muted-foreground">
               {t("metrics.savingsRate")}
             </div>
-            <div className="font-medium">
-              {data.totalIncome > 0
-                ? Math.round(
-                    ((data.totalIncome + data.totalExpenses) /
-                      data.totalIncome) *
-                      100
-                  )
-                : 0}
-              %
+            <div className={`font-medium ${
+              actualSavingsRate >= 20 ? 'text-green-500' :
+              actualSavingsRate >= 10 ? 'text-yellow-500' :
+              actualSavingsRate >= 0 ? 'text-orange-500' : 'text-red-500'
+            }`}>
+              {actualSavingsRate.toFixed(1)}%
+            </div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">
+              {t("metrics.debtToIncomeRatio")}
+            </div>
+            <div className={`font-medium ${
+              data.debtToIncomeRatio <= 20 ? 'text-green-500' :
+              data.debtToIncomeRatio <= 35 ? 'text-yellow-500' : 'text-red-500'
+            }`}>
+              {data.debtToIncomeRatio.toFixed(1)}%
             </div>
           </div>
           <div>
@@ -161,14 +210,6 @@ export function FinancialHealthIndicator({
               {t("metrics.goalProgress")}
             </div>
             <div className="font-medium">{Math.round(data.goalProgress)}%</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">
-              {t("metrics.emergencyFund")}
-            </div>
-            <div className="font-medium">
-              {data.emergencyFundRatio.toFixed(1)}mo
-            </div>
           </div>
         </div>
 

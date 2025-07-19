@@ -1,49 +1,49 @@
-import { supabase } from '@/lib/db/postgres';
+import { supabase } from "@/lib/db/postgres";
 
 // Audit event types
 export enum AuditEventType {
   // Authentication events
-  LOGIN = 'auth.login',
-  LOGOUT = 'auth.logout',
-  LOGIN_FAILED = 'auth.login_failed',
-  
+  LOGIN = "auth.login",
+  LOGOUT = "auth.logout",
+  LOGIN_FAILED = "auth.login_failed",
+
   // Account management
-  ACCOUNT_CREATED = 'account.created',
-  ACCOUNT_UPDATED = 'account.updated',
-  ACCOUNT_DELETED = 'account.deleted',
-  ACCOUNT_BALANCE_UPDATED = 'account.balance_updated',
-  
+  ACCOUNT_CREATED = "account.created",
+  ACCOUNT_UPDATED = "account.updated",
+  ACCOUNT_DELETED = "account.deleted",
+  ACCOUNT_BALANCE_UPDATED = "account.balance_updated",
+
   // Transaction events
-  TRANSACTION_CREATED = 'transaction.created',
-  TRANSACTION_UPDATED = 'transaction.updated',
-  TRANSACTION_DELETED = 'transaction.deleted',
-  TRANSACTION_BULK_DELETED = 'transaction.bulk_deleted',
-  
+  TRANSACTION_CREATED = "transaction.created",
+  TRANSACTION_UPDATED = "transaction.updated",
+  TRANSACTION_DELETED = "transaction.deleted",
+  TRANSACTION_BULK_DELETED = "transaction.bulk_deleted",
+
   // Budget events
-  BUDGET_CREATED = 'budget.created',
-  BUDGET_UPDATED = 'budget.updated',
-  BUDGET_DELETED = 'budget.deleted',
-  
+  BUDGET_CREATED = "budget.created",
+  BUDGET_UPDATED = "budget.updated",
+  BUDGET_DELETED = "budget.deleted",
+
   // Goal events
-  GOAL_CREATED = 'goal.created',
-  GOAL_UPDATED = 'goal.updated',
-  GOAL_DELETED = 'goal.deleted',
-  
+  GOAL_CREATED = "goal.created",
+  GOAL_UPDATED = "goal.updated",
+  GOAL_DELETED = "goal.deleted",
+
   // Security events
-  ENCRYPTION_KEY_ACCESSED = 'security.encryption_key_accessed',
-  SUSPICIOUS_ACTIVITY = 'security.suspicious_activity',
-  DATA_EXPORT = 'security.data_export',
-  
+  ENCRYPTION_KEY_ACCESSED = "security.encryption_key_accessed",
+  SUSPICIOUS_ACTIVITY = "security.suspicious_activity",
+  DATA_EXPORT = "security.data_export",
+
   // System events
-  MIGRATION_EXECUTED = 'system.migration_executed',
-  BULK_OPERATION = 'system.bulk_operation',
+  MIGRATION_EXECUTED = "system.migration_executed",
+  BULK_OPERATION = "system.bulk_operation",
 }
 
 export enum AuditSeverity {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical',
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+  CRITICAL = "critical",
 }
 
 export interface AuditLogEntry {
@@ -56,14 +56,16 @@ export interface AuditLogEntry {
   resource_id?: string;
   ip_address?: string;
   user_agent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at?: string;
 }
 
 /**
  * Log an audit event
  */
-export async function logAuditEvent(entry: Omit<AuditLogEntry, 'id' | 'created_at'>): Promise<void> {
+export async function logAuditEvent(
+  entry: Omit<AuditLogEntry, "id" | "created_at">
+): Promise<void> {
   try {
     // In production, consider using a dedicated audit log table or external service
     const auditEntry = {
@@ -71,33 +73,34 @@ export async function logAuditEvent(entry: Omit<AuditLogEntry, 'id' | 'created_a
       created_at: new Date().toISOString(),
       metadata: entry.metadata ? JSON.stringify(entry.metadata) : null,
     };
-    
+
     // For MVP, we'll log to console and optionally to database
-    console.log('🔒 AUDIT LOG:', {
+    console.log("🔒 AUDIT LOG:", {
       timestamp: auditEntry.created_at,
       user: entry.user_id,
       event: entry.event_type,
       severity: entry.severity,
       description: entry.event_description,
-      resource: entry.resource_type ? `${entry.resource_type}:${entry.resource_id}` : undefined,
+      resource: entry.resource_type
+        ? `${entry.resource_type}:${entry.resource_id}`
+        : undefined,
       metadata: entry.metadata,
     });
-    
+
     // TODO: In production, implement proper audit log storage
     // This could be a separate database, external logging service, or blockchain-based system
-    
+
     // For now, we'll store critical events in a simple table
-    if (entry.severity === AuditSeverity.HIGH || entry.severity === AuditSeverity.CRITICAL) {
-      await supabase
-        .from('audit_logs')
-        .insert(auditEntry)
-        .select()
-        .single();
+    if (
+      entry.severity === AuditSeverity.HIGH ||
+      entry.severity === AuditSeverity.CRITICAL
+    ) {
+      await supabase.from("audit_logs").insert(auditEntry).select().single();
     }
   } catch (error) {
     // Audit logging should not break the application
-    console.error('Failed to log audit event:', error);
-    console.error('Original audit entry:', entry);
+    console.error("Failed to log audit event:", error);
+    console.error("Original audit entry:", entry);
   }
 }
 
@@ -110,7 +113,7 @@ export const auditLogger = {
     logAuditEvent({
       user_id: userId,
       event_type: AuditEventType.LOGIN,
-      event_description: 'User logged in successfully',
+      event_description: "User logged in successfully",
       severity: AuditSeverity.LOW,
       ip_address: ipAddress,
       user_agent: userAgent,
@@ -132,7 +135,7 @@ export const auditLogger = {
       event_type: AuditEventType.ACCOUNT_CREATED,
       event_description: `Created account: ${accountName}`,
       severity: AuditSeverity.LOW,
-      resource_type: 'account',
+      resource_type: "account",
       resource_id: accountId,
     }),
 
@@ -142,45 +145,63 @@ export const auditLogger = {
       event_type: AuditEventType.ACCOUNT_DELETED,
       event_description: `Deleted account: ${accountName}`,
       severity: AuditSeverity.MEDIUM,
-      resource_type: 'account',
+      resource_type: "account",
       resource_id: accountId,
     }),
 
-  balanceUpdated: (userId: string, accountId: string, oldBalance: number, newBalance: number) =>
+  balanceUpdated: (
+    userId: string,
+    accountId: string,
+    oldBalance: number,
+    newBalance: number
+  ) =>
     logAuditEvent({
       user_id: userId,
       event_type: AuditEventType.ACCOUNT_BALANCE_UPDATED,
       event_description: `Balance updated from ${oldBalance} to ${newBalance}`,
       severity: AuditSeverity.LOW,
-      resource_type: 'account',
+      resource_type: "account",
       resource_id: accountId,
       metadata: { old_balance: oldBalance, new_balance: newBalance },
     }),
 
   // Transaction operations
-  transactionCreated: (userId: string, transactionId: string, amount: number, description: string) =>
+  transactionCreated: (
+    userId: string,
+    transactionId: string,
+    amount: number,
+    description: string
+  ) =>
     logAuditEvent({
       user_id: userId,
       event_type: AuditEventType.TRANSACTION_CREATED,
       event_description: `Created transaction: ${description} (${amount})`,
       severity: AuditSeverity.LOW,
-      resource_type: 'transaction',
+      resource_type: "transaction",
       resource_id: transactionId,
       metadata: { amount },
     }),
 
-  transactionBulkDeleted: (userId: string, transactionIds: string[], count: number) =>
+  transactionBulkDeleted: (
+    userId: string,
+    transactionIds: string[],
+    count: number
+  ) =>
     logAuditEvent({
       user_id: userId,
       event_type: AuditEventType.TRANSACTION_BULK_DELETED,
       event_description: `Bulk deleted ${count} transactions`,
       severity: AuditSeverity.MEDIUM,
-      resource_type: 'transaction',
+      resource_type: "transaction",
       metadata: { transaction_ids: transactionIds, count },
     }),
 
   // Security events
-  suspiciousActivity: (userId: string, description: string, metadata?: Record<string, any>) =>
+  suspiciousActivity: (
+    userId: string,
+    description: string,
+    metadata?: Record<string, unknown>
+  ) =>
     logAuditEvent({
       user_id: userId,
       event_type: AuditEventType.SUSPICIOUS_ACTIVITY,

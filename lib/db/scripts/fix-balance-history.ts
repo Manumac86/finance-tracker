@@ -81,7 +81,7 @@ async function fixBalanceHistory() {
     console.table(columns);
     
     // Check if required columns exist
-    const columnNames = columns?.map((col: any) => col.column_name) || [];
+    const columnNames = columns?.map((col: { column_name: string }) => col.column_name) || [];
     const requiredColumns = ['id', 'account_id', 'user_id', 'previous_balance', 'new_balance', 'balance_change'];
     
     const missingColumns = requiredColumns.filter(col => !columnNames.includes(col));

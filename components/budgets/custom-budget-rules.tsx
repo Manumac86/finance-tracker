@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -256,7 +255,7 @@ export function CustomBudgetRulesComponent({ rules, onRulesChange }: CustomBudge
       <div className="space-y-4">
         <div>
           <Label>Date Pattern</Label>
-          <Select value={pattern} onValueChange={(value: any) => setPattern(value)}>
+          <Select value={pattern} onValueChange={(value: string) => setPattern(value as "weekdays" | "weekends" | "month_start" | "month_end")}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

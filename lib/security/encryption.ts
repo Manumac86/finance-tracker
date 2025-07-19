@@ -37,7 +37,7 @@ export function encrypt(text: string): string {
   try {
     const key = getEncryptionKey();
     const iv = crypto.randomBytes(IV_LENGTH);
-    const cipher = crypto.createCipher(ALGORITHM, key);
+    const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
     cipher.setAAD(Buffer.from('finance-tracker', 'utf8'));
     
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -68,7 +68,7 @@ export function decrypt(encryptedData: string): string {
     const tag = Buffer.from(encryptedData.slice(IV_LENGTH * 2, (IV_LENGTH + TAG_LENGTH) * 2), 'hex');
     const encrypted = encryptedData.slice((IV_LENGTH + TAG_LENGTH) * 2);
     
-    const decipher = crypto.createDecipher(ALGORITHM, key);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     decipher.setAAD(Buffer.from('finance-tracker', 'utf8'));
     decipher.setAuthTag(tag);
     
